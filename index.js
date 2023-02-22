@@ -23,7 +23,7 @@ const server = http.createServer(app);
 
 const port = process.env.PORT || 3000;
 
-const userDataRoutes = require("./src/routes/userProfile.routes")
+const smartMappingRoutes = require("./src/routes/smartMapping.routes")
 
 app.use(bodyParser.json());
 app.use(
@@ -33,7 +33,7 @@ app.use(
 );
 app.use(cors());
 
-app.use("/", userDataRoutes);
+app.use("/smart-mapping", smartMappingRoutes);
 
 // Handling Errors message
 app.use(joiErrorHandlerMiddleware);

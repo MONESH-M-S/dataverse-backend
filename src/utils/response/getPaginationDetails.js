@@ -19,9 +19,9 @@ module.exports = (req) => {
         limit = null
     }
 
-    const skip = pageSize * (page - 1)
+    const offset = pageSize * (page - 1)
 
     return {
-        limit, skip, page, pageSize
+        limit, offset, page, pageSize
     }
 }
