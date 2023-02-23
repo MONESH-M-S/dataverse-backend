@@ -1,6 +1,7 @@
 const SmartMappingListModel = require("../models/smartMappingList.model");
 const getPaginationDetails = require("../utils/response/getPaginationDetails");
 const { Op } = require("sequelize");
+const statusTypeEnum = require("../enums/statusType.enum");
 
 const fetchSmatMappingList = async (req, res, next) => {
     try {
@@ -47,22 +48,41 @@ const fetchSmatMappingList = async (req, res, next) => {
     }
 }
 
-const addSmartDataList = async (req, res, next) => {
+const fetchSmartMappingDashboardCount = async (req, res, next) => {
+
     try {
+        const mappingListCount = await SmartMappingListModel.count();
+        const excelFileCount = await SmartMappingListModel.count({
+            where: {
+                "file_extension": "xlsx"
+            }
+        });
+        const csvFileCount = await SmartMappingListModel.count({
+            where: {
+                "file_extension": "csv"
+            }
+        })
+        const docFileCount = await SmartMappingListModel.count({
+            where: {
+                "file_extension": "doc"
+            }
+        })
 
-
-        await SmartMappingListModel.bulkCreate(data)
         res.json({
-            "status": "success",
-            "message": "Successfully uploaded the data"
+            status: statusTypeEnum.success,
+            data: {
+                "total_count": mappingListCount,
+                "excel_count": excelFileCount,
+                "csv_count": csvFileCount,
+                "doc_count": docFileCount
+            }
         })
     } catch (error) {
         next(error)
     }
 }
 
-
 module.exports = {
     fetchSmatMappingList,
-    addSmartDataList
+    fetchSmartMappingDashboardCount
 }
