@@ -24,6 +24,7 @@ const server = http.createServer(app);
 const port = process.env.PORT || 3000;
 
 const smartMappingRoutes = require("./src/routes/smartMapping.routes")
+const metaRoutes = require("./src/routes/meta.routes")
 
 app.use(bodyParser.json());
 app.use(
@@ -34,6 +35,7 @@ app.use(
 app.use(cors());
 
 app.use("/smart-mapping", smartMappingRoutes);
+app.use("/meta", metaRoutes);
 
 // Handling Errors message
 app.use(joiErrorHandlerMiddleware);
