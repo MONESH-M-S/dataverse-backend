@@ -160,7 +160,7 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
 
 }
 
-const fetchSmartMappingUnMappedDetails = async(req, res, next) =>{
+const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
     const id = req.params.id
     const { limit, offset, page, pageSize } = getPaginationDetails(req)
 
@@ -191,10 +191,30 @@ const fetchSmartMappingUnMappedDetails = async(req, res, next) =>{
 
 }
 
+const updateSmartMappingDetails = async (req, res, next) => {
+    try {
+        const id = req.params.id
+        const { id_list: idList } = req.body
+
+        await SmartMappingDetailsModel.update(
+            { "MAPPED_STATUS": true },
+            { where: { id: idList, smart_mapping_list_id: id } }
+        )
+
+        res.json({
+            "status": statusTypeEnum.success,
+            "message": "Successfully updated "
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     fetchSmatMappingList,
     fetchSmartMappingDashboardCount,
     fetchSmartMappingMappedDetails,
     fetchIndividualSmartMapping,
-    fetchSmartMappingUnMappedDetails
+    fetchSmartMappingUnMappedDetails,
+    updateSmartMappingDetails
 }
