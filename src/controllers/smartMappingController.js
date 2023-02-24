@@ -2,6 +2,7 @@ const SmartMappingListModel = require("../models/smartMappingList.model");
 const getPaginationDetails = require("../utils/response/getPaginationDetails");
 const { Op } = require("sequelize");
 const statusTypeEnum = require("../enums/statusType.enum");
+const SmartMappingDetailsModel = require("../models/smartMappingDetails.model");
 
 const fetchSmatMappingList = async (req, res, next) => {
     try {
@@ -34,7 +35,7 @@ const fetchSmatMappingList = async (req, res, next) => {
             order: orderClause
         });
 
-        let responseObj = {
+        const responseObj = {
             result: mappingDataList.rows,
             page,
             page_size: pageSize,
@@ -46,6 +47,18 @@ const fetchSmatMappingList = async (req, res, next) => {
         console.error("Error is ", error)
         next(error)
     }
+}
+
+const fetchIndividualSmartMapping = async (req, res, next) => {
+
+    try {
+        const { id } = req.params
+        const data = await SmartMappingListModel.findByPk(id)
+        res.json(data)
+    } catch (error) {
+        next(error)
+    }
+
 }
 
 const fetchSmartMappingDashboardCount = async (req, res, next) => {
@@ -82,7 +95,74 @@ const fetchSmartMappingDashboardCount = async (req, res, next) => {
     }
 }
 
+const fetchSmartMappingMappedDetails = async (req, res, next) => {
+    try {
+        const id = req.params.id
+        const { limit, offset, page, pageSize } = getPaginationDetails(req)
+        const { search, orderKey, orderValue } = req.query
+
+        let whereClause = {
+            "smart_mapping_list_id": id,
+            "MAPPED_STATUS": true
+        }
+        let orderClause = []
+
+        if (orderKey || orderValue) {
+            orderClause = [[
+                orderKey ?? "id",
+                orderValue ?? "DESC"
+            ]]
+        }
+
+        if (search) {
+            whereClause[Op.or] = [
+                {
+                    UNILEVER_DESC: {
+                        [Op.like]: `%${search}%`
+                    }
+                },
+                {
+                    VENDOR_DESC: {
+                        [Op.like]: `%${search}%`
+                    }
+                },
+                {
+                    CATEGORY: {
+                        [Op.like]: `%${search}%`
+                    }
+                },
+                {
+                    SEGMENT: {
+                        [Op.like]: `%${search}%`
+                    }
+                },
+            ]
+        }
+
+        const mappedList = await SmartMappingDetailsModel.findAndCountAll({
+            limit,
+            offset,
+            where: whereClause,
+            order: orderClause
+        })
+
+        const responseObj = {
+            result: mappedList.rows,
+            page,
+            page_size: pageSize,
+            total_count: mappedList.count
+        }
+
+        res.json(responseObj)
+    } catch (error) {
+        next(error)
+    }
+
+}
+
 module.exports = {
     fetchSmatMappingList,
-    fetchSmartMappingDashboardCount
+    fetchSmartMappingDashboardCount,
+    fetchSmartMappingMappedDetails,
+    fetchIndividualSmartMapping
 }

@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
+const SmartMappingDetailsModel = require("./smartMappingDetails.model");
 
 const SmartMappingListModel = sequelize.define('smart_mapping_list', {
     data_provider: DataTypes.STRING,
@@ -12,7 +13,11 @@ const SmartMappingListModel = sequelize.define('smart_mapping_list', {
     confidence_level_less_than_70: DataTypes.STRING,
     confidence_level_50_70: DataTypes.STRING,
     confidence_level_less_than_50: DataTypes.STRING,
-
 });
+
+SmartMappingListModel.hasOne(SmartMappingDetailsModel, {
+    foreignKey: "smart_mapping_list_id",
+    sourceKey: "id",
+  });
 
 module.exports = SmartMappingListModel

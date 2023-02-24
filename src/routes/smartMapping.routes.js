@@ -1,8 +1,10 @@
 const express = require("express");
-const { fetchSmatMappingList, fetchSmartMappingDashboardCount } = require("../controllers/smartMappingController");
+const { fetchSmatMappingList, fetchSmartMappingDashboardCount, fetchIndividualSmartMapping, fetchSmartMappingMappedDetails } = require("../controllers/smartMappingController");
 const router = express.Router();
 
-router.get("/", fetchSmatMappingList);
 router.get("/dashboard", fetchSmartMappingDashboardCount);
+router.get("/", fetchSmatMappingList);
+router.get("/:id", fetchIndividualSmartMapping);
+router.get("/:id/mapped", fetchSmartMappingMappedDetails);
 
 module.exports = router;
