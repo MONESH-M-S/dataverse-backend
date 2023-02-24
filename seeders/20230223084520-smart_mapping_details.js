@@ -16,6 +16,7 @@ module.exports = {
         "smart_mapping_list_id": "1",
         "DIVISION": "Beauty & Personal Care",
         "MAPPED_STATUS": true,
+        "BRAND_FROM_NAME": "PEPSODENT TOOTHPASTE ESSENTIAL SIWAK",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -31,6 +32,7 @@ module.exports = {
         "smart_mapping_list_id": "1",
         "DIVISION": "Beauty & Personal Care",
         "MAPPED_STATUS": true,
+        "BRAND_FROM_NAME": "UI-Breeze",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -46,6 +48,7 @@ module.exports = {
         "smart_mapping_list_id": "1",
         "DIVISION": "Beauty & Personal Care",
         "MAPPED_STATUS": true,
+        "BRAND_FROM_NAME": "UI-Breeze",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -76,6 +79,7 @@ module.exports = {
         "smart_mapping_list_id": "2",
         "DIVISION": "Beauty & Personal Care",
         "MAPPED_STATUS": true,
+        "BRAND_FROM_NAME": "PEPSODENT TOOTHPASTE ESSENTIAL SIWAK",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -91,6 +95,7 @@ module.exports = {
         "smart_mapping_list_id": "2",
         "DIVISION": "Beauty & Personal Care",
         "MAPPED_STATUS": true,
+        "BRAND_FROM_NAME": "PEPSODENT TP ESNTL GIGI SUSU STRAWBERRY",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -106,6 +111,7 @@ module.exports = {
         "smart_mapping_list_id": "2",
         "DIVISION": "Beauty & Personal Care",
         "MAPPED_STATUS": true,
+        "BRAND_FROM_NAME": "PEPSODENT TP ESSENTIAL CLOVE&SALT",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -121,6 +127,7 @@ module.exports = {
         "smart_mapping_list_id": "2",
         "DIVISION": "Beauty & Personal Care",
         "MAPPED_STATUS": true,
+        "BRAND_FROM_NAME": "PEPSODENT HERBAL",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -136,6 +143,7 @@ module.exports = {
         "smart_mapping_list_id": "2",
         "DIVISION": "Beauty & Personal Care",
         "MAPPED_STATUS": true,
+        "BRAND_FROM_NAME": "PEPSODENT BANDED",
         createdAt: new Date(),
         updatedAt: new Date()
       }

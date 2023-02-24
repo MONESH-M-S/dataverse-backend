@@ -160,9 +160,41 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
 
 }
 
+const fetchSmartMappingUnMappedDetails = async(req, res, next) =>{
+    const id = req.params.id
+    const { limit, offset, page, pageSize } = getPaginationDetails(req)
+
+    let whereClause = {
+        "smart_mapping_list_id": id,
+        "MAPPED_STATUS": false
+    }
+
+    let orderClause = [
+        ["id", "desc"]
+    ]
+
+    const mappedList = await SmartMappingDetailsModel.findAndCountAll({
+        limit,
+        offset,
+        where: whereClause,
+        order: orderClause
+    })
+
+    const responseObj = {
+        result: mappedList.rows,
+        page,
+        page_size: pageSize,
+        total_count: mappedList.count
+    }
+
+    res.json(responseObj)
+
+}
+
 module.exports = {
     fetchSmatMappingList,
     fetchSmartMappingDashboardCount,
     fetchSmartMappingMappedDetails,
-    fetchIndividualSmartMapping
+    fetchIndividualSmartMapping,
+    fetchSmartMappingUnMappedDetails
 }

@@ -1,11 +1,17 @@
 const { Sequelize } = require("sequelize");
 
-const sequelize = new Sequelize('sqlite::memory:');
+const { DB_NAME, DB_HOST, DB_USERNAME, DB_PASSWORD } = process.env
 
-sequelize.sync().then(() => {
-    console.log('Book table created successfully!');
- }).catch((error) => {
-    console.error('Unable to create table : ', error);
- });
+const sequelize = new Sequelize(DB_NAME,
+   DB_USERNAME,
+   "Royal@2468$",
+   {
+      host: DB_HOST,
+      dialect: 'mysql'
+   });
 
-module.exports= sequelize
+sequelize.sync().catch((error) => {
+   console.error('Unable to create table : ', error);
+});
+
+module.exports = sequelize
