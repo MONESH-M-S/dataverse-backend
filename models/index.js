@@ -5,8 +5,21 @@ const path = require('path');
 const Sequelize = require('sequelize');
 const process = require('process');
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
+
+const { DB_NAME, DB_HOST, DB_USERNAME, DB_PASSWORD, DB_DIALECT } = process.env
+
+let encodedPassword = DB_PASSWORD;
+let bufferData = new Buffer.from(encodedPassword, 'base64');
+let decodedPassowrd = bufferData.toString('ascii');
+
+const config = {
+  "username": DB_USERNAME,
+  "password": decodedPassowrd,
+  "database": DB_NAME,
+  "host": DB_HOST,
+  "dialect": DB_DIALECT
+}
+
 const db = {};
 
 let sequelize;
