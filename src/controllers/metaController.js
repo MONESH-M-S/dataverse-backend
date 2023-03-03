@@ -1,9 +1,9 @@
-const CountryMetaModel = require("../models/countryMeta.model");
+const db = require("../../models");
 const ProviderMetaModel = require("../models/providerMeta.model");
 
 const fetchCountryMeta = async (req, res, next) => {
     try {
-        const countryList = await CountryMetaModel.findAll()
+        const countryList = await db.Country.findAll()
         res.json(countryList)
     } catch (error) {
         next(error)

@@ -13,6 +13,8 @@ const SmartMappingListModel = sequelize.define('smart_mapping_list', {
     confidence_level_less_than_70: DataTypes.STRING,
     confidence_level_50_70: DataTypes.STRING,
     confidence_level_less_than_50: DataTypes.STRING,
+    total: DataTypes.STRING,
+    success_status: DataTypes.STRING,
 });
 
 SmartMappingListModel.hasOne(SmartMappingDetailsModel, {

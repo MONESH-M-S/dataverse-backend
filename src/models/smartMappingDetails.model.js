@@ -11,7 +11,7 @@ const SmartMappingDetailsModel = sequelize.define('smart_mapping_details', {
     CATEGORY_GROUP: DataTypes.STRING,
     SEGMENT: DataTypes.STRING,
     PRODUCT_FROM_MEDIUM_NAME: DataTypes.STRING,
-    MAPPED_STATUS: DataTypes.BOOLEAN,
+    MAPPED_STATUS: DataTypes.STRING,
     BRAND_FROM_NAME: DataTypes.STRING   
 });
 
