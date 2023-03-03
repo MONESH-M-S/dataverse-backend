@@ -1,9 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
-const LibraryModel = sequelize.define('Library', {
+const CountryMetaModel = sequelize.define('countries', {
     name: DataTypes.STRING,
-    athor: DataTypes.STRING,
 });
 
-module.exports = LibraryModel
+module.exports = CountryMetaModel
