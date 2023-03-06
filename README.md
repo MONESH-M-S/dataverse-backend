@@ -4,7 +4,8 @@
 
 npx sequelize-cli model:generate --name Provider --attributes name:string
 npx sequelize-cli db:migrate
+npx sequelize-cli db:migrate:undo
 
-npx sequelize-cli seed:generate --name provider
+npx sequelize-cli seed:generate --name leadlogdetails
 npx sequelize-cli db:seed:all
 npx sequelize-cli db:seed --seed 20230222144535-smart-data-list.js 

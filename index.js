@@ -25,6 +25,7 @@ const port = process.env.PORT || 3000;
 
 const smartMappingRoutes = require("./src/routes/smartMapping.routes")
 const metaRoutes = require("./src/routes/meta.routes")
+const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes")
 
 app.use(bodyParser.json());
 app.use(
@@ -36,6 +37,7 @@ app.use(cors());
 
 app.use("/smart-mapping", smartMappingRoutes);
 app.use("/meta", metaRoutes);
+app.use("/file-volatility", fileVolatilityRoutes);
 
 // Handling Errors message
 app.use(joiErrorHandlerMiddleware);
