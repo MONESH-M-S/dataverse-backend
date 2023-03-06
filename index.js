@@ -34,10 +34,10 @@ app.use(
   })
 );
 app.use(cors());
-
 app.use("/smart-mapping", smartMappingRoutes);
 app.use("/meta", metaRoutes);
 app.use("/file-volatility", fileVolatilityRoutes);
+app.use(express.static('public'))
 
 // Handling Errors message
 app.use(joiErrorHandlerMiddleware);

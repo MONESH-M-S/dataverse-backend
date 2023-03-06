@@ -21,6 +21,7 @@
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.4",
     "mysql2": "^3.1.2",
+    "read-excel-file": "^5.6.1",
     "sequelize": "^6.28.1",
     "serializr": "^2.0.5",
     "sqlite3": "^5.1.4",

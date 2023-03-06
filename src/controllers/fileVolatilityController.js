@@ -1,6 +1,7 @@
 const db = require("../../models")
 const getPaginationDetails = require("../utils/response/getPaginationDetails")
 const { Op } = require("sequelize");
+const readExcel = require('read-excel-file/node')
 
 const fetchVolatilityList = async (req, res, next) => {
     try {
@@ -24,9 +25,9 @@ const fetchVolatilityList = async (req, res, next) => {
             whereClause["FILE_NAME"] = {
                 [Op.like]: "%" + search + "%",
             }
-            // whereClause["MARKET"] = {
-            //     [Op.like]: "%" + search + "%",
-            // }
+            whereClause["MARKET"] = {
+                [Op.like]: "%" + search + "%",
+            }
         }
 
         if (filterByStatus) {
@@ -35,7 +36,7 @@ const fetchVolatilityList = async (req, res, next) => {
             }
         }
 
-        if(filterByCountry){
+        if (filterByCountry) {
             whereClause["COUNTRY"] = {
                 [Op.in]: filterByCountry.split(",")
             }
@@ -72,7 +73,35 @@ const fetchIndividualVolatilityFile = async (req, res, next) => {
 
 }
 
+const fetchColumnMappings = async (req, res, next) => {
+    try {
+        const { id } = req.params
+        const data = await db.LeadLog.findByPk(id)
+        const fileUrl = data["FILE_URL"]
+        const list = await readExcel('./mapping.xlsx')
+        console.log("list is ", list)
+        let mappings = []
+        let sourceColumn = []
+        for (i in list) {
+            mappings.push({
+                source: list[i][0],
+                target: list[i][1]
+            })
+            sourceColumn.push(list[i][0])
+            // for (j in data[i]) {
+            //     console.log(data[i][j])
+            // }
+        }
+        console.log("Mappings is ", mappings)
+        console.log("Source Column is ", sourceColumn)
+        res.json(data)
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     fetchVolatilityList,
-    fetchIndividualVolatilityFile
+    fetchIndividualVolatilityFile,
+    fetchColumnMappings
 }

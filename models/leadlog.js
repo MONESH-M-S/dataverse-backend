@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     LOAD_START_TIME: DataTypes.STRING,
     LOAD_END_TIME: DataTypes.STRING,
     SOURCE: DataTypes.STRING,
+    MARKET: DataTypes.STRING,
     COUNTRY: DataTypes.STRING,
     FILE_NAME: DataTypes.STRING,
     FILE_LAST_MODIFIED_DATE: DataTypes.STRING,

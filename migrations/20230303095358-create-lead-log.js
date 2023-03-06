@@ -27,7 +27,13 @@ module.exports = {
       SOURCE: {
         type: Sequelize.STRING
       },
+      MARKET: {
+        type: Sequelize.STRING
+      },
       FILE_NAME: {
+        type: Sequelize.STRING
+      },
+      FILE_URL: {
         type: Sequelize.STRING
       },
       FILE_LAST_MODIFIED_DATE: {
