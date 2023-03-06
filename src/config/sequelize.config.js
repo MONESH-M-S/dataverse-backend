@@ -14,8 +14,8 @@ const sequelize = new Sequelize(DB_NAME,
       dialect: DB_DIALECT
    });
 
-sequelize.sync().catch((error) => {
-   console.error('Unable to create table : ', error);
-});
+// sequelize.sync().catch((error) => {
+//    console.error('Unable to create table : ', error);
+// });
 
 module.exports = sequelize
