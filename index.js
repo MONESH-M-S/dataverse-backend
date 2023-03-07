@@ -41,7 +41,7 @@ app.use("/meta", metaRoutes);
 app.use(joiErrorHandlerMiddleware);
 app.use(errorHandlerMiddleware);
 
-server.listen(port, "0.0.0.0", () => {
+server.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
 
