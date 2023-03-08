@@ -14,7 +14,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const http = require("http");
 const cors = require("cors");
-
+console.log("Entered node app");
 const errorHandlerMiddleware = require("./src/middlewares/errorHandler.middleware");
 const joiErrorHandlerMiddleware = require("./src/middlewares/joiErrorHandler.middleware");
 
