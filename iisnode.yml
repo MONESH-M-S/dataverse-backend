@@ -1,3 +1,0 @@
-loggingEnabled: true
-logDirectory: iisnode
-nodeProcessCommandLine: "C:\home\site\wwwroot\node-v18.15.0-win-x86\node.exe"
