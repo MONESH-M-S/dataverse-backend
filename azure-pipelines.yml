@@ -29,4 +29,4 @@ steps:
       azureSubscription: "Project-da08-d-904380-ServiceEndPoint"
       scriptType: "ps"
       scriptLocation: "inlineScript"
-      inlineScript: 'az webapp up --resource-group bieno-da08-d-904380-rg --name bieno-da08-d-904380-webapi-02 --os-type Windows --runtime "NODE:18LTS" -plan "bieno-da08-d-904380-serviceplan-02"'
+      inlineScript: 'az webapp up --resource-group bieno-da08-d-904380-rg --name bieno-da08-d-904380-webapi-02 --os-type Windows --runtime "NODE:18LTS" --plan "bieno-da08-d-904380-serviceplan-02"'
