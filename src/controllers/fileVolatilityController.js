@@ -78,23 +78,26 @@ const fetchColumnMappings = async (req, res, next) => {
         const { id } = req.params
         const data = await db.LeadLog.findByPk(id)
         const fileUrl = data["FILE_URL"]
-        const list = await readExcel('./mapping.xlsx')
-        console.log("list is ", list)
+        const mappingList = await readExcel('./mapping.xlsx')
+        const sourceList = await readExcel('./source-column.xlsx')
+
         let mappings = []
         let sourceColumn = []
-        for (i in list) {
+        for (i in mappingList) {
             mappings.push({
-                source: list[i][0],
-                target: list[i][1]
+                source: mappingList[i][0] ?? "",
+                target: mappingList[i][1]
             })
-            sourceColumn.push(list[i][0])
-            // for (j in data[i]) {
-            //     console.log(data[i][j])
-            // }
         }
-        console.log("Mappings is ", mappings)
-        console.log("Source Column is ", sourceColumn)
-        res.json(data)
+
+        for (i in sourceList) {
+            sourceColumn.push(sourceList[i][0])
+        }
+
+        res.json({
+            source_column: sourceColumn,
+            mappings
+        })
     } catch (error) {
         next(error)
     }
