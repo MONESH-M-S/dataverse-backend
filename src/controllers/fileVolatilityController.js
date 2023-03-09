@@ -109,34 +109,29 @@ const updateColumnMapping = async (req, res, next) => {
     try {
         const { id } = req.params
 
-        let student_data = [{
-            Student: 'Nikhil',
-            Age: 22,
-            Branch: 'ISE',
-            Marks: 70
-        },
-        {
-            Student: 'Amitha',
-            Age: 21,
-            Branch: 'EC',
-            Marks: 80
-        }]
+        const data = req.body
 
-        const fileName = 'test.xlsx';
+        const fileName = 'mapping.xlsx';
         let workbook;
         if (fs.existsSync(fileName)) {
             workbook = xlsx.readFile(fileName)
         } else {
             workbook = xlsx.utils.book_new()
         }
+        
+        const sheetIndexToDelete = workbook.SheetNames.indexOf("Sheet2")
+        workbook.SheetNames.splice(sheetIndexToDelete, 1)
+        delete workbook.Sheets[sheetIndexToDelete]
 
-        const ws = xlsx.utils.json_to_sheet(student_data)
+        workbook = xlsx.utils.book_new()
+        const ws = xlsx.utils.json_to_sheet(data)
 
-        xlsx.utils.book_append_sheet(workbook, ws, "Sheet3")
+        xlsx.utils.book_append_sheet(workbook, ws, "Sheet2")
+        xlsx.writeFile(workbook, fileName)
 
-        xlsx.writeFile(workbook, './test.xlsx')
-
-        res.json({})
+        res.json({
+            message: "Successfully updated"
+        })
     } catch (error) {
         res.json({ error: error.message })
     }
