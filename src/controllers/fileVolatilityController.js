@@ -2,7 +2,8 @@ const db = require("../../models")
 const getPaginationDetails = require("../utils/response/getPaginationDetails")
 const { Op } = require("sequelize");
 const readExcel = require('read-excel-file/node')
-const reader = require('xlsx')
+const xlsx = require('xlsx');
+const fs = require("fs");
 
 const fetchVolatilityList = async (req, res, next) => {
     try {
@@ -104,33 +105,40 @@ const fetchColumnMappings = async (req, res, next) => {
     }
 }
 
-const updateColumnMapping = async(req, res, next)=>{
+const updateColumnMapping = async (req, res, next) => {
     try {
         const { id } = req.params
 
         let student_data = [{
-            Student:'Nikhil',
-            Age:22,
-            Branch:'ISE',
+            Student: 'Nikhil',
+            Age: 22,
+            Branch: 'ISE',
             Marks: 70
         },
         {
-            Student:'Amitha',
-            Age:21,
-            Branch:'EC',
-            Marks:80
+            Student: 'Amitha',
+            Age: 21,
+            Branch: 'EC',
+            Marks: 80
         }]
-          
-        const ws = reader.utils.json_to_sheet(student_data)
-          
-        reader.utils.book_append_sheet(file,ws,"Sheet3")
-          
-        // Writing to our file
-        reader.writeFile(file,'./test.xlsx')
+
+        const fileName = 'test.xlsx';
+        let workbook;
+        if (fs.existsSync(fileName)) {
+            workbook = xlsx.readFile(fileName)
+        } else {
+            workbook = xlsx.utils.book_new()
+        }
+
+        const ws = xlsx.utils.json_to_sheet(student_data)
+
+        xlsx.utils.book_append_sheet(workbook, ws, "Sheet3")
+
+        xlsx.writeFile(workbook, './test.xlsx')
 
         res.json({})
     } catch (error) {
-        
+        res.json({ error: error.message })
     }
 }
 
