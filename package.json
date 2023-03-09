@@ -25,7 +25,8 @@
     "sequelize": "^6.28.1",
     "serializr": "^2.0.5",
     "sqlite3": "^5.1.4",
-    "winston": "^3.8.1"
+    "winston": "^3.8.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "chai": "^4.1.2",

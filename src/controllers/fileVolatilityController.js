@@ -2,6 +2,7 @@ const db = require("../../models")
 const getPaginationDetails = require("../utils/response/getPaginationDetails")
 const { Op } = require("sequelize");
 const readExcel = require('read-excel-file/node')
+const reader = require('xlsx')
 
 const fetchVolatilityList = async (req, res, next) => {
     try {
@@ -103,8 +104,39 @@ const fetchColumnMappings = async (req, res, next) => {
     }
 }
 
+const updateColumnMapping = async(req, res, next)=>{
+    try {
+        const { id } = req.params
+
+        let student_data = [{
+            Student:'Nikhil',
+            Age:22,
+            Branch:'ISE',
+            Marks: 70
+        },
+        {
+            Student:'Amitha',
+            Age:21,
+            Branch:'EC',
+            Marks:80
+        }]
+          
+        const ws = reader.utils.json_to_sheet(student_data)
+          
+        reader.utils.book_append_sheet(file,ws,"Sheet3")
+          
+        // Writing to our file
+        reader.writeFile(file,'./test.xlsx')
+
+        res.json({})
+    } catch (error) {
+        
+    }
+}
+
 module.exports = {
     fetchVolatilityList,
     fetchIndividualVolatilityFile,
-    fetchColumnMappings
+    fetchColumnMappings,
+    updateColumnMapping
 }
