@@ -1,5 +1,7 @@
-const env = process.env.NODE_ENV;
-console.log("Environment is ", env);
+const env = process.env.NODE_ENV
+console.log("Environment is ", env)
+const path = require('path');
+
 
 switch (env) {
   case "test":
@@ -32,10 +34,16 @@ app.use(
     extended: true,
   })
 );
-app.use(cors());
 
-app.use("/smart-mapping", smartMappingRoutes);
-app.use("/meta", metaRoutes);
+app.use(cors());
+app.use("/api/smart-mapping", smartMappingRoutes);
+app.use("/api/meta", metaRoutes);
+
+app.use(express.static(path.join(__dirname, 'build')))
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+});
 
 // Handling Errors message
 app.use(joiErrorHandlerMiddleware);

@@ -1,0 +1,37 @@
+{
+  "files": {
+    "main.css": "/static/css/main.a224de6d.css",
+    "main.js": "/static/js/main.8327611d.js",
+    "static/media/uniliver-logo.svg": "/static/media/uniliver-logo.4f04df90a2cfbcba6cd3951fe2cc19cb.svg",
+    "static/media/network.svg": "/static/media/network.f570438aee676d80c7749b4bff02ec99.svg",
+    "static/media/unmapped-cup.svg": "/static/media/unmapped-cup.b1f0dbb14cb528d004be63dd4d2b9856.svg",
+    "static/media/profile-nav.svg": "/static/media/profile-nav.e74f0518dee96bf208bd664d53423746.svg",
+    "static/media/UnileverShillingMedium.woff2": "/static/media/UnileverShillingMedium.874f9b1d9e3482940537.woff2",
+    "static/media/UnileverShilling.woff2": "/static/media/UnileverShilling.872c0a235cc9f459d7c3.woff2",
+    "static/media/UnileverShillingBold.woff2": "/static/media/UnileverShillingBold.20458b90a1c2e932ccaf.woff2",
+    "static/media/UnileverShillingItalic.woff2": "/static/media/UnileverShillingItalic.f99c287b8aedff28061d.woff2",
+    "static/media/checks-white.svg": "/static/media/checks-white.c48068e739e7d72a80f1e6c7af8bbaf4.svg",
+    "static/media/edith-logo.svg": "/static/media/edith-logo.601b420c51285b706e36b6ecf113f5a5.svg",
+    "static/media/notification-bell.svg": "/static/media/notification-bell.11ed97f6764e65bb9fe17ccc0dcc1eca.svg",
+    "static/media/tasks-white.svg": "/static/media/tasks-white.6d65e7b2de0f224440e005bb61c38f8a.svg",
+    "index.html": "/index.html",
+    "static/media/search-icon.svg": "/static/media/search-icon.642cee985d4491b2eecaf7ec3fe439bc.svg",
+    "static/media/notification-white.svg": "/static/media/notification-white.d4ee57e6f487ad3f3850ab07065ccb42.svg",
+    "static/media/reports.svg": "/static/media/reports.8a6e013dfd7ecde39a57250cd1569ad7.svg",
+    "static/media/home-white.svg": "/static/media/home-white.a84175c1d879cee41a6ac9dbd7e23a18.svg",
+    "static/media/home.svg": "/static/media/home.8b2ab43db357d61146beddc756e0c379.svg",
+    "static/media/records-white.svg": "/static/media/records-white.be1f4c2d1d1ea07fef3b736d19e8d2a9.svg",
+    "static/media/CardArrowVector.svg": "/static/media/CardArrowVector.b587018302a8db4dcf85862d54d0a8b0.svg",
+    "static/media/next-icon.svg": "/static/media/next-icon.b587018302a8db4dcf85862d54d0a8b0.svg",
+    "static/media/left-icon.svg": "/static/media/left-icon.e538fc0a408680de047b4a7bdb450391.svg",
+    "static/media/prev-icon.svg": "/static/media/prev-icon.e538fc0a408680de047b4a7bdb450391.svg",
+    "static/media/menu-stack.svg": "/static/media/menu-stack.9d7d74f3830a997021668a101c0a7729.svg",
+    "static/media/dropdown-icon.svg": "/static/media/dropdown-icon.f8183cc7dc3231e8f8dc.svg",
+    "main.a224de6d.css.map": "/static/css/main.a224de6d.css.map",
+    "main.8327611d.js.map": "/static/js/main.8327611d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a224de6d.css",
+    "static/js/main.8327611d.js"
+  ]
+}
