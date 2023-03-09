@@ -62,6 +62,10 @@ async function connectAndQuery() {
   try {
     var poolConnection = await sql.connect(config);
     console.log("Reading rows from the Table...", poolConnection);
+    var resultSet = await poolConnection
+      .request()
+      .query(`SELECT * from smart_mapping_list`);
+    console.log(`${resultSet.recordset.length} rows returned.`);
     poolConnection.close();
   } catch (err) {
     console.log("---------------------------------------------");

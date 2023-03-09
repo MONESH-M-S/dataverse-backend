@@ -20,10 +20,10 @@ const sequelize = new Sequelize({
     authentication: {
       type: "azure-active-directory-msi-app-service",
     },
-    options: {
-      encrypt: true, // Required for Azure SQL Database
-      trustServerCertificate: true, // Required for Azure SQL Database
-    },
+    //  options: {
+    //    encrypt: true, // Required for Azure SQL Database
+    //    trustServerCertificate: true, // Required for Azure SQL Database
+    //  },
   },
   database: "bieno-da08-d-904380-unilevercom-sqldb-01",
   server: "bieno-da08-d-904380-unilevercom-sql-01.database.windows.net",
