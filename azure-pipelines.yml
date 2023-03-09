@@ -1,0 +1,32 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+  - develop
+
+pool:
+  vmImage: windows-latest
+
+steps:
+  # - task: AzureCLI@2
+  #   inputs:
+  #     azureSubscription: '8e017cde-1d7c-4842-a4a5-18f6c115cae3'
+  #     scriptType: 'ps'
+  #     scriptLocation: 'inlineScript'
+  #     inlineScript: |
+  #       az webapp config appsettings set --resource-group bieno-da08-d-904380-rg --name bieno-da08-d-904380-webapi-02 --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: "Project-da08-d-904380-ServiceEndPoint"
+      scriptType: "ps"
+      scriptLocation: "inlineScript"
+      inlineScript: "az webapp config appsettings set --resource-group bieno-da08-d-904380-rg --name bieno-da08-d-904380-webapi-02 --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true"
+
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: "Project-da08-d-904380-ServiceEndPoint"
+      scriptType: "ps"
+      scriptLocation: "inlineScript"
+      inlineScript: 'az webapp up --resource-group bieno-da08-d-904380-rg --name bieno-da08-d-904380-webapi-02 --os-type Windows --runtime "NODE:18LTS" --plan "bieno-da08-d-904380-serviceplan-02"'
