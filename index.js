@@ -61,9 +61,7 @@ connectAndQuery();
 async function connectAndQuery() {
   try {
     var poolConnection = await sql.connect(config);
-
     console.log("Reading rows from the Table...", poolConnection);
-
     poolConnection.close();
   } catch (err) {
     console.log("---------------------------------------------");
