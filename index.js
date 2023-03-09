@@ -44,7 +44,7 @@ app.use(errorHandlerMiddleware);
 const sql = require("mssql");
 
 const config = {
-  server: "tcp:bieno-da08-d-904380-unilevercom-sql-01.database.windows.net",
+  server: "bieno-da08-d-904380-unilevercom-sql-01.database.windows.net",
   port: 1433,
   database: "bieno-da08-d-904380-unilevercom-sqldb-01",
   authentication: {
@@ -66,8 +66,10 @@ async function connectAndQuery() {
 
     poolConnection.close();
   } catch (err) {
-    console.log("Error occured");
+    console.log("---------------------------------------------");
+    console.log("--------------- Error occured -----------------------------");
     console.error(err.message);
+    console.log("---------------------------------------------");
   }
 }
 
