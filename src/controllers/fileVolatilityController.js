@@ -20,7 +20,7 @@ const fetchVolatilityList = async (req, res, next) => {
         }
 
         if (filterByCategory) {
-            whereClause['CATEGORY'] = filterByCategory
+            // whereClause['CATEGORY'] = filterByCategory
         }
 
         if (search) {
