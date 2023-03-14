@@ -29,6 +29,7 @@ const port = process.env.PORT || 3000;
 const smartMappingRoutes = require("./src/routes/smartMapping.routes")
 const metaRoutes = require("./src/routes/meta.routes")
 const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes")
+const authRoutes = require("./src/routes/auth.routes")
 
 app.use(bodyParser.json());
 app.use(
@@ -41,11 +42,12 @@ app.use(cors());
 app.use("/api/smart-mapping", smartMappingRoutes);
 app.use("/api/meta", metaRoutes);
 app.use("/api/file-volatility", fileVolatilityRoutes);
-app.use(express.static(path.join(__dirname, 'build')))
+app.use("", authRoutes);
+// app.use(express.static(path.join(__dirname, 'build')))
 
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+// });
 
 // Handling Errors message
 app.use(joiErrorHandlerMiddleware);
