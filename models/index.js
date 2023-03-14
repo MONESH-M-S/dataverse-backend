@@ -10,6 +10,8 @@ const config = require(__dirname + '/../config/config.js')[env];
 
 console.log("Environment is ", env)
 
+let db = {}
+
 const sequelize = new Sequelize({
   dialect: "mssql",
   dialectOptions: {
