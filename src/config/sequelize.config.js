@@ -1,33 +1,10 @@
 const { Sequelize } = require("sequelize");
+const env = process.env.NODE_ENV || 'development';
+const config = require('../../config/config')[env];
 
-const { DB_NAME, DB_HOST, DB_USERNAME, DB_PASSWORD, DB_DIALECT } = process.env;
+console.log("Env is ", env)
+console.log("Config is ", config)
 
-let encodedPassword = DB_PASSWORD;
-let bufferData = new Buffer.from(encodedPassword, "base64");
-let decodedPassowrd = bufferData.toString("ascii");
-
-// const sequelize = new Sequelize(DB_NAME,
-//    DB_USERNAME,
-//    decodedPassowrd,
-//    {
-//       host: DB_HOST,
-//       dialect: DB_DIALECT
-//    });
-
-const sequelize = new Sequelize({
-  dialect: "mssql",
-  dialectOptions: {
-    authentication: {
-      type: "azure-active-directory-msi-app-service",
-    },
-  },
-  host: "bieno-da08-d-904380-unilevercom-sql-01.database.windows.net",
-  database: "bieno-da08-d-904380-unilevercom-sqldb-01",
-  port: 1433,
-});
-
-// sequelize.sync().catch((error) => {
-//    console.error('Unable to create table : ', error);
-// });
+const sequelize = new Sequelize(config);
 
 module.exports = sequelize;
