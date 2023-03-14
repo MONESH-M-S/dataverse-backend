@@ -50,19 +50,6 @@ app.get('*', (req, res) => {
 app.use(joiErrorHandlerMiddleware);
 app.use(errorHandlerMiddleware);
 
-const config = {
-  server: "bieno-da08-d-904380-unilevercom-sql-01.database.windows.net",
-  port: 1433,
-  database: "bieno-da08-d-904380-unilevercom-sqldb-01",
-  authentication: {
-    type: "azure-active-directory-msi-app-service",
-  },
-  options: {
-    encrypt: true,
-  },
-};
-
-
 server.listen(port, "0.0.0.0", () => {
   console.log(`App listening at http://localhost:${port}`);
 });
