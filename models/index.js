@@ -12,17 +12,7 @@ console.log("Environment is ", env)
 
 let db = {}
 
-const sequelize = new Sequelize({
-  dialect: "mssql",
-  dialectOptions: {
-    authentication: {
-      type: "azure-active-directory-msi-app-service",
-    },
-  },
-  host: "bieno-da08-d-904380-unilevercom-sql-01.database.windows.net",
-  database: "bieno-da08-d-904380-unilevercom-sqldb-01",
-  port: 1433
-});
+const sequelize = new Sequelize(config);
 
 fs.readdirSync(__dirname)
   .filter((file) => {

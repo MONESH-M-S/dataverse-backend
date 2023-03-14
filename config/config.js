@@ -7,15 +7,11 @@ const decodedPassowrd = bufferData.toString("ascii");
 
 module.exports = {
   development: {
-    dialect: "mssql",
-    dialectOptions: {
-      authentication: {
-        type: "azure-active-directory-msi-app-service",
-      },
-    },
-    host: "bieno-da08-d-904380-unilevercom-sql-01.database.windows.net",
-    database: "bieno-da08-d-904380-unilevercom-sqldb-01",
-    port: 1433,
+    username: DB_USERNAME,
+    password: decodedPassowrd,
+    database: DB_NAME,
+    host: DB_HOST,
+    dialect: DB_DIALECT,
   },
   test: {
     username: DB_USERNAME,
@@ -31,8 +27,8 @@ module.exports = {
         type: "azure-active-directory-msi-app-service",
       },
     },
-    host: "bieno-da08-d-904380-unilevercom-sql-01.database.windows.net",
-    database: "bieno-da08-d-904380-unilevercom-sqldb-01",
+    host: DB_HOST,
+    database: DB_NAME,
     port: 1433,
   }
 }; 
