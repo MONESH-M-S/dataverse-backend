@@ -22,6 +22,7 @@ const joiErrorHandlerMiddleware = require("./src/middlewares/joiErrorHandler.mid
 
 const app = express();
 const server = http.createServer(app);
+const sql = require("mssql");
 
 const port = process.env.PORT || 3000;
 
@@ -35,6 +36,38 @@ app.use(
     extended: true,
   })
 );
+
+const config = {
+  server: "bieno-da08-d-904380-unilevercom-sql-01.database.windows.net",
+  port: 1433,
+  database: "bieno-da08-d-904380-unilevercom-sqldb-01",
+  authentication: {
+    type: "azure-active-directory-msi-app-service",
+  },
+  options: {
+    encrypt: true,
+  },
+};
+
+console.log("Starting...");
+connectAndQuery();
+
+async function connectAndQuery() {
+  try {
+    var poolConnection = await sql.connect(config);
+    console.log("Reading rows from the Table...", poolConnection);
+    var resultSet = await poolConnection
+      .request()
+      .query(`SELECT * from test_tbl`);
+    console.log(`${resultSet.recordset.length} rows returned.`);
+    poolConnection.close();
+  } catch (err) {
+    console.log("---------------------------------------------");
+    console.log("--------------- Error occured -----------------------------");
+    console.error(err.message);
+    console.log("---------------------------------------------");
+  }
+}
 
 app.use(cors());
 app.use("/api/smart-mapping", smartMappingRoutes);
