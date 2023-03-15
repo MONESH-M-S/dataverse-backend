@@ -4,19 +4,12 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
-  - develop
+  - feature/sso-implementation
 
 pool:
   vmImage: windows-latest
 
 steps:
-  # - task: AzureCLI@2
-  #   inputs:
-  #     azureSubscription: '8e017cde-1d7c-4842-a4a5-18f6c115cae3'
-  #     scriptType: 'ps'
-  #     scriptLocation: 'inlineScript'
-  #     inlineScript: |
-  #       az webapp config appsettings set --resource-group bieno-da08-d-904380-rg --name bieno-da08-d-904380-webapi-02 --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
   - task: AzureCLI@2
     inputs:
       azureSubscription: "Project-da08-d-904380-ServiceEndPoint"
