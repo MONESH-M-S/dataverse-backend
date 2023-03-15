@@ -24,9 +24,3 @@ steps:
       scriptLocation: "inlineScript"
       inlineScript: 'az webapp up --resource-group bieno-da08-d-904380-rg --name bieno-da08-d-904380-webapi-02 --os-type Windows --runtime "NODE:18LTS" --plan "bieno-da08-d-904380-serviceplan-02"'
 
-  - task: AzureCLI@2
-    inputs:
-      azureSubscription: "Project-da08-d-904380-ServiceEndPoint"
-      scriptType: "ps"
-      scriptLocation: "inlineScript"
-      inlineScript: 'az keyvault key list --vault-name bnlwe-da02-b-902592-kv01'
