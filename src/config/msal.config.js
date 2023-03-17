@@ -15,13 +15,15 @@ const msalConfig = {
     }
 }
 
-const REDIRECT_URI = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/auth";
-const POST_LOGOUT_REDIRECT_URI = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/auth";
-const GRAPH_ME_ENDPOINT = "https://graph.microsoft.com" + "v1.0/me";
+const redirectionUrl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/auth";
+const postLogoutRedirectionurl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/auth";
+const graphMeEndpoint = "https://graph.microsoft.com" + "v1.0/me";
+const scopes = ['User.Read', 'User.Read.All'];
 
 module.exports = {
     msalConfig,
-    REDIRECT_URI,
-    POST_LOGOUT_REDIRECT_URI,
-    GRAPH_ME_ENDPOINT
+    redirectionUrl,
+    postLogoutRedirectionurl,
+    graphMeEndpoint,
+    scopes
 };
