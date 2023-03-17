@@ -12,10 +12,12 @@ const LoadLogModel = sequelize.define('LoadLog', {
     LOADSTARTTIME: DataTypes.STRING,
     LOADENDTIME: DataTypes.STRING,
     SOURCE: DataTypes.STRING,
+    CATEGORY: DataTypes.STRING,
     FILENAME: DataTypes.STRING,
     FILELASTMODIFIEDDATE: DataTypes.STRING,
     PIPELINESTATUS: DataTypes.STRING,
     RUNNINGUSER: DataTypes.STRING,
+    COUNTRY: DataTypes.STRING,
 }, {
     tableName: 'LoadLog',
     schema: 'info',

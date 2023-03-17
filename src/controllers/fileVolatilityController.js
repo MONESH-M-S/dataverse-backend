@@ -29,16 +29,13 @@ const fetchVolatilityList = async (req, res, next) => {
         }
 
         if (search) {
-            whereClause["FILE_NAME"] = {
-                [Op.like]: "%" + search + "%",
-            }
-            whereClause["MARKET"] = {
+            whereClause["FILENAME"] = {
                 [Op.like]: "%" + search + "%",
             }
         }
 
         if (filterByStatus) {
-            whereClause["PIPELINE_STATUS"] = {
+            whereClause["PIPELINESTATUS"] = {
                 [Op.in]: filterByStatus.split(",")
             }
         }
