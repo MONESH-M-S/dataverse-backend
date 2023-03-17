@@ -22,7 +22,6 @@ const joiErrorHandlerMiddleware = require("./src/middlewares/joiErrorHandler.mid
 
 const app = express();
 const server = http.createServer(app);
-const sql = require("mssql");
 
 const port = process.env.PORT || 3000;
 
@@ -43,11 +42,11 @@ app.use("/api/smart-mapping", smartMappingRoutes);
 app.use("/api/meta", metaRoutes);
 app.use("/api/file-volatility", fileVolatilityRoutes);
 app.use("", authRoutes);
-// app.use(express.static(path.join(__dirname, 'build')))
+app.use(express.static(path.join(__dirname, 'build')))
 
-// app.get('*', (req, res) => {
-//   res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
-// });
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+});
 
 // Handling Errors message
 app.use(joiErrorHandlerMiddleware);
