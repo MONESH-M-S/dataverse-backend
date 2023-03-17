@@ -41,7 +41,7 @@ app.use(cors());
 app.use("/api/smart-mapping", smartMappingRoutes);
 app.use("/api/meta", metaRoutes);
 app.use("/api/file-volatility", fileVolatilityRoutes);
-app.use("", authRoutes);
+app.use("/auth", authRoutes);
 app.use(express.static(path.join(__dirname, 'build')))
 
 app.get('*', (req, res) => {

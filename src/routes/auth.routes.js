@@ -2,7 +2,7 @@ const express = require("express");
 const { fetchAuthToken, generateAuthToken } = require("../controllers/authController");
 const router = express.Router();
 
-router.post("/auth", fetchAuthToken);
-router.get("/get-token", generateAuthToken);
+router.post("/", fetchAuthToken);
+router.get("/", generateAuthToken);
 
 module.exports = router;
