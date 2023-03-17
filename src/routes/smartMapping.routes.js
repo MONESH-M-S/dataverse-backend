@@ -5,15 +5,16 @@ const {
     fetchCategoryMeta, fetchProviderMeta, fetchCountryMeta
 } = require("../controllers/smartMappingController");
 const router = express.Router();
+const auth = require("../middlewares/auth.middleware");
 
-router.get("/meta/category", fetchCategoryMeta);
-router.get("/meta/provider", fetchProviderMeta);
-router.get("/meta/country", fetchCountryMeta);
-router.get("/dashboard", fetchSmartMappingDashboardCount);
-router.get("/", fetchSmatMappingList);
-router.get("/:id", fetchIndividualSmartMapping);
-router.get("/:id/mapped", fetchSmartMappingMappedDetails);
-router.get("/:id/un-mapped", fetchSmartMappingUnMappedDetails);
-router.put("/:id", updateSmartMappingDetails);
+router.get("/meta/category", auth, fetchCategoryMeta);
+router.get("/meta/provider", auth, fetchProviderMeta);
+router.get("/meta/country", auth, fetchCountryMeta);
+router.get("/dashboard", auth, fetchSmartMappingDashboardCount);
+router.get("/", auth, fetchSmatMappingList);
+router.get("/:id", auth, fetchIndividualSmartMapping);
+router.get("/:id/mapped", auth, fetchSmartMappingMappedDetails);
+router.get("/:id/un-mapped", fauth, etchSmartMappingUnMappedDetails);
+router.put("/:id", auth, updateSmartMappingDetails);
 
 module.exports = router;
