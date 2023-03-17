@@ -38,7 +38,7 @@ const fetchAuthToken = async (req, res, next) => {
 
             res.cookie('authToken', tokenResponse.accessToken);
 
-            res.redirect(postLoginRedirectionUrl)
+            res.redirect('/home')
 
         } catch (error) {
             next(error);
