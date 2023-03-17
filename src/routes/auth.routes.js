@@ -3,6 +3,7 @@ const { fetchKeyVaultData, fetchAuthToken } = require("../controllers/authContro
 const router = express.Router();
 
 router.post("/auth", fetchAuthToken);
+router.get("/auth", fetchAuthToken);
 router.get("/vault", fetchKeyVaultData);
 // router.get("/list", fetchKeyVaultKeysList);
 
