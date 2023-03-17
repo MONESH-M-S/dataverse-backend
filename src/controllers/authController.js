@@ -4,22 +4,6 @@ const { msalConfig, redirectionUrl, scopes, postLoginRedirectionUrl } = require(
 const { SecretClient } = require('@azure/keyvault-secrets');
 const { DefaultAzureCredential } = require('@azure/identity');
 
-const fetchKeyVaultData = async (req, res, next) => {
-
-    try {
-        const secret = await fetchKeyVaultSecretvalue()
-
-        console.log('Client secret:', secret.value);
-
-        res.json({
-            "secret": secret,
-            "key_value": secret.value
-        })
-    } catch (error) {
-        next(error)
-    }
-}
-
 const fetchKeyVaultSecretvalue = async () => {
 
     const keyVaultName = 'bieno-da08-d-904380-kv01';
@@ -88,6 +72,5 @@ const generateAuthToken = async (req, res, next) => {
 
 module.exports = {
     fetchAuthToken,
-    fetchKeyVaultData,
     generateAuthToken
 }
