@@ -6,7 +6,7 @@ const { SecretClient } = require('@azure/keyvault-secrets');
 const { DefaultAzureCredential } = require('@azure/identity');
 
 
-const fetchKeyValutData = async (req, res, next) => {
+const fetchKeyVaultData = async (req, res, next) => {
 
     try {
         console.log("Inside key vault method")
@@ -16,14 +16,15 @@ const fetchKeyValutData = async (req, res, next) => {
         const credential = new DefaultAzureCredential();
         const client = new SecretClient(KVUri, credential);
 
-        // const secretName = 'BLOB-CONTAINER-PATH';
-        // const secretName = 'dfd315a8-2e37-4018-aac4-014a4d078746';
-        const secretName = 'f66fae02-5d36-495b-bfe0-78a6ff9f8e6e';
-        const secret = await client.getSecret(secretName);
+        const keyName = 'svc-b-da-d-904380-ina-aadprincipal';
+        const secret = await client.getSecret(keyName);
 
         console.log('Client secret:', secret.value);
 
-        res.json({})
+        res.json({
+            "secret": secret,
+            "key_value": secret.value
+        })
     } catch (error) {
         next(error)
     }
@@ -65,5 +66,5 @@ const fetchKeyValutData = async (req, res, next) => {
 
 module.exports = {
     // fetchAuthToken,
-    fetchKeyValutData
+    fetchKeyVaultData
 }
