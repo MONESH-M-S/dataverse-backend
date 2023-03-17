@@ -15,8 +15,8 @@ const msalConfig = {
     }
 }
 
-const REDIRECT_URI = "http://localhost:3000";
-const POST_LOGOUT_REDIRECT_URI = "http://localhost:3000";
+const REDIRECT_URI = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/auth";
+const POST_LOGOUT_REDIRECT_URI = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/auth";
 const GRAPH_ME_ENDPOINT = "https://graph.microsoft.com" + "v1.0/me";
 
 module.exports = {
