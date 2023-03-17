@@ -1,17 +1,28 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
-const LoadLogModel = sequelize.define('load_log', {
-    PIPELINE_RUN_ID: DataTypes.STRING,
-    FILE_NAME: DataTypes.TEXT,
-    TASK_NAME: DataTypes.STRING,
-    STEP_NUMBER: DataTypes.STRING,
-    LOG_DATE: DataTypes.STRING,
-    MESSAGE_TYPE: DataTypes.STRING,
-    LOG_MESSAGE: DataTypes.STRING,
-    ROW_COUNT: DataTypes.STRING,
-    ERROR_CODE: DataTypes.STRING,
-    ERROR_DESC: DataTypes.TEXT,
+const LoadLogDetailModel = sequelize.define('LoadDetailLog', {
+    DetailLogId: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    PipelineRunId: DataTypes.STRING,
+    FileName: DataTypes.STRING,
+    TaskName: DataTypes.STRING,
+    StepNumber: DataTypes.STRING,
+    LogDate: DataTypes.STRING,
+    MessageType: DataTypes.STRING,
+    LogMessage: DataTypes.STRING,
+    RowCount: DataTypes.STRING,
+    RowCount: DataTypes.STRING,
+    ErrorCode: DataTypes.STRING,
+    ErrorDesc: DataTypes.TEXT,
+    LogId: DataTypes.STRING,
+}, {
+    tableName: 'LoadDetailLog',
+    schema: 'info',
+    timestamps: false,
 });
 
-module.exports = LoadLogModel
+module.exports = LoadLogDetailModel

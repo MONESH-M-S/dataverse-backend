@@ -5,6 +5,10 @@ const readExcel = require('read-excel-file/node')
 const LoadLogModel = require('../models/loadLog.model')
 const xlsx = require('xlsx');
 const fs = require("fs");
+const statusTypeEnum = require("../enums/statusType.enum");
+const LoadLogDetailModel = require("../models/loadLogDetail.model");
+const ColumnMappingModel = require("../models/columnMapping.model");
+const { sequelize } = require("../../models");
 
 const fetchVolatilityList = async (req, res, next) => {
     try {
@@ -68,7 +72,7 @@ const fetchIndividualVolatilityFile = async (req, res, next) => {
 
     try {
         const { id } = req.params
-        const data = await db.LeadLog.findByPk(id)
+        const data = await LoadLogModel.findByPk(id)
         res.json(data)
     } catch (error) {
         next(error)
@@ -78,29 +82,20 @@ const fetchIndividualVolatilityFile = async (req, res, next) => {
 
 const fetchColumnMappings = async (req, res, next) => {
     try {
-        const { id } = req.params
-        const data = await db.LeadLog.findByPk(id)
-        const fileUrl = data["FILE_URL"]
-        const mappingList = await readExcel('./mapping.xlsx')
-        const sourceList = await readExcel('./source-column.xlsx')
+        const { fileName } = req.params
 
-        let mappings = []
-        let sourceColumn = []
-        for (i in mappingList) {
-            mappings.push({
-                source: mappingList[i][0] ?? "",
-                target: mappingList[i][1]
-            })
-        }
-
-        for (i in sourceList) {
-            sourceColumn.push(sourceList[i][0])
-        }
-
-        res.json({
-            source_column: sourceColumn,
-            mappings
+        const mappingList = await ColumnMappingModel.findAll({
+            where: {
+                FileName: fileName
+            }
         })
+
+        const responseObj = {
+            result: mappingList
+        }
+
+        res.json(responseObj)
+
     } catch (error) {
         next(error)
     }
@@ -108,27 +103,25 @@ const fetchColumnMappings = async (req, res, next) => {
 
 const updateColumnMapping = async (req, res, next) => {
     try {
-        const { id } = req.params
 
-        const data = req.body
+        const data = req.body.mappings
 
-        const fileName = 'mapping.xlsx';
-        let workbook;
-        if (fs.existsSync(fileName)) {
-            workbook = xlsx.readFile(fileName)
-        } else {
-            workbook = xlsx.utils.book_new()
+        const statements = [];
+        const tableName = "ColumnMapping";
+        const schema = "metadata";
+
+        //  Added Raw Query, since MSSQL doesn't support Bulk Upload
+        for (let i = 0; i < data.length; i++) {
+            statements.push(
+                sequelize.query(
+                    `UPDATE [${schema}].[${tableName}] 
+                    SET SourceColumn='${data[i].SourceColumn}' 
+                    WHERE ID=${data[i].ID};`
+                )
+            );
         }
-        
-        const sheetIndexToDelete = workbook.SheetNames.indexOf("Sheet2")
-        workbook.SheetNames.splice(sheetIndexToDelete, 1)
-        delete workbook.Sheets[sheetIndexToDelete]
 
-        workbook = xlsx.utils.book_new()
-        const ws = xlsx.utils.json_to_sheet(data)
-
-        xlsx.utils.book_append_sheet(workbook, ws, "Sheet2")
-        xlsx.writeFile(workbook, fileName)
+        await Promise.all(statements);
 
         res.json({
             message: "Successfully updated"
@@ -138,9 +131,72 @@ const updateColumnMapping = async (req, res, next) => {
     }
 }
 
+const fetchDashboardDetails = async (req, res, next) => {
+    const mappingListCount = await LoadLogModel.count();
+    const excelFileCount = await LoadLogModel.count({
+        where: {
+            "FILENAME": {
+                [Op.endsWith]: "xlsx",
+            }
+
+        },
+    });
+    const csvFileCount = await LoadLogModel.count({
+        where: {
+            "FILENAME": {
+                [Op.endsWith]: "csv",
+            }
+        }
+    });
+    const docFileCount = await LoadLogModel.count({
+        where: {
+            "FILENAME": {
+                [Op.endsWith]: "doc",
+            }
+        },
+    });
+
+    res.json({
+        status: statusTypeEnum.success,
+        data: {
+            total_count: mappingListCount,
+            excel_count: excelFileCount,
+            csv_count: csvFileCount,
+            doc_count: docFileCount,
+        },
+    });
+}
+
+const fetchLeadLogDetails = async (req, res, next) => {
+    try {
+        const { limit, offset, page, pageSize } = getPaginationDetails(req)
+
+        const { id } = req.params
+        const logDetailList = await LoadLogDetailModel.findAndCountAll({
+            where: {
+                LogId: id,
+            },
+            limit,
+            offset
+        })
+        const responseObj = {
+            result: logDetailList.rows,
+            page,
+            page_size: pageSize,
+            total_count: logDetailList.count
+        }
+
+        res.json(responseObj)
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     fetchVolatilityList,
     fetchIndividualVolatilityFile,
     fetchColumnMappings,
-    updateColumnMapping
+    updateColumnMapping,
+    fetchDashboardDetails,
+    fetchLeadLogDetails
 }
