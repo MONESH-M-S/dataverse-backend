@@ -1,9 +1,8 @@
 const { ConfidentialClientApplication } = require('@azure/msal-node');
-const { msalConfig, redirectionUrl, scopes } = require('../config/msal.config');
+const { msalConfig, redirectionUrl, scopes, postLoginRedirectionUrl } = require('../config/msal.config');
 
 const { SecretClient } = require('@azure/keyvault-secrets');
 const { DefaultAzureCredential } = require('@azure/identity');
-
 
 const fetchKeyVaultData = async (req, res, next) => {
 
@@ -32,8 +31,6 @@ const fetchKeyVaultSecretvalue = async () => {
     const keyName = 'svc-b-da-d-904380-ina-aadprincipal';
     const secret = await client.getSecret(keyName);
 
-    console.log('Client secret:', secret.value);
-
     return secret
 }
 
@@ -43,8 +40,6 @@ const fetchAuthToken = async (req, res, next) => {
         const secret = await fetchKeyVaultSecretvalue()
 
         msalConfig.auth.clientSecret = secret.value
-
-        console.log("Masl config is ", msalConfig)
 
         const msalInstance = new ConfidentialClientApplication(msalConfig);
 
@@ -56,9 +51,10 @@ const fetchAuthToken = async (req, res, next) => {
                 redirectUri: redirectionUrl,
                 scopes: scopes
             });
-            console.log("Token response is ", tokenResponse)
 
-            res.redirect('/home')
+            res.cookie('authToken', tokenResponse.accessToken);
+
+            res.redirect(postLoginRedirectionUrl)
 
         } catch (error) {
             next(error);
