@@ -1,10 +1,6 @@
-const db = require("../../models")
 const getPaginationDetails = require("../utils/response/getPaginationDetails")
 const { Op } = require("sequelize");
-const readExcel = require('read-excel-file/node')
 const LoadLogModel = require('../models/loadLog.model')
-const xlsx = require('xlsx');
-const fs = require("fs");
 const statusTypeEnum = require("../enums/statusType.enum");
 const LoadLogDetailModel = require("../models/loadLogDetail.model");
 const ColumnMappingModel = require("../models/columnMapping.model");
@@ -15,7 +11,8 @@ const fetchVolatilityList = async (req, res, next) => {
         const { limit, offset, page, pageSize } = getPaginationDetails(req)
         const {
             search, filter_by_provider: filterByProvider, filter_by_category: filterByCategory,
-            filter_by_status: filterByStatus, filter_by_country: filterByCountry
+            filter_by_status: filterByStatus, filter_by_country: filterByCountry, start_date: startDate,
+            end_date: endDate
         } = req.query
 
         let whereClause = {}
@@ -24,8 +21,14 @@ const fetchVolatilityList = async (req, res, next) => {
             whereClause['SOURCE'] = filterByProvider
         }
 
+        if (startDate && endDate) {
+            whereClause["LOADSTARTTIME"] = {
+                [Op.between]: [startDate, endDate]
+            }
+        }
+
         if (filterByCategory) {
-            // whereClause['CATEGORY'] = filterByCategory
+            whereClause['CATEGORY'] = filterByCategory
         }
 
         if (search) {
@@ -42,7 +45,7 @@ const fetchVolatilityList = async (req, res, next) => {
 
         if (filterByCountry) {
             whereClause["COUNTRY"] = {
-                [Op.in]: filterByCountry.split(",")
+                [Op.in]: [filterByCountry]
             }
         }
 
@@ -79,11 +82,13 @@ const fetchIndividualVolatilityFile = async (req, res, next) => {
 
 const fetchColumnMappings = async (req, res, next) => {
     try {
-        const { fileName } = req.params
+        const { id } = req.params
+
+        const logDetails = await LoadLogModel.findByPk(id)
 
         const mappingList = await ColumnMappingModel.findAll({
             where: {
-                FileName: fileName
+                FileName: logDetails.FILENAME
             }
         })
 
@@ -98,7 +103,7 @@ const fetchColumnMappings = async (req, res, next) => {
     }
 }
 
-const updateColumnMapping = async (req, res, next) => {
+const updateColumnMapping = async (req, res) => {
     try {
 
         const data = req.body.mappings
@@ -128,7 +133,7 @@ const updateColumnMapping = async (req, res, next) => {
     }
 }
 
-const fetchDashboardDetails = async (req, res, next) => {
+const fetchDashboardDetails = async (req, res) => {
     const mappingListCount = await LoadLogModel.count();
     const excelFileCount = await LoadLogModel.count({
         where: {

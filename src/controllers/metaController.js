@@ -29,7 +29,7 @@ const fetchProviderMeta = async (req, res, next) => {
 
 const fetchCategoryMeta = async (req, res, next) => {
     try {
-        const providerList = await CATEGORY.findAll({
+        const providerList = await LoadLogModel.findAll({
             attributes: [
                 [Sequelize.fn('DISTINCT', Sequelize.col('CATEGORY')), 'name']
             ]

@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/", fetchVolatilityList);
 router.get("/dashboard", fetchDashboardDetails);
 router.get("/:id", fetchIndividualVolatilityFile);
-router.get("/mappings/:fileName", fetchColumnMappings);
+router.get("/:id/mappings", fetchColumnMappings);
 router.put("/:id/mappings", updateColumnMapping);
 router.get("/:id/details", fetchLeadLogDetails);
 
