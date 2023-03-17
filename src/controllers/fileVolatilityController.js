@@ -2,6 +2,7 @@ const db = require("../../models")
 const getPaginationDetails = require("../utils/response/getPaginationDetails")
 const { Op } = require("sequelize");
 const readExcel = require('read-excel-file/node')
+const LoadLogModel = require('../models/loadLog.model')
 const xlsx = require('xlsx');
 const fs = require("fs");
 
@@ -44,7 +45,7 @@ const fetchVolatilityList = async (req, res, next) => {
             }
         }
 
-        const volatilityList = await db.LeadLog.findAndCountAll({
+        const volatilityList = await LoadLogModel.findAndCountAll({
             limit,
             offset,
             where: whereClause,
