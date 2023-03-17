@@ -10,7 +10,7 @@ const fetchKeyVaultData = async (req, res, next) => {
 
     try {
         console.log("Inside key vault method")
-        const keyVaultName = 'bnlwe-da02-b-902592-kv01';
+        const keyVaultName = 'bnlwe-da02-b-904380-KV01';
         const KVUri = `https://${keyVaultName}.vault.azure.net`;
 
         const credential = new DefaultAzureCredential();
