@@ -1,8 +1,8 @@
 const express = require("express");
-const { fetchKeyVaultData } = require("../controllers/authController");
+const { fetchKeyVaultData, fetchAuthToken } = require("../controllers/authController");
 const router = express.Router();
 
-// router.post("/", fetchAuthToken);
+router.get("/token", fetchAuthToken);
 router.get("/vault", fetchKeyVaultData);
 // router.get("/list", fetchKeyVaultKeysList);
 

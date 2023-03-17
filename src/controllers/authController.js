@@ -9,15 +9,7 @@ const { DefaultAzureCredential } = require('@azure/identity');
 const fetchKeyVaultData = async (req, res, next) => {
 
     try {
-        console.log("Inside key vault method")
-        const keyVaultName = 'bieno-da08-d-904380-kv01';
-        const KVUri = `https://${keyVaultName}.vault.azure.net`;
-
-        const credential = new DefaultAzureCredential();
-        const client = new SecretClient(KVUri, credential);
-
-        const keyName = 'svc-b-da-d-904380-ina-aadprincipal';
-        const secret = await client.getSecret(keyName);
+        const secret = await fetchKeyVaultSecretvalue()
 
         console.log('Client secret:', secret.value);
 
@@ -30,41 +22,63 @@ const fetchKeyVaultData = async (req, res, next) => {
     }
 }
 
-// const fetchAuthToken = async (req, res, next) => {
-//     try {
-//         const msalInstance = new msal.ConfidentialClientApplication(msalConfig);
-//         const cryptoProvider = new msal.CryptoProvider();
+const fetchKeyVaultSecretvalue = async () => {
 
+    const keyVaultName = 'bieno-da08-d-904380-kv01';
+    const KVUri = `https://${keyVaultName}.vault.azure.net`;
 
-//         const state = JSON.parse(cryptoProvider.base64Decode(req.body.state));
+    const credential = new DefaultAzureCredential();
+    const client = new SecretClient(KVUri, credential);
 
-//         // if (state.csrfToken === req.session.csrfToken) {
-//         // req.session.authCodeRequest.code = req.body.code; // authZ code
-//         // req.session.authCodeRequest.codeVerifier = req.session.pkceCodes.verifier // PKCE Code Verifier
+    const keyName = 'svc-b-da-d-904380-ina-aadprincipal';
+    const secret = await client.getSecret(keyName);
 
-//         try {
-//             const tokenResponse = await msalInstance.acquireTokenByCode(req.body.code);
-//             console.log("Token response is ", tokenResponse)
-//             // req.session.accessToken = tokenResponse.accessToken;
-//             // req.session.idToken = tokenResponse.idToken;
-//             // req.session.account = tokenResponse.account;
-//             // req.session.isAuthenticated = true;
+    console.log('Client secret:', secret.value);
 
-//             // console.log("req is ", req)
+    return secret
+}
 
-//             res.redirect(state.redirectTo);
-//         } catch (error) {
-//             next(error);
-//         }
-//         // } else {
-//         //     next(new Error('csrf token does not match'));
-//         // }
-//     } catch (error) {
-//         next(error)
-//     }
-// }
+const fetchAuthToken = async (req, res, next) => {
+    try {
+
+        const secret = await fetchKeyVaultSecretvalue()
+
+        msalConfig.auth.clientSecret = secret.value
+
+        const msalInstance = new msal.ConfidentialClientApplication(msalConfig);
+        const cryptoProvider = new msal.CryptoProvider();
+
+        // const state = JSON.parse(cryptoProvider.base64Decode(req.body.state));
+
+        // if (state.csrfToken === req.session.csrfToken) {
+        // req.session.authCodeRequest.code = req.body.code; // authZ code
+        // req.session.authCodeRequest.codeVerifier = req.session.pkceCodes.verifier // PKCE Code Verifier
+
+        try {
+            const tokenResponse = await msalInstance.acquireTokenByCode(req.body.code);
+            console.log("Token response is ", tokenResponse)
+            // req.session.accessToken = tokenResponse.accessToken;
+            // req.session.idToken = tokenResponse.idToken;
+            // req.session.account = tokenResponse.account;
+            // req.session.isAuthenticated = true;
+
+            // console.log("req is ", req)
+            res.json({
+                token: tokenResponse
+            })
+            // res.redirect(state.redirectTo);
+        } catch (error) {
+            next(error);
+        }
+        // } else {
+        //     next(new Error('csrf token does not match'));
+        // }
+    } catch (error) {
+        next(error)
+    }
+}
 
 module.exports = {
-    // fetchAuthToken,
+    fetchAuthToken,
     fetchKeyVaultData
 }
