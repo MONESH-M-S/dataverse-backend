@@ -140,7 +140,6 @@ const fetchDashboardDetails = async (req, res) => {
             "FILENAME": {
                 [Op.endsWith]: "xlsx",
             }
-
         },
     });
     const csvFileCount = await LoadLogModel.count({

@@ -60,17 +60,23 @@ const fetchSmartMappingDashboardCount = async (req, res, next) => {
     const mappingListCount = await SmartMappingListModel.count();
     const excelFileCount = await SmartMappingListModel.count({
       where: {
-        file_extension: "xlsx",
+        "FILENAME": {
+          [Op.endsWith]: "xlsx",
+        }
       },
     });
     const csvFileCount = await SmartMappingListModel.count({
       where: {
-        file_extension: "csv",
-      },
+        "FILENAME": {
+          [Op.endsWith]: "csv",
+        }
+      }
     });
     const docFileCount = await SmartMappingListModel.count({
       where: {
-        file_extension: "doc",
+        "FILENAME": {
+          [Op.endsWith]: "doc",
+        }
       },
     });
 
@@ -98,42 +104,42 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
       smart_mapping_list_id: id,
       MAPPED_STATUS: true,
     };
-    let orderClause = [];
+    // let orderClause = [];
 
-    if (orderKey || orderValue) {
-      orderClause = [[orderKey ?? "id", orderValue ?? "DESC"]];
-    }
+    // if (orderKey || orderValue) {
+    //   orderClause = [[orderKey ?? "id", orderValue ?? "DESC"]];
+    // }
 
-    if (search) {
-      whereClause[Op.or] = [
-        {
-          UNILEVER_DESC: {
-            [Op.like]: `%${search}%`,
-          },
-        },
-        {
-          VENDOR_DESC: {
-            [Op.like]: `%${search}%`,
-          },
-        },
-        {
-          CATEGORY: {
-            [Op.like]: `%${search}%`,
-          },
-        },
-        {
-          SEGMENT: {
-            [Op.like]: `%${search}%`,
-          },
-        },
-      ];
-    }
+    // if (search) {
+    //   whereClause[Op.or] = [
+    //     {
+    //       UNILEVER_DESC: {
+    //         [Op.like]: `%${search}%`,
+    //       },
+    //     },
+    //     {
+    //       VENDOR_DESC: {
+    //         [Op.like]: `%${search}%`,
+    //       },
+    //     },
+    //     {
+    //       CATEGORY: {
+    //         [Op.like]: `%${search}%`,
+    //       },
+    //     },
+    //     {
+    //       SEGMENT: {
+    //         [Op.like]: `%${search}%`,
+    //       },
+    //     },
+    //   ];
+    // }
 
     const mappedList = await SmartMappingDetailsModel.findAndCountAll({
       limit,
       offset,
-      where: whereClause,
-      order: orderClause,
+      // where: whereClause,
+      // order: orderClause,
     });
 
     const responseObj = {
@@ -154,17 +160,17 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
   const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
   let whereClause = {
-    smart_mapping_list_id: id,
-    MAPPED_STATUS: false,
+    // smart_mapping_list_id: id,
+    Confidencelevel: "Low",
   };
 
-  let orderClause = [["id", "desc"]];
+  // let orderClause = [["id", "desc"]];
 
   const mappedList = await SmartMappingDetailsModel.findAndCountAll({
     limit,
     offset,
-    where: whereClause,
-    order: orderClause,
+    // where: whereClause,
+    // order: orderClause,
   });
 
   const responseObj = {
@@ -182,10 +188,10 @@ const updateSmartMappingDetails = async (req, res, next) => {
     const id = req.params.id;
     const { id_list: idList } = req.body;
 
-    await SmartMappingDetailsModel.update(
-      { MAPPED_STATUS: true },
-      { where: { id: idList, smart_mapping_list_id: id } }
-    );
+    // await SmartMappingDetailsModel.update(
+    //   { MAPPED_STATUS: true },
+    //   { where: { id: idList, smart_mapping_list_id: id } }
+    // );
 
     res.json({
       status: statusTypeEnum.success,

@@ -1,25 +1,28 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
-const SmartMappingDetailsModel = require("./smartMappingDetails.model");
 
-const SmartMappingListModel = sequelize.define('smart_mapping_list', {
-    data_provider: DataTypes.STRING,
-    category: DataTypes.STRING,
-    file_name: DataTypes.STRING,
-    country: DataTypes.STRING,
-    file_extension: DataTypes.STRING,
-    mapped_record_count: DataTypes.STRING,
-    unmapped_record_count: DataTypes.STRING,
-    confidence_level_less_than_70: DataTypes.STRING,
-    confidence_level_50_70: DataTypes.STRING,
-    confidence_level_less_than_50: DataTypes.STRING,
-    total: DataTypes.STRING,
-    success_status: DataTypes.STRING,
+const SmartMappingListModel = sequelize.define('MappingReportSummary', {
+  Id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  ExternalDataProvider: DataTypes.STRING,
+  Filename: DataTypes.STRING,
+  TotalRecords: DataTypes.STRING,
+  TotalMappedRecords: DataTypes.STRING,
+  TotalUnprocessedRecords: DataTypes.STRING,
+  High: DataTypes.STRING,
+  Medium: DataTypes.STRING,
+  Low: DataTypes.STRING,
+  TotalRecordsMappedBySME: DataTypes.STRING,
+  CreatedOn: DataTypes.STRING,
+  Country: DataTypes.STRING,
+  Category: DataTypes.STRING,
+}, {
+  tableName: 'MappingReportSummary',
+  schema: 'info',
+  timestamps: false,
 });
-
-SmartMappingListModel.hasOne(SmartMappingDetailsModel, {
-    foreignKey: "smart_mapping_list_id",
-    sourceKey: "id",
-  });
 
 module.exports = SmartMappingListModel
