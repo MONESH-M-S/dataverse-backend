@@ -17,7 +17,7 @@ const SmartMappingListModel = sequelize.define('MappingReportSummary', {
   Medium: DataTypes.STRING,
   Low: DataTypes.STRING,
   TotalRecordsMappedBySME: DataTypes.STRING,
-  CreatedOn: DataTypes.STRING,
+  CreatedOn: DataTypes.DATE,
   Country: DataTypes.STRING,
   Category: DataTypes.STRING,
 }, {

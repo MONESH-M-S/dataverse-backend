@@ -5,6 +5,7 @@ const statusTypeEnum = require("../enums/statusType.enum");
 const SmartMappingDetailsModel = require("../models/smartMappingDetails.model");
 const TempManualMappingModel = require("../models/tempManualMapping.model");
 const moment = require("moment");
+const { Sequelize } = require("../../models");
 
 const fetchSmatMappingList = async (req, res, next) => {
   try {
@@ -17,14 +18,6 @@ const fetchSmatMappingList = async (req, res, next) => {
 
     let whereClause = {};
     let orderClause = [];
-
-    if (search) {
-      whereClause = {
-        file_name: {
-          [Op.like]: "%" + search + "%",
-        },
-      };
-    }
 
     if (orderKey || orderValue) {
       orderClause = [[orderKey ?? "id", orderValue ?? "DESC"]];
@@ -131,7 +124,6 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
     const id = req.params.id;
 
     const smartMapping = await SmartMappingListModel.findByPk(id)
-
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
     const tempList = await TempManualMappingModel.findAll({
@@ -140,7 +132,6 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
 
     const idList = tempList.map((item) => item.MappingOutputId)
     let whereClause = {
-
       Filename: smartMapping.Filename,
       [Op.or]: [
         {
@@ -262,6 +253,47 @@ const updateSmartMappingDetails = async (req, res, next) => {
   }
 };
 
+const fetchCountryMeta = async (req, res, next) => {
+  try {
+    const countryList = await SmartMappingListModel.findAll({
+      attributes: [
+        [Sequelize.fn('DISTINCT', Sequelize.col('Country')), 'name']
+      ]
+    });
+    res.json(countryList)
+  } catch (error) {
+    next(error)
+  }
+}
+
+
+const fetchProviderMeta = async (req, res, next) => {
+  try {
+    const providerList = await SmartMappingListModel.findAll({
+      attributes: [
+        [Sequelize.fn('DISTINCT', Sequelize.col('ExternalDataProvider')), 'name']
+      ]
+    });
+    res.json(providerList)
+  } catch (error) {
+    next(error)
+  }
+}
+
+
+const fetchCategoryMeta = async (req, res, next) => {
+  try {
+    const providerList = await SmartMappingListModel.findAll({
+      attributes: [
+        [Sequelize.fn('DISTINCT', Sequelize.col('Category')), 'name']
+      ]
+    });
+    res.json(providerList)
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   fetchSmatMappingList,
   fetchSmartMappingDashboardCount,
@@ -269,4 +301,7 @@ module.exports = {
   fetchIndividualSmartMapping,
   fetchSmartMappingUnMappedDetails,
   updateSmartMappingDetails,
+  fetchCountryMeta,
+  fetchProviderMeta,
+  fetchCategoryMeta
 };
