@@ -8,6 +8,7 @@ const SmartMappingDetailsModel = sequelize.define('MappingOutput', {
         autoIncrement: true
     },
     Tag: DataTypes.STRING,
+    Filename: DataTypes.STRING,
     Internaldesc: DataTypes.STRING,
     Externaldesc: DataTypes.STRING,
     Skucode: DataTypes.STRING,

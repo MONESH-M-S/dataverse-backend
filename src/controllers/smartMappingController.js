@@ -3,11 +3,16 @@ const getPaginationDetails = require("../utils/response/getPaginationDetails");
 const { Op } = require("sequelize");
 const statusTypeEnum = require("../enums/statusType.enum");
 const SmartMappingDetailsModel = require("../models/smartMappingDetails.model");
+const TempManualMappingModel = require("../models/tempManualMapping.model");
 
 const fetchSmatMappingList = async (req, res, next) => {
   try {
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
-    const { search, orderKey, orderValue } = req.query;
+    const {
+      search, orderKey, orderValue, start_date: startDate,
+      end_date: endDate, filter_by_country: filterByCountry,
+      filter_by_provider: filterByProvider, filter_by_category: filterByCategory
+    } = req.query;
 
     let whereClause = {};
     let orderClause = [];
@@ -22,6 +27,32 @@ const fetchSmatMappingList = async (req, res, next) => {
 
     if (orderKey || orderValue) {
       orderClause = [[orderKey ?? "id", orderValue ?? "DESC"]];
+    }
+
+    if (startDate && endDate) {
+      whereClause["CreatedOn"] = {
+        [Op.between]: [startDate, endDate]
+      }
+    }
+
+    if (filterByCountry) {
+      whereClause["Country"] = {
+        [Op.in]: [filterByCountry]
+      }
+    }
+
+    if (filterByProvider) {
+      whereClause['ExternalDataProvider'] = filterByProvider
+    }
+
+    if (filterByCategory) {
+      whereClause['CATEGORY'] = filterByCategory
+    }
+
+    if (search) {
+      whereClause["Filename"] = {
+        [Op.like]: "%" + search + "%",
+      }
     }
 
     const mappingDataList = await SmartMappingListModel.findAndCountAll({
@@ -97,50 +128,41 @@ const fetchSmartMappingDashboardCount = async (req, res, next) => {
 const fetchSmartMappingMappedDetails = async (req, res, next) => {
   try {
     const id = req.params.id;
+
+    const smartMapping = await SmartMappingListModel.findByPk(id)
+
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
-    const { search, orderKey, orderValue } = req.query;
 
+    const tempList = await TempManualMappingModel.findAll({
+      MappingOutputId: id,
+    })
+
+    const idList = tempList.map((item) => item.MappingOutputId)
     let whereClause = {
-      smart_mapping_list_id: id,
-      MAPPED_STATUS: true,
+
+      Filename: smartMapping.Filename,
+      [Op.or]: [
+        {
+          Id: {
+            [Op.in]: idList
+          },
+        },
+        {
+          Confidencelevel: {
+            [Op.in]: ["High", "Medium"]
+          },
+        }
+      ]
     };
-    // let orderClause = [];
 
-    // if (orderKey || orderValue) {
-    //   orderClause = [[orderKey ?? "id", orderValue ?? "DESC"]];
-    // }
-
-    // if (search) {
-    //   whereClause[Op.or] = [
-    //     {
-    //       UNILEVER_DESC: {
-    //         [Op.like]: `%${search}%`,
-    //       },
-    //     },
-    //     {
-    //       VENDOR_DESC: {
-    //         [Op.like]: `%${search}%`,
-    //       },
-    //     },
-    //     {
-    //       CATEGORY: {
-    //         [Op.like]: `%${search}%`,
-    //       },
-    //     },
-    //     {
-    //       SEGMENT: {
-    //         [Op.like]: `%${search}%`,
-    //       },
-    //     },
-    //   ];
-    // }
+    let orderClause = [["id", "desc"]];
 
     const mappedList = await SmartMappingDetailsModel.findAndCountAll({
       limit,
       offset,
-      // where: whereClause,
-      // order: orderClause,
-    });
+      where: whereClause,
+      order: orderClause
+    })
 
     const responseObj = {
       result: mappedList.rows,
@@ -157,21 +179,39 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
 
 const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
   const id = req.params.id;
+
+  const smartMapping = await SmartMappingListModel.findByPk(id)
+
   const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
+  const tempList = await TempManualMappingModel.findAll({
+    MappingOutputId: id,
+  })
+
+  const idList = tempList.map((item) => item.MappingOutputId)
   let whereClause = {
-    // smart_mapping_list_id: id,
-    Confidencelevel: "Low",
+
+    Filename: smartMapping.Filename,
+    [Op.and]: [
+      {
+        Confidencelevel: "Low"
+      },
+      {
+        Id: {
+          [Op.notIn]: idList
+        },
+      },
+    ]
   };
 
-  // let orderClause = [["id", "desc"]];
+  let orderClause = [["id", "desc"]];
 
   const mappedList = await SmartMappingDetailsModel.findAndCountAll({
     limit,
     offset,
-    // where: whereClause,
-    // order: orderClause,
-  });
+    where: whereClause,
+    order: orderClause
+  })
 
   const responseObj = {
     result: mappedList.rows,
