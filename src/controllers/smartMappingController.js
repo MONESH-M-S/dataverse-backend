@@ -4,6 +4,7 @@ const { Op } = require("sequelize");
 const statusTypeEnum = require("../enums/statusType.enum");
 const SmartMappingDetailsModel = require("../models/smartMappingDetails.model");
 const TempManualMappingModel = require("../models/tempManualMapping.model");
+const moment = require("moment");
 
 const fetchSmatMappingList = async (req, res, next) => {
   try {
@@ -228,10 +229,29 @@ const updateSmartMappingDetails = async (req, res, next) => {
     const id = req.params.id;
     const { id_list: idList } = req.body;
 
-    // await SmartMappingDetailsModel.update(
-    //   { MAPPED_STATUS: true },
-    //   { where: { id: idList, smart_mapping_list_id: id } }
-    // );
+    const detailsList = await SmartMappingDetailsModel.findAll({
+      where: {
+        Id: {
+          [Op.in]: idList
+        }
+      }
+    })
+
+    let insertDataList = []
+    detailsList.forEach((item) => {
+      insertDataList.push({
+        Filename: item.Filename,
+        Tag: item.Tag,
+        Hierlevelname: item.Hierlevelname,
+        Skucode: item.Skucode,
+        Createdon: moment().format('YYYY-MM-DD HH:mm:ss'),
+        Externaldesc: item.Externaldesc,
+        Internaldesc: item.Internaldesc,
+        MappingOutputId: item.Id
+      })
+    })
+
+    await TempManualMappingModel.bulkCreate(insertDataList);
 
     res.json({
       status: statusTypeEnum.success,

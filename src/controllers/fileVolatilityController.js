@@ -112,7 +112,7 @@ const updateColumnMapping = async (req, res) => {
         const tableName = "ColumnMapping";
         const schema = "metadata";
 
-        //  Added Raw Query, since MSSQL doesn't support Bulk Upload
+        //  Added Raw Query, since MSSQL doesn't support Bulk Update
         for (let i = 0; i < data.length; i++) {
             statements.push(
                 sequelize.query(

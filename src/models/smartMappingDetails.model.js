@@ -12,6 +12,7 @@ const SmartMappingDetailsModel = sequelize.define('MappingOutput', {
     Internaldesc: DataTypes.STRING,
     Externaldesc: DataTypes.STRING,
     Skucode: DataTypes.STRING,
+    Hierlevelname: DataTypes.STRING,
     Categoryname: DataTypes.STRING,
     Divisionname: DataTypes.STRING,
     Categorygroupname: DataTypes.STRING,
