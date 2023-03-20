@@ -1,8 +1,10 @@
 const { ConfidentialClientApplication } = require('@azure/msal-node');
-const { msalConfig, redirectionUrl, scopes, postLoginRedirectionUrl } = require('../config/msal.config');
-
+const { msalConfig, redirectionUrl, scopes, frontendBaseUrl } = require('../config/msal.config');
+const jwt_decode = require('jwt-decode');
 const { SecretClient } = require('@azure/keyvault-secrets');
 const { DefaultAzureCredential } = require('@azure/identity');
+const UserModel = require('../models/user.model');
+const userStatusEnum = require('../models/enums/userStatus.enum');
 
 const fetchKeyVaultSecretvalue = async () => {
 
@@ -36,9 +38,24 @@ const fetchAuthToken = async (req, res, next) => {
                 scopes: scopes
             });
 
-            res.cookie('authToken', tokenResponse.accessToken);
+            const userName = tokenResponse.account.username
+            const name = tokenResponse.account.name
 
-            res.redirect(postLoginRedirectionUrl)
+            let userDetails = await UserModel.findOne({
+                Email: userName
+            })
+            res.cookie('authToken', tokenResponse.accessToken, { sameSite: false, secure: false });
+
+
+            if (!userDetails) {
+                await UserModel.create({
+                    Name: name,
+                    Email: userName,
+                })
+                res.redirect(frontendBaseUrl + "/role-selection")
+            }
+
+            res.redirect(frontendBaseUrl + "/home")
 
         } catch (error) {
             next(error);
@@ -70,7 +87,50 @@ const generateAuthToken = async (req, res, next) => {
 
 }
 
+const fetchProfile = async (req, res, next) => {
+
+    try {
+        const cookie = req.cookies
+        var decodedData = jwt_decode(cookie.authToken);
+        const email = decodedData.unique_name
+        const userDetails = await UserModel.findOne({
+            Email: email
+        })
+
+        res.json(userDetails)
+    } catch (error) {
+        next(error)
+    }
+
+}
+
+const updateProfile = async (req, res, next) => {
+    try {
+        const { role, avatar } = req.body
+        const cookie = req.cookies
+        var decodedData = jwt_decode(cookie.authToken);
+        const email = decodedData.unique_name
+        const userDetails = await UserModel.findOne({
+            Email: email
+        })
+
+        userDetails.Role = role
+        userDetails.Avatar = avatar
+        userDetails.Status = userStatusEnum.approved
+        userDetails.save();
+
+        res.json({
+            "message": "Successfully updated"
+        })
+
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     fetchAuthToken,
-    generateAuthToken
+    generateAuthToken,
+    fetchProfile,
+    updateProfile
 }
