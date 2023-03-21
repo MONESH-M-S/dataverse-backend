@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.8f1edb24.css",
-    "main.js": "/static/js/main.2f1a46ea.js",
+    "main.css": "/static/css/main.d4503ad0.css",
+    "main.js": "/static/js/main.3ba1fc06.js",
     "static/media/unilever-logo-blue.svg": "/static/media/unilever-logo-blue.d115a9af3eb102f1a79e99aa773966ef.svg",
     "static/media/uniliver-logo.svg": "/static/media/uniliver-logo.ee8233a39c2c2ddbfd1a1723637377be.svg",
     "static/media/staticContent.svg": "/static/media/staticContent.554aafbdb081f770c2a3099da407a2e1.svg",
@@ -18,12 +18,19 @@
     "static/media/UnileverShillingBold.woff2": "/static/media/UnileverShillingBold.20458b90a1c2e932ccaf.woff2",
     "static/media/UnileverShillingItalic.woff2": "/static/media/UnileverShillingItalic.f99c287b8aedff28061d.woff2",
     "static/media/file-volatility-card2.svg": "/static/media/file-volatility-card2.ec2e71505f8596536a69c3949fd28a09.svg",
+    "static/media/role-4.png": "/static/media/role-4.24478dbd78a099e013c1.png",
+    "static/media/role-1.png": "/static/media/role-1.b8eb37dfe84e5a49ba1f.png",
+    "static/media/role-9.png": "/static/media/role-9.9014edd8ffad7e6c0aea.png",
+    "static/media/role-6.png": "/static/media/role-6.31d4dcb27e01d566b3ea.png",
+    "static/media/role-2.png": "/static/media/role-2.dd3639fb798dad5921e0.png",
+    "static/media/role-8.png": "/static/media/role-8.1c4d7346187bf5cce421.png",
     "static/media/checks.svg": "/static/media/checks.0162d2d8ff8d24896f650fd96d1f19ce.svg",
     "static/media/checks-white.svg": "/static/media/checks-white.dff256af3c7db20b9a26a07969f664ba.svg",
     "static/media/edith-logo.svg": "/static/media/edith-logo.34c489b2fe1787c5a4b3b864adf03ae3.svg",
     "static/media/edith-logo-black.svg": "/static/media/edith-logo-black.5d8f7cd0d8855ae45af20e76f47aa6bc.svg",
     "static/media/notification-bell.svg": "/static/media/notification-bell.8e5b507aa4f6999cd041469f86f3a3b5.svg",
     "static/media/error.svg": "/static/media/error.4725b3b583373f4f2263072807f326b4.svg",
+    "static/media/info-icon.svg": "/static/media/info-icon.c73564f9a44edd91cee122555b13aa09.svg",
     "static/media/tasks-white.svg": "/static/media/tasks-white.133f27d9f74c56fe370693a13adfb621.svg",
     "static/media/clock.svg": "/static/media/clock.b24c9c4a48c876541e1ed5bac3af5213.svg",
     "static/media/search-icon.svg": "/static/media/search-icon.edcf5cd782b8135df3677c97a0eeb494.svg",
@@ -54,11 +61,11 @@
     "static/media/dropdown-icon.svg": "/static/media/dropdown-icon.600523cb37e91e9cbd8571d89607ff29.svg",
     "static/media/green-dot.svg": "/static/media/green-dot.7e30ba447400734edccc35ccf73323e7.svg",
     "static/media/red-dot.svg": "/static/media/red-dot.e592916bda3a4bcbd9bef249fa60caaa.svg",
-    "main.8f1edb24.css.map": "/static/css/main.8f1edb24.css.map",
-    "main.2f1a46ea.js.map": "/static/js/main.2f1a46ea.js.map"
+    "main.d4503ad0.css.map": "/static/css/main.d4503ad0.css.map",
+    "main.3ba1fc06.js.map": "/static/js/main.3ba1fc06.js.map"
   },
   "entrypoints": [
-    "static/css/main.8f1edb24.css",
-    "static/js/main.2f1a46ea.js"
+    "static/css/main.d4503ad0.css",
+    "static/js/main.3ba1fc06.js"
   ]
 }
