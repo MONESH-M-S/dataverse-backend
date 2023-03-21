@@ -1,6 +1,6 @@
 const defaultPageSize = 10;
-const pageQueryParam = "page";
-const pageSizeQueryParam = "size";
+const pageQueryParam = "limit";
+const pageSizeQueryParam = "offset";
 const fetchAllQueryParam = 'all'
 
 const paginationConfig = {

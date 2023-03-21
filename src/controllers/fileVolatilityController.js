@@ -58,7 +58,7 @@ const fetchVolatilityList = async (req, res, next) => {
         const responseObj = {
             result: volatilityList.rows,
             page,
-            page_size: pageSize,
+            page_size: limit,
             total_count: volatilityList.count
         }
 
