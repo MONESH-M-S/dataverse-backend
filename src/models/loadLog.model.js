@@ -9,7 +9,7 @@ const LoadLogModel = sequelize.define('LoadLog', {
     },
     PIPELINERUNID: DataTypes.STRING,
     LOADDESC: DataTypes.TEXT,
-    LOADSTARTTIME: DataTypes.STRING,
+    LOADSTARTTIME: DataTypes.DATE,
     LOADENDTIME: DataTypes.STRING,
     SOURCE: DataTypes.STRING,
     CATEGORY: DataTypes.STRING,

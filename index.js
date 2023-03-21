@@ -28,7 +28,9 @@ const port = process.env.PORT || 3000;
 const smartMappingRoutes = require("./src/routes/smartMapping.routes")
 const metaRoutes = require("./src/routes/meta.routes")
 const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes")
-const authRoutes = require("./src/routes/auth.routes")
+const authRoutes = require("./src/routes/auth.routes");
+const dashboardRoutes = require("./src/routes/dashboard.routes");
+const cookieParser = require('cookie-parser');
 
 app.use(bodyParser.json());
 app.use(
@@ -38,10 +40,13 @@ app.use(
 );
 
 app.use(cors());
+app.use(cookieParser());
 app.use("/api/smart-mapping", smartMappingRoutes);
 app.use("/api/meta", metaRoutes);
 app.use("/api/file-volatility", fileVolatilityRoutes);
 app.use("/auth", authRoutes);
+app.use("/api/dashboard", dashboardRoutes)
+// app.use("/", authRoutes);
 app.use(express.static(path.join(__dirname, 'build')))
 
 app.get('*', (req, res) => {
