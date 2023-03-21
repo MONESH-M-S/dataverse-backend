@@ -107,8 +107,8 @@ const fetchProfile = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
     try {
         const { role, avatar } = req.body
-        const cookie = req.cookies
-        var decodedData = jwt_decode(cookie.authToken);
+        const token = req.headers.authorization.split(" ")[1]
+        var decodedData = jwt_decode(token);
         const email = decodedData.unique_name
         const userDetails = await UserModel.findOne({
             Email: email
