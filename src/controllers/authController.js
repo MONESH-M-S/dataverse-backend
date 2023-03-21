@@ -54,7 +54,7 @@ const fetchAuthToken = async (req, res, next) => {
                 res.redirect(frontendBaseUrl + "/role-selection")
             }
 
-            if(!userDetails.role) res.redirect(frontendBaseUrl + "/role-selection")
+            if (!userDetails.Role) res.redirect(frontendBaseUrl + "/role-selection")
 
             res.redirect(frontendBaseUrl + "/home")
 
