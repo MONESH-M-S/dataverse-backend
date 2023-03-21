@@ -30,6 +30,7 @@ const metaRoutes = require("./src/routes/meta.routes")
 const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes")
 const authRoutes = require("./src/routes/auth.routes");
 const dashboardRoutes = require("./src/routes/dashboard.routes");
+const SSORoutes = require("./src/routes/sso.routes");
 const cookieParser = require('cookie-parser');
 
 app.use(bodyParser.json());
@@ -44,8 +45,9 @@ app.use(cookieParser());
 app.use("/api/smart-mapping", smartMappingRoutes);
 app.use("/api/meta", metaRoutes);
 app.use("/api/file-volatility", fileVolatilityRoutes);
-app.use("/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes)
+app.use("/auth", SSORoutes)
 // app.use("/", authRoutes);
 app.use(express.static(path.join(__dirname, 'build')))
 

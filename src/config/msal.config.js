@@ -19,7 +19,7 @@ const redirectionUrl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/
 const postLogoutRedirectionurl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/auth";
 const graphMeEndpoint = "https://graph.microsoft.com" + "v1.0/me";
 const scopes = ['User.Read', 'User.Read.All'];
-const postLoginRedirectionUrl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/home"
+const frontendBaseUrl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net"
 
 module.exports = {
     msalConfig,
@@ -27,5 +27,5 @@ module.exports = {
     postLogoutRedirectionurl,
     graphMeEndpoint,
     scopes,
-    postLoginRedirectionUrl
+    frontendBaseUrl
 };

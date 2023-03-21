@@ -46,7 +46,6 @@ const fetchAuthToken = async (req, res, next) => {
             })
             res.cookie('authToken', tokenResponse.accessToken, { sameSite: false, secure: false });
 
-
             if (!userDetails) {
                 await UserModel.create({
                     Name: name,
@@ -54,6 +53,8 @@ const fetchAuthToken = async (req, res, next) => {
                 })
                 res.redirect(frontendBaseUrl + "/role-selection")
             }
+
+            if(!userDetails.role) res.redirect(frontendBaseUrl + "/role-selection")
 
             res.redirect(frontendBaseUrl + "/home")
 
