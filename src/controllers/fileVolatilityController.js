@@ -5,17 +5,20 @@ const statusTypeEnum = require("../enums/statusType.enum");
 const LoadLogDetailModel = require("../models/loadLogDetail.model");
 const ColumnMappingModel = require("../models/columnMapping.model");
 const { sequelize } = require("../../models");
+const fileVolatilityFilterEnum = require("../enums/fileVolatilityFilter.enum");
 
 const fetchVolatilityList = async (req, res, next) => {
     try {
-        const { limit, offset, page, pageSize } = getPaginationDetails(req)
+        const { limit, offset, page } = getPaginationDetails(req)
         const {
             search, filter_by_provider: filterByProvider, filter_by_category: filterByCategory,
-            filter_by_status: filterByStatus, filter_by_country: filterByCountry, start_date: startDate,
-            end_date: endDate
+            filter_by_country: filterByCountry, start_date: startDate,
+            end_date: endDate, filter_by_fail: filterByFail, filter_by_in_progress: filterByInProgress,
+            filter_by_success: filterBySuccess, order_by_id: orderById, order_by_provider: orderByProvider
         } = req.query
 
         let whereClause = {}
+        let orderClause = [["LogId", "DESC"]];
 
         if (filterByProvider) {
             whereClause['SOURCE'] = filterByProvider
@@ -37,9 +40,23 @@ const fetchVolatilityList = async (req, res, next) => {
             }
         }
 
-        if (filterByStatus) {
-            whereClause["PIPELINESTATUS"] = {
-                [Op.in]: filterByStatus.split(",")
+        const statusFilterList = []
+
+        if (filterByFail && filterByFail != 'false') {
+            statusFilterList.push(fileVolatilityFilterEnum.FAILURE)
+        }
+
+        if (filterByInProgress && filterByInProgress != 'false') {
+            statusFilterList.push(fileVolatilityFilterEnum.IN_PROGRESS)
+        }
+
+        if (filterBySuccess && filterBySuccess != 'false') {
+            statusFilterList.push(fileVolatilityFilterEnum.SUCCESS)
+        }
+
+        if (statusFilterList.length > 0) {
+            whereClause['PIPELINESTATUS'] = {
+                [Op.in]: statusFilterList
             }
         }
 
@@ -49,10 +66,19 @@ const fetchVolatilityList = async (req, res, next) => {
             }
         }
 
+        if (orderById) {
+            orderClause = [["LogId", orderById]];
+        }
+
+        if (orderByProvider) {
+            orderClause = [["SOURCE", orderByProvider]]
+        }
+
         const volatilityList = await LoadLogModel.findAndCountAll({
             limit,
             offset,
             where: whereClause,
+            order: orderClause
         })
 
         const responseObj = {
