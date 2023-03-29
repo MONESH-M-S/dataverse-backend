@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.1fbb7529.css",
-    "main.js": "/static/js/main.c18d69cf.js",
+    "main.css": "/static/css/main.c6689edd.css",
+    "main.js": "/static/js/main.1e480941.js",
     "static/media/unilever-logo-blue.svg": "/static/media/unilever-logo-blue.d115a9af3eb102f1a79e99aa773966ef.svg",
     "static/media/uniliver-logo.svg": "/static/media/uniliver-logo.ee8233a39c2c2ddbfd1a1723637377be.svg",
     "static/media/staticContent.svg": "/static/media/staticContent.554aafbdb081f770c2a3099da407a2e1.svg",
@@ -40,7 +40,7 @@
     "static/media/up-down-icon.svg": "/static/media/up-down-icon.985bd0933f8adbb7fdff95e56a39f185.svg",
     "static/media/reports.svg": "/static/media/reports.5628fec8721d8920fcedded9b25a0900.svg",
     "static/media/reports-white.svg": "/static/media/reports-white.ec0f07845fd9c827ad5b88fc19e5e3ef.svg",
-    "static/media/delete-cross.svg": "/static/media/delete-cross.831ec280d7c41b221f92f1627fb91f71.svg",
+    "static/media/update-icon.svg": "/static/media/update-icon.fa049c7353ea69195d41fe8443afa76f.svg",
     "static/media/home-white.svg": "/static/media/home-white.55683c75a61c192d3e5af98cd71238a5.svg",
     "static/media/home.svg": "/static/media/home.305820d8157e57b1845df000feb6a18d.svg",
     "static/media/back-arrow.svg": "/static/media/back-arrow.76e3d75417657812c1c8555d1012544a.svg",
@@ -61,11 +61,11 @@
     "static/media/dropdown-icon.svg": "/static/media/dropdown-icon.600523cb37e91e9cbd8571d89607ff29.svg",
     "static/media/green-dot.svg": "/static/media/green-dot.7e30ba447400734edccc35ccf73323e7.svg",
     "static/media/red-dot.svg": "/static/media/red-dot.e592916bda3a4bcbd9bef249fa60caaa.svg",
-    "main.1fbb7529.css.map": "/static/css/main.1fbb7529.css.map",
-    "main.c18d69cf.js.map": "/static/js/main.c18d69cf.js.map"
+    "main.c6689edd.css.map": "/static/css/main.c6689edd.css.map",
+    "main.1e480941.js.map": "/static/js/main.1e480941.js.map"
   },
   "entrypoints": [
-    "static/css/main.1fbb7529.css",
-    "static/js/main.c18d69cf.js"
+    "static/css/main.c6689edd.css",
+    "static/js/main.1e480941.js"
   ]
 }
