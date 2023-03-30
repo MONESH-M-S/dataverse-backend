@@ -14,7 +14,7 @@ router.get("/dashboard", auth, fetchSmartMappingDashboardCount);
 router.get("/", auth, fetchSmatMappingList);
 router.get("/:id", auth, fetchIndividualSmartMapping);
 router.get("/:id/mapped", auth, fetchSmartMappingMappedDetails);
-router.get("/:id/un-mapped", fauth, etchSmartMappingUnMappedDetails);
+router.get("/:id/un-mapped", auth, fetchSmartMappingUnMappedDetails);
 router.put("/:id", auth, updateSmartMappingDetails);
 
 module.exports = router;
