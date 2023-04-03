@@ -1,7 +1,7 @@
 const express = require("express");
 const {
     fetchVolatilityList, fetchIndividualVolatilityFile, fetchColumnMappings,
-    updateColumnMapping, fetchDashboardDetails, fetchLeadLogDetails
+    updateColumnMapping, fetchDashboardDetails, fetchLeadLogDetails, addTargetColumn
 } = require("../controllers/fileVolatilityController");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
@@ -12,5 +12,6 @@ router.get("/:id", auth, fetchIndividualVolatilityFile);
 router.get("/:id/mappings", auth, fetchColumnMappings);
 router.put("/:id/mappings", auth, updateColumnMapping);
 router.get("/:id/details", auth, fetchLeadLogDetails);
+router.post("/:id/target-column", auth, addTargetColumn);
 
 module.exports = router;

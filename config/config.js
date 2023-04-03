@@ -8,10 +8,11 @@ const decodedPassowrd = bufferData.toString("ascii");
 module.exports = {
   development: {
     username: DB_USERNAME,
-    password: decodedPassowrd,
+    password: DB_PASSWORD,
     database: DB_NAME,
     host: DB_HOST,
     dialect: DB_DIALECT,
+    port: 1433,
   },
   test: {
     username: DB_USERNAME,
