@@ -2,8 +2,8 @@ const { SecretClient } = require("@azure/keyvault-secrets");
 const { DefaultAzureCredential } = require("@azure/identity");
 
 async function main() {
-    const keyVaultName = 'bnlwe-da02-b-902592-kv01';
-    const secretName = "6d8fc003-0459-4b44-8e78-937f3d76f009";
+    const keyVaultName = 'bieno-da06-u-904378-kv0';
+    const secretName = "svc-b-da-u-904378-ina-aadprincipal";
     const url = `https://${keyVaultName}.vault.azure.net`;
 
     const credential = new DefaultAzureCredential();
