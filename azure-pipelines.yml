@@ -12,7 +12,7 @@ pool:
 steps:
   - task: AzureCLI@1
     inputs:
-      azureSubscription: "Project-da06-d-904378-ServiceEndPoint"
+      azureSubscription: "Project-da08-d-904380-ServiceEndPoint"
       scriptType: "ps"
       scriptLocation: "inlineScript"
       inlineScript: 'az webapp up --resource-group bieno-da06-u-904378-rg --name bieno-da06-u-904378-webapi-02 --os-type Windows --runtime "NODE:18LTS" --plan "bieno-da06-u-904378-serviceplan-02"'
