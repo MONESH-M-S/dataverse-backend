@@ -19,6 +19,7 @@ const TempManualMappingModel = sequelize.define('TempManualMapping', {
     tableName: 'TempManualMapping',
     schema: 'Mapping',
     timestamps: false,
+    hasTrigger: true
 });
 
 module.exports = TempManualMappingModel
