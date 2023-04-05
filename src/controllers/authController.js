@@ -1,5 +1,6 @@
 const { ConfidentialClientApplication } = require('@azure/msal-node');
 const { msalConfig, redirectionUrl, scopes, frontendBaseUrl } = require('../config/msal.config');
+const { keyVaultName, keyName } = require('../config/keyVault.config')
 const jwt_decode = require('jwt-decode');
 const { SecretClient } = require('@azure/keyvault-secrets');
 const { DefaultAzureCredential } = require('@azure/identity');
@@ -8,13 +9,12 @@ const userStatusEnum = require('../models/enums/userStatus.enum');
 
 const fetchKeyVaultSecretvalue = async () => {
 
-    const keyVaultName = 'bieno-da08-d-904380-kv01';
+    const { keyVaultName, keyName } = keyVaultconfig
     const KVUri = `https://${keyVaultName}.vault.azure.net`;
 
     const credential = new DefaultAzureCredential();
     const client = new SecretClient(KVUri, credential);
 
-    const keyName = 'svc-b-da-d-904380-ina-aadprincipal';
     const secret = await client.getSecret(keyName);
 
     return secret

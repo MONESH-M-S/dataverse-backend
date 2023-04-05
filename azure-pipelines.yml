@@ -4,16 +4,15 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
-  - develop
+  - uat
 
 pool:
   vmImage: windows-latest
 
 steps:
-  - task: AzureCLI@2
+  - task: AzureCLI@1
     inputs:
-      azureSubscription: "Project-da08-d-904380-ServiceEndPoint"
+      azureSubscription: "Project-da06-d-904378-ServiceEndPoint"
       scriptType: "ps"
       scriptLocation: "inlineScript"
-      inlineScript: 'az webapp up --resource-group bieno-da08-d-904380-rg --name bieno-da08-d-904380-webapi-02 --os-type Windows --runtime "NODE:18LTS" --plan "bieno-da08-d-904380-serviceplan-02"'
-
+      inlineScript: 'az webapp up --resource-group bieno-da06-u-904378-rg --name bieno-da06-u-904378-webapi-02 --os-type Windows --runtime "NODE:18LTS" --plan "bieno-da06-u-904378-serviceplan-02"'
