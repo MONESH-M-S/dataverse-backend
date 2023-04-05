@@ -9,7 +9,7 @@ const userStatusEnum = require('../models/enums/userStatus.enum');
 
 const fetchKeyVaultSecretvalue = async () => {
 
-    const { keyVaultName, keyName } = keyVaultconfig
+    // const { keyVaultName, keyName } = keyVaultconfig
     const KVUri = `https://${keyVaultName}.vault.azure.net`;
 
     const credential = new DefaultAzureCredential();
