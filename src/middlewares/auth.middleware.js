@@ -3,7 +3,7 @@ const jwksClient = require("jwks-rsa");
 
 const getSigningKeys = (header, callback) => {
   var client = jwksClient({
-    jwksUri: `https://login.microsoftonline.com/f66fae02-5d36-495b-bfe0-78a6ff9f8e6e/discovery/v2.0/keys`,
+    jwksUri: process.env.DISCOVERY_URL,
   });
 
   client.getSigningKey(header.kid, function (err, key) {
@@ -13,8 +13,8 @@ const getSigningKeys = (header, callback) => {
 };
 
 const validationOptions = {
-  audience: `api://6d8fc003-0459-4b44-8e78-937f3d76f009`,
-  issuer: `https://sts.windows.net/f66fae02-5d36-495b-bfe0-78a6ff9f8e6e/`,
+  audience: process.env.AUDIENCE,
+  issuer: process.env.ISSUER,
 };
 
 module.exports = async (req, res, next) => {
