@@ -13,8 +13,8 @@ const getSigningKeys = (header, callback) => {
 };
 
 const validationOptions = {
-  audience: `https://login.microsoftonline.com/f66fae02-5d36-495b-bfe0-78a6ff9f8e6e`,
-  issuer: `https://sts.window.net/f66fae02-5d36-495b-bfe0-78a6ff9f8e6e`,
+  audience: `api://6d8fc003-0459-4b44-8e78-937f3d76f009`,
+  issuer: `https://sts.windows.net/f66fae02-5d36-495b-bfe0-78a6ff9f8e6e/`,
 };
 
 module.exports = async (req, res, next) => {
@@ -40,8 +40,9 @@ module.exports = async (req, res, next) => {
       // Set the user object on the request for downstream middleware/routes to access
       req.user = {
         name: payload.name,
-        email: payload.email,
+        email: payload.upn,
       };
+
       next();
     });
     
