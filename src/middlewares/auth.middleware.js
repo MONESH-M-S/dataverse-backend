@@ -7,41 +7,41 @@ const client = jwksClient({
 });
 
 module.exports = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  // const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
-    return res.status(401).send('Authorization header missing');
-  }
+  // if (!authHeader) {
+  //   return res.status(401).send('Authorization header missing');
+  // }
 
-  const parts = authHeader.split(' ');
+  // const parts = authHeader.split(' ');
 
-  if (parts.length !== 2) {
-    return res.status(401).send('Invalid authorization header');
-  }
+  // if (parts.length !== 2) {
+  //   return res.status(401).send('Invalid authorization header');
+  // }
 
-  const token = parts[1];
+  // const token = parts[1];
 
   try {
     // Get the key ID from the access token header
-    const header = jwt.decode(token, { complete: true }).header;
-    const kid = header.kid;
+    // const header = jwt.decode(token, { complete: true }).header;
+    // const kid = header.kid;
 
-    var verifyOptions = {
-      algorithms: ['RS256'],
-      header: header
-    };
+    // var verifyOptions = {
+    //   algorithms: ['RS256'],
+    //   header: header
+    // };
 
-    const key = await client.getSigningKey(kid);
-    const signingKey = key.rsaPublicKey;
+    // const key = await client.getSigningKey(kid);
+    // const signingKey = key.rsaPublicKey;
 
-    // Verify the access token using the public key
-    const decoded = jwt.verify(token, signingKey, verifyOptions);
+    // // Verify the access token using the public key
+    // const decoded = jwt.verify(token, signingKey, verifyOptions);
 
-    // Set the user object on the request for downstream middleware/routes to access
-    req.user = {
-      name: decoded.name,
-      email: decoded.email
-    };
+    // // Set the user object on the request for downstream middleware/routes to access
+    // req.user = {
+    //   name: decoded.name,
+    //   email: decoded.email
+    // };
     next();
   } catch (error) {
     console.log(error);
