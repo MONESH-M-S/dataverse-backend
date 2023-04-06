@@ -1,9 +1,23 @@
 const express = require("express");
 const {
-    fetchSmatMappingList, fetchSmartMappingDashboardCount, fetchIndividualSmartMapping,
-    fetchSmartMappingMappedDetails, fetchSmartMappingUnMappedDetails, updateSmartMappingDetails,
-    fetchCategoryMeta, fetchProviderMeta, fetchCountryMeta
+  fetchSmatMappingList,
+  fetchSmartMappingDashboardCount,
+  fetchIndividualSmartMapping,
+  fetchSmartMappingMappedDetails,
+  fetchSmartMappingUnMappedDetails,
+  updateSmartMappingDetails,
+  fetchCategoryMeta,
+  fetchProviderMeta,
+  fetchCountryMeta,
 } = require("../controllers/smartMappingController");
+const {
+  fetchSmartMappingFactList,
+  fetchSmartMappingFactDetail,
+  fetchFactCategoryMeta,
+  fetchFactCountryMeta,
+  fetchFactProviderMeta,
+  updateFactSmartMappingDetails,
+} = require("../controllers/smartMappingFactController");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
 
@@ -16,5 +30,15 @@ router.get("/:id", auth, fetchIndividualSmartMapping);
 router.get("/:id/mapped", auth, fetchSmartMappingMappedDetails);
 router.get("/:id/un-mapped", auth, fetchSmartMappingUnMappedDetails);
 router.put("/:id", auth, updateSmartMappingDetails);
+
+// Fact
+router.get("/fact/summary", auth, fetchSmartMappingFactList);
+router.get("/fact/details", auth, fetchSmartMappingFactDetail);
+router.post("/fact/low/:id", auth, updateFactSmartMappingDetails);
+
+// Fact Filters
+router.get("/fact/meta/category/", auth, fetchFactCategoryMeta);
+router.get("/fact/meta/provider/", auth, fetchFactProviderMeta);
+router.get("/fact/meta/country/", auth, fetchFactCountryMeta);
 
 module.exports = router;
