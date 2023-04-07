@@ -50,7 +50,7 @@ app.use("/api/smart-mapping", smartMappingRoutes);
 app.use("/api/meta", metaRoutes);
 app.use("/api/file-volatility", fileVolatilityRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/dashboard", dashboardRoutes)
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use('/secret', auth, async (req,res)=>{
   const keyVaultName = process.env.KEY_VAULT_NAME;
@@ -65,7 +65,7 @@ app.use('/secret', auth, async (req,res)=>{
 
 app.use(express.static(path.join(__dirname, 'ui')));
 
-app.get('/',(req,res)=>{
+app.get('/*',(req,res)=>{
 
     let file = '';
     if(req.url === '/') 
