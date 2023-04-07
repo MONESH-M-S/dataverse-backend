@@ -19,6 +19,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const http = require("http");
 const cors = require("cors");
+const fs = require('fs');
+
 const errorHandlerMiddleware = require("./src/middlewares/errorHandler.middleware");
 const joiErrorHandlerMiddleware = require("./src/middlewares/joiErrorHandler.middleware");
 const auth = require("./src/middlewares/auth.middleware");
@@ -64,10 +66,28 @@ app.use('/secret', auth, async (req,res)=>{
   res.send(secret).status(200);
 })
 
-app.use(express.static(path.join(__dirname, 'build')));
+// app.use(express.static(path.join(__dirname, 'build')));
+app.use(express.static(path.join(__dirname, 'ui')));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+// app.get('*', (req, res) => {
+//   res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+// });
+
+app.get('/',(req,res)=>{
+
+    let file = '';
+    if(req.url === '/') 
+        file = '/index.html';
+    else 
+        file = req.url;
+    const filePath = path.join(__dirname, 'ui', file);
+
+    console.log(filePath);
+    
+    if(fs.existsSync(filePath))
+        res.sendFile(filePath);
+    else
+        res.sendFile(path.join(__dirname, 'ui/index.html'));
 });
 
 // Handling Errors message
