@@ -1,6 +1,6 @@
 const SmartMappingFactListModel = require("../models/smartMappingFactList.model");
 const SmartMappingFactDetailsModel = require("../models/smartMappingFactDetails.model");
-const TempManualMappingModel = require("../models/tempManualMapping.model");
+const MultipleMapFact = require("../models/multipleMapFact.model");
 const getPaginationDetails = require("../utils/response/getPaginationDetails");
 const { Sequelize } = require("../../models");
 
@@ -85,7 +85,8 @@ const fetchSmartMappingFactDetail = async (req, res, next) => {
 
     if (FileName) whereClause["Filename"] = FileName;
 
-    if (Confidencelevel) whereClause["Confidencelevel"] = Confidencelevel.toUpperCase();
+    if (Confidencelevel)
+      whereClause["Confidencelevel"] = Confidencelevel.toUpperCase();
 
     const mappingDataList = await SmartMappingFactDetailsModel.findAndCountAll({
       limit,
@@ -102,6 +103,36 @@ const fetchSmartMappingFactDetail = async (req, res, next) => {
 
     res.json(responseObj);
   } catch (error) {
+    next(error);
+  }
+};
+
+const fetchLowMappingDetails = async (req, res, next) => {
+  try {
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { FileName } = req.query;
+
+    let whereClause = {};
+    if (FileName) whereClause["Filename"] = FileName;
+
+    const data = await MultipleMapFact.findAndCountAll({
+      attributes: { exclude: ["Internaldesc"] },
+      limit,
+      offset,
+      where: whereClause,
+    });
+
+    console.log(data);
+
+    res.json({
+      result: mappingDataList.rows,
+      page,
+      page_size: pageSize,
+      total_count: mappingDataList.count,
+    });
+    
+  } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -149,49 +180,52 @@ const fetchFactCountryMeta = async (req, res, next) => {
   try {
     const countryList = await SmartMappingFactListModel.findAll({
       attributes: [
-        [Sequelize.fn('DISTINCT', Sequelize.col('Country')), 'name']
+        [Sequelize.fn("DISTINCT", Sequelize.col("Country")), "name"],
       ],
       where: {
-        Dimension: 'Fact'
-      }
+        Dimension: "Fact",
+      },
     });
-    res.json(countryList)
+    res.json(countryList);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchFactProviderMeta = async (req, res, next) => {
   try {
     const providerList = await SmartMappingFactListModel.findAll({
       attributes: [
-        [Sequelize.fn('DISTINCT', Sequelize.col('ExternalDataProvider')), 'name']
+        [
+          Sequelize.fn("DISTINCT", Sequelize.col("ExternalDataProvider")),
+          "name",
+        ],
       ],
       where: {
-        Dimension: 'Fact'
-      }
+        Dimension: "Fact",
+      },
     });
-    res.json(providerList)
+    res.json(providerList);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchFactCategoryMeta = async (req, res, next) => {
   try {
     const providerList = await SmartMappingFactListModel.findAll({
       attributes: [
-        [Sequelize.fn('DISTINCT', Sequelize.col('Category')), 'name']
+        [Sequelize.fn("DISTINCT", Sequelize.col("Category")), "name"],
       ],
       where: {
-        Dimension: 'Fact'
-      }
+        Dimension: "Fact",
+      },
     });
-    res.json(providerList)
+    res.json(providerList);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 module.exports = {
   fetchSmartMappingFactList,
@@ -199,5 +233,5 @@ module.exports = {
   fetchFactCategoryMeta,
   fetchFactProviderMeta,
   fetchFactCountryMeta,
-  updateFactSmartMappingDetails
+  updateFactSmartMappingDetails,
 };
