@@ -35,7 +35,6 @@ const metaRoutes = require("./src/routes/meta.routes")
 const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes")
 const authRoutes = require("./src/routes/auth.routes");
 const dashboardRoutes = require("./src/routes/dashboard.routes");
-const SSORoutes = require("./src/routes/sso.routes");
 const cookieParser = require('cookie-parser');
 
 app.use(bodyParser.json());
@@ -52,8 +51,6 @@ app.use("/api/meta", metaRoutes);
 app.use("/api/file-volatility", fileVolatilityRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes)
-app.use("/auth", SSORoutes)
-
 
 app.use('/secret', auth, async (req,res)=>{
   const keyVaultName = process.env.KEY_VAULT_NAME;
@@ -66,12 +63,7 @@ app.use('/secret', auth, async (req,res)=>{
   res.send(secret).status(200);
 })
 
-// app.use(express.static(path.join(__dirname, 'build')));
 app.use(express.static(path.join(__dirname, 'ui')));
-
-// app.get('*', (req, res) => {
-//   res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
-// });
 
 app.get('/',(req,res)=>{
 
