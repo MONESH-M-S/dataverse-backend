@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.3732dcec.css",
-    "main.js": "/static/js/main.0c07aa5f.js",
+    "main.js": "/static/js/main.499b36cb.js",
     "static/media/unilever-logo-blue.svg": "/static/media/unilever-logo-blue.9f43cf8b37640f7a8c970b618bca1e2d.svg",
     "static/media/uniliver-logo.svg": "/static/media/uniliver-logo.4f04df90a2cfbcba6cd3951fe2cc19cb.svg",
     "static/media/staticContent.svg": "/static/media/staticContent.e75ef62ec6c8f27c0a5ab2839e9f328f.svg",
@@ -63,10 +63,10 @@
     "static/media/green-dot.svg": "/static/media/green-dot.15ec484c7d0e8dc701d758d5287dd39b.svg",
     "static/media/red-dot.svg": "/static/media/red-dot.4384a1b76382c07d513973ad49c72d9d.svg",
     "main.3732dcec.css.map": "/static/css/main.3732dcec.css.map",
-    "main.0c07aa5f.js.map": "/static/js/main.0c07aa5f.js.map"
+    "main.499b36cb.js.map": "/static/js/main.499b36cb.js.map"
   },
   "entrypoints": [
     "static/css/main.3732dcec.css",
-    "static/js/main.0c07aa5f.js"
+    "static/js/main.499b36cb.js"
   ]
 }
