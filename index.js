@@ -1,11 +1,14 @@
-const env = process.env.NODE_ENV
-console.log("Environment is ", env)
+const env = process.env.APP_ENVIRONMENT
 const path = require('path');
 
 
 switch (env) {
   case "test":
     require("custom-env").env("test");
+    break;
+
+  case "development":
+    require("custom-env").env("development");
     break;
 
   default:
@@ -16,9 +19,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const http = require("http");
 const cors = require("cors");
-console.log("Entered node app");
 const errorHandlerMiddleware = require("./src/middlewares/errorHandler.middleware");
 const joiErrorHandlerMiddleware = require("./src/middlewares/joiErrorHandler.middleware");
+const auth = require("./src/middlewares/auth.middleware");
 
 const app = express();
 const server = http.createServer(app);
@@ -48,8 +51,20 @@ app.use("/api/file-volatility", fileVolatilityRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes)
 app.use("/auth", SSORoutes)
-// app.use("/", authRoutes);
-app.use(express.static(path.join(__dirname, 'build')))
+
+
+app.use('/secret', auth, async (req,res)=>{
+  const keyVaultName = process.env.KEY_VAULT_NAME;
+  const secretName = process.env.KEY_VAULT_SECRET_NAME;
+  const url = `https://${keyVaultName}.vault.azure.net`;
+  
+  const credential = new DefaultAzureCredential();
+  const client = new SecretClient(url, credential);
+  const secret = await client.getSecret(secretName);
+  res.send(secret).status(200);
+})
+
+app.use(express.static(path.join(__dirname, 'build')));
 
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
