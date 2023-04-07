@@ -10,6 +10,7 @@ const MultipleMapFact = sequelize.define('MultipleMapFact', {
     Filename: DataTypes.STRING,
     Tag: DataTypes.STRING,
     Externaldesc: DataTypes.STRING,
+    Internaldesc: DataTypes.STRING,
     Facttype: DataTypes.STRING
 }, {
     tableName: 'MultipleMapFact',

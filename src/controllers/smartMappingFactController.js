@@ -140,7 +140,7 @@ const fetchMappingDataforLow = async (req, res, next) => {
     const { Externaldesc } = req.query;
 
     const data = await MultipleMapFact.findAndCountAll({
-      attributes: { exclude: ["Filename", "Tag"] },
+      attributes: { exclude: ["Filename", "Tag", "Externaldesc"] },
       where: { Externaldesc: Externaldesc },
     });
 
