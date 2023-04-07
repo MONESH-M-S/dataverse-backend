@@ -140,9 +140,7 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
           },
         },
         {
-          Confidencelevel: {
-            [Op.in]: ["High", "Medium"]
-          },
+          Confidencelevel: "HIGH"
         }
       ]
     };
@@ -215,6 +213,37 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
   res.json(responseObj);
 };
 
+const fetchSmartMappingMediumResults = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const smartMapping = await SmartMappingListModel.findByPk(id)
+
+    const mediumList = await SmartMappingDetailsModel.findAndCountAll({
+      limit,
+      offset,
+      where: {
+        Filename: smartMapping.Filename,
+        Confidencelevel: "MEDIUM"
+      },
+      order: [["id", "desc"]]
+    })
+
+    const responseObj = {
+      result: mediumList.rows,
+      page,
+      page_size: pageSize,
+      total_count: mediumList.count,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+
+}
+
 const updateSmartMappingDetails = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -242,7 +271,7 @@ const updateSmartMappingDetails = async (req, res, next) => {
       })
     })
 
-    await TempManualMappingModel.bulkCreate(insertDataList);
+    await TempManualMappingModel.bulkCreate(insertDataList, { returning: false, });
 
     res.json({
       status: statusTypeEnum.success,
@@ -300,6 +329,7 @@ module.exports = {
   fetchSmartMappingMappedDetails,
   fetchIndividualSmartMapping,
   fetchSmartMappingUnMappedDetails,
+  fetchSmartMappingMediumResults,
   updateSmartMappingDetails,
   fetchCountryMeta,
   fetchProviderMeta,
