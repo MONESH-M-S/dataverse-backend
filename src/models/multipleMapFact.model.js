@@ -13,7 +13,7 @@ const MultipleMapFact = sequelize.define('MultipleMapFact', {
     Facttype: DataTypes.STRING
 }, {
     tableName: 'MultipleMapFact',
-    schema: 'info',
+    schema: 'mapping',
     timestamps: false,
 });
 

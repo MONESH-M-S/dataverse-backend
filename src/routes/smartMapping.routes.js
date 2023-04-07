@@ -11,6 +11,7 @@ const {
   fetchFactCountryMeta,
   fetchFactProviderMeta,
   updateFactSmartMappingDetails,
+  fetchLowMappingDetails,fetchMappingDataforLow
 } = require("../controllers/smartMappingFactController");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
@@ -29,6 +30,8 @@ router.put("/:id", auth, updateSmartMappingDetails);
 // Fact
 router.get("/fact/summary", auth, fetchSmartMappingFactList);
 router.get("/fact/details", auth, fetchSmartMappingFactDetail);
+router.get("/fact/details/low", auth, fetchLowMappingDetails);
+router.get("/fact/details/low-map", auth, fetchMappingDataforLow);
 router.post("/fact/low/:id", auth, updateFactSmartMappingDetails);
 
 // Fact Filters

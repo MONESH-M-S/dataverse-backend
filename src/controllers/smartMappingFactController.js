@@ -116,19 +116,17 @@ const fetchLowMappingDetails = async (req, res, next) => {
     if (FileName) whereClause["Filename"] = FileName;
 
     const data = await MultipleMapFact.findAndCountAll({
-      attributes: { exclude: ["Internaldesc"] },
+      attributes: { exclude: ["Internaldesc", "Facttype"] },
       limit,
       offset,
       where: whereClause,
     });
 
-    console.log(data);
-
     res.json({
-      result: mappingDataList.rows,
+      result: data.rows,
       page,
       page_size: pageSize,
-      total_count: mappingDataList.count,
+      total_count: data.count,
     });
     
   } catch (error) {
@@ -136,6 +134,24 @@ const fetchLowMappingDetails = async (req, res, next) => {
     next(error);
   }
 };
+
+const fetchMappingDataforLow = async (req, res, next) => {
+  try  {
+    const { Externaldesc } = req.query;
+
+    const data = await MultipleMapFact.findAndCountAll({
+      attributes: { exclude: ["Filename", "Tag"] },
+      where: { Externaldesc: Externaldesc },
+    });
+
+    res.json({
+      data
+    })
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+}
 
 const updateFactSmartMappingDetails = async (req, res, next) => {
   try {
@@ -234,4 +250,6 @@ module.exports = {
   fetchFactProviderMeta,
   fetchFactCountryMeta,
   updateFactSmartMappingDetails,
+  fetchLowMappingDetails,
+  fetchMappingDataforLow
 };
