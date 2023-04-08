@@ -17,12 +17,14 @@ steps:
       workingDirectory: '.'
     displayName: 'clean ui folder'
 
-  - task: DownloadBuildArtifacts@1
+  - task: DownloadPipelineArtifact@2
     inputs:
-      buildType: 'current'
-      downloadType: 'single'
+      buildType: 'specific'
+      project: 'e5ec1a4a-2be7-405b-8fe8-d3dfe80b32bf'
+      definition: '4161'
+      buildVersionToDownload: 'latest'
       artifactName: 'ui'
-      downloadPath: '.'
+      targetPath: '.'
     displayName: 'download react artifact'
 
   - task: CmdLine@2
