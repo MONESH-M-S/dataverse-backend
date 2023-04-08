@@ -10,10 +10,34 @@ pool:
   vmImage: windows-latest
 
 steps:
+  - task: CmdLine@2
+    inputs:
+      script: |
+        rmdir /S /Q ui
+      workingDirectory: '.'
+    displayName: 'clean ui folder'
+
+  - task: DownloadBuildArtifacts@1
+    inputs:
+      buildType: 'current'
+      downloadType: 'single'
+      artifactName: 'ui'
+      downloadPath: '.'
+    displayName: 'download react artifact'
+
+  - task: CmdLine@2
+    inputs:
+      script: |
+        dir .
+        echo ui
+        dir ui
+      workingDirectory: '.'
+    displayName: 'chumma'
+
   - task: AzureCLI@2
     inputs:
       azureSubscription: "Project-da08-d-904380-ServiceEndPoint"
       scriptType: "ps"
       scriptLocation: "inlineScript"
       inlineScript: 'az webapp up --resource-group bieno-da08-d-904380-rg --name bieno-da08-d-904380-webapi-02 --os-type Windows --runtime "NODE:18LTS" --plan "bieno-da08-d-904380-serviceplan-02"'
-
+    displayName: 'deploy node + react app to appservice'
