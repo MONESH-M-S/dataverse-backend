@@ -27,15 +27,6 @@ steps:
       targetPath: './ui'
     displayName: 'download react artifact'
 
-  - task: CmdLine@2
-    inputs:
-      script: |
-        dir .
-        echo ui
-        dir ui
-      workingDirectory: '.'
-    displayName: 'chumma'
-
   - task: AzureCLI@2
     inputs:
       azureSubscription: "Project-da08-d-904380-ServiceEndPoint"
