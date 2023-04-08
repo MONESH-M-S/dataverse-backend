@@ -24,7 +24,7 @@ steps:
       definition: '4161'
       buildVersionToDownload: 'latest'
       artifactName: 'ui'
-      targetPath: '.'
+      targetPath: './ui'
     displayName: 'download react artifact'
 
   - task: CmdLine@2
