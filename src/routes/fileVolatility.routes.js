@@ -5,13 +5,18 @@ const {
 } = require("../controllers/fileVolatilityController");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
+const addTargetSchema = require("../schema/addTarget.schema");
+const updateColumnMappingsSchema = require("../schema/updateColumnMappings.schema");
+const validator = require("express-joi-validation").createValidator({
+    passError: true,
+});
 
 router.get("/", auth, fetchVolatilityList);
 router.get("/dashboard", auth, fetchDashboardDetails);
 router.get("/:id", auth, fetchIndividualVolatilityFile);
 router.get("/:id/mappings", auth, fetchColumnMappings);
-router.put("/:id/mappings", auth, updateColumnMapping);
+router.put("/:id/mappings", auth, validator.body(updateColumnMappingsSchema), updateColumnMapping);
 router.get("/:id/details", auth, fetchLeadLogDetails);
-router.post("/:id/target-column", auth, addTargetColumn);
+router.post("/:id/target-column", auth, validator.body(addTargetSchema), addTargetColumn);
 
 module.exports = router;
