@@ -94,7 +94,7 @@ const fetchSmartMappingFactById = async (req, res, next) => {
 const fetchSmartMappingFactDetail = async (req, res, next) => {
   try {
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
-    const { FileName, Confidencelevel } = req.query;
+    const { FileName, Confidencelevel, search } = req.query;
 
     let whereClause = {};
 
@@ -102,6 +102,12 @@ const fetchSmartMappingFactDetail = async (req, res, next) => {
 
     if (Confidencelevel)
       whereClause["Confidencelevel"] = Confidencelevel.toUpperCase();
+
+    if (search) {
+      whereClause["Externaldesc"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
 
     const mappingDataList = await SmartMappingFactDetailsModel.findAndCountAll({
       limit,
@@ -125,7 +131,16 @@ const fetchSmartMappingFactDetail = async (req, res, next) => {
 const fetchLowMappingDetails = async (req, res, next) => {
   try {
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
-    const { FileName } = req.query;
+    const { FileName, search } = req.query;
+
+    let whereClause = {};
+    whereClause["FileName"] = FileName;
+
+    if (search) {
+      whereClause["Externaldesc"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
 
     const data = await MultipleMapFact.findAndCountAll({
       attributes: [
