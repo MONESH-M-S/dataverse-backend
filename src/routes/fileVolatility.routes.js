@@ -3,14 +3,13 @@ const {
     fetchVolatilityList, fetchIndividualVolatilityFile, fetchColumnMappings,
     updateColumnMapping, fetchDashboardDetails, fetchLeadLogDetails, addTargetColumn
 } = require("../controllers/fileVolatilityController");
-const {
-  fetchFactColumnMappings,
-} = require("../controllers/fileVolatilityFactController");
+const { fetchFactColumnMappings, updateColumnMappingValues } = require("../controllers/fileVolatilityFactController");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
 
 // Fact
 router.get("/fact", auth, fetchFactColumnMappings);
+router.put("/", auth, updateColumnMappingValues)
 
 router.get("/", auth, fetchVolatilityList);
 router.get("/dashboard", auth, fetchDashboardDetails);
