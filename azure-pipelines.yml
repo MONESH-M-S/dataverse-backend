@@ -6,14 +6,41 @@
 trigger:
   - develop
 
+resources:
+  pipelines:
+  - pipeline: react-pipeline # Name of the pipeline resource.
+    source: 'Dev FE React' # The name of the pipeline referenced by this pipeline resource.
+    trigger: 
+      branches:
+        include: 
+        - refs/heads/develop
+
+
 pool:
   vmImage: windows-latest
 
 steps:
+  - task: CmdLine@2
+    inputs:
+      script: |
+        rmdir /S /Q ui
+      workingDirectory: '.'
+    displayName: 'clean ui folder'
+
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      buildType: 'specific'
+      project: 'e5ec1a4a-2be7-405b-8fe8-d3dfe80b32bf'
+      definition: '4161'
+      buildVersionToDownload: 'latest'
+      artifactName: 'ui'
+      targetPath: './ui'
+    displayName: 'download react artifact'
+
   - task: AzureCLI@2
     inputs:
       azureSubscription: "Project-da08-d-904380-ServiceEndPoint"
       scriptType: "ps"
       scriptLocation: "inlineScript"
       inlineScript: 'az webapp up --resource-group bieno-da08-d-904380-rg --name bieno-da08-d-904380-webapi-02 --os-type Windows --runtime "NODE:18LTS" --plan "bieno-da08-d-904380-serviceplan-02"'
-
+    displayName: 'deploy node + react app to appservice'

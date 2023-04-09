@@ -1,9 +1,11 @@
+const msal = require("@azure/msal-node");
+
 const msalConfig = {
-    tenant: "f66fae02-5d36-495b-bfe0-78a6ff9f8e6e",
+    tenant: process.env.TENENT_ID,
     auth: {
-        clientId: "6d8fc003-0459-4b44-8e78-937f3d76f009", // 'Application (client) ID' of app registration in Azure portal - this value is a GUID
-        authority: "https://login.microsoftonline.com/" + "f66fae02-5d36-495b-bfe0-78a6ff9f8e6e", // Full directory URL, in the form of https://login.microsoftonline.com/<tenant>
-        clientSecret:"secret_data" // Client secret generated from the app registration in Azure portal
+        clientId: process.env.CLIENT_ID, // 'Application (client) ID' of app registration in Azure portal - this value is a GUID
+        authority: `https://login.microsoftonline.com/${process.env.TENENT_ID}`, // Full directory URL, in the form of https://login.microsoftonline.com/<tenant>
+        clientSecret:process.env.CLIENT_SECRET // Client secret generated from the app registration in Azure portal
     },
     system: {
         loggerOptions: {
@@ -11,22 +13,24 @@ const msalConfig = {
                 console.log(message);
             },
             piiLoggingEnabled: false,
-            logLevel: "Info",
+            logLevel: msal.LogLevel.Verbose,
         }
     }
 }
 
+const cca = new msal.ConfidentialClientApplication(msalConfig);
+const scopes = [`api://${process.env.CLIENT_ID}/api.readwrite`];
+
 const redirectionUrl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/auth";
 const postLogoutRedirectionurl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/auth";
 const graphMeEndpoint = "https://graph.microsoft.com" + "v1.0/me";
-const scopes = ['User.Read', 'User.Read.All'];
 const frontendBaseUrl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net"
 
 module.exports = {
-    msalConfig,
     redirectionUrl,
     postLogoutRedirectionurl,
     graphMeEndpoint,
     scopes,
-    frontendBaseUrl
+    frontendBaseUrl,
+    cca
 };
