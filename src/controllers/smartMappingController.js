@@ -128,6 +128,7 @@ const fetchSmartMappingDashboardCount = async (req, res, next) => {
   }
 };
 
+
 const fetchSmartMappingMappedDetails = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -141,22 +142,21 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
       Confidencelevel: "HIGH"
     }
 
-    const mappedList = await SmartMappingDetailsModel.findAll({
-      // limit,
-      // offset,
-      // order: orderClause,
-      // where: whereClause
+    const mappedList = await SmartMappingDetailsModel.findAndCountAll({
+      limit,
+      offset,
+      order: orderClause,
+      where: whereClause
     })
 
-    // const responseObj = {
-    //   result: mappedList.rows,
-    //   page,
-    //   page_size: pageSize,
-    //   total_count: mappedList.count,
-    // };
+    const responseObj = {
+      result: mappedList.rows,
+      page,
+      page_size: pageSize,
+      total_count: mappedList.count,
+    };
 
-    res.json(mappedList);
-
+    res.json(responseObj);
   } catch (error) {
     next(error);
   }
