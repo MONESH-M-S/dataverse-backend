@@ -3,15 +3,18 @@ const getPaginationDetails = require("../utils/response/getPaginationDetails");
 const { Op } = require("sequelize");
 const statusTypeEnum = require("../enums/statusType.enum");
 const SmartMappingDetailsModel = require("../models/smartMappingDetails.model");
+const MappingPeriodOutput = require("../models/mappingPeriodOutput.model");
 const TempManualMappingModel = require("../models/tempManualMapping.model");
 const moment = require("moment");
 const { Sequelize } = require("../../models");
+const MultipleMapProduct = require("../models/multipleMapProduct.model");
+const dimensionEnum = require("../models/enums/dimension.enum");
 
-const fetchSmatMappingList = async (req, res, next) => {
+const fetchSmartMappingList = async (req, res, next) => {
   try {
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
     const {
-      search, orderKey, orderValue, start_date: startDate,
+      search, orderKey, orderValue, start_date: startDate, filter_by_dimension: filterByDimension,
       end_date: endDate, filter_by_country: filterByCountry,
       filter_by_provider: filterByProvider, filter_by_category: filterByCategory
     } = req.query;
@@ -47,6 +50,10 @@ const fetchSmatMappingList = async (req, res, next) => {
       whereClause["Filename"] = {
         [Op.like]: "%" + search + "%",
       }
+    }
+
+    if (filterByDimension) {
+      whereClause["Dimension"] = filterByDimension
     }
 
     const mappingDataList = await SmartMappingListModel.findAndCountAll({
@@ -247,31 +254,21 @@ const fetchSmartMappingMediumResults = async (req, res, next) => {
 const updateSmartMappingDetails = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const { id_list: idList } = req.body;
+    const data = req.body;
 
-    const detailsList = await SmartMappingDetailsModel.findAll({
+    const sourceList = data.map((item) => item.source);
+
+    await SmartMappingDetailsModel.update({
+      Confidencelevel: "High"
+    }, {
       where: {
         Id: {
-          [Op.in]: idList
+          [Op.in]: sourceList
         }
       }
-    })
+    });
 
-    let insertDataList = []
-    detailsList.forEach((item) => {
-      insertDataList.push({
-        Filename: item.Filename,
-        Tag: item.Tag,
-        Hierlevelname: item.Hierlevelname,
-        Skucode: item.Skucode,
-        Createdon: moment().format('YYYY-MM-DD HH:mm:ss'),
-        Externaldesc: item.Externaldesc,
-        Internaldesc: item.Internaldesc,
-        MappingOutputId: item.Id
-      })
-    })
-
-    await TempManualMappingModel.bulkCreate(insertDataList, { returning: false, });
+    // TODO: Need to add the suggested mapping
 
     res.json({
       status: statusTypeEnum.success,
@@ -284,10 +281,20 @@ const updateSmartMappingDetails = async (req, res, next) => {
 
 const fetchCountryMeta = async (req, res, next) => {
   try {
+    const { filter_by_dimension: filterByDimension } = req.query
+
+    let whereClause = {};
+    if (filterByDimension) {
+      whereClause["Dimension"] = filterByDimension
+    } else {
+      whereClause["Dimension"] = dimensionEnum.product
+    }
+
     const countryList = await SmartMappingListModel.findAll({
       attributes: [
         [Sequelize.fn('DISTINCT', Sequelize.col('Country')), 'name']
-      ]
+      ],
+      where: whereClause
     });
     res.json(countryList)
   } catch (error) {
@@ -295,13 +302,22 @@ const fetchCountryMeta = async (req, res, next) => {
   }
 }
 
-
 const fetchProviderMeta = async (req, res, next) => {
   try {
+    const { filter_by_dimension: filterByDimension } = req.query
+
+    let whereClause = {};
+    if (filterByDimension) {
+      whereClause["Dimension"] = filterByDimension
+    } else {
+      whereClause["Dimension"] = dimensionEnum.product
+    }
+
     const providerList = await SmartMappingListModel.findAll({
       attributes: [
         [Sequelize.fn('DISTINCT', Sequelize.col('ExternalDataProvider')), 'name']
-      ]
+      ],
+      where: whereClause
     });
     res.json(providerList)
   } catch (error) {
@@ -309,22 +325,85 @@ const fetchProviderMeta = async (req, res, next) => {
   }
 }
 
-
 const fetchCategoryMeta = async (req, res, next) => {
   try {
+
+    const { filter_by_dimension: filterByDimension } = req.query
+
+    let whereClause = {};
+    if (filterByDimension) {
+      whereClause["Dimension"] = filterByDimension
+    } else {
+      whereClause["Dimension"] = dimensionEnum.product
+    }
+
     const providerList = await SmartMappingListModel.findAll({
       attributes: [
         [Sequelize.fn('DISTINCT', Sequelize.col('Category')), 'name']
-      ]
+      ],
+      where: whereClause
     });
     res.json(providerList)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const fetchUnmappedRecordsSuggestions = async (req, res, next) => {
+  const id = req.params.id;
+  const smartMapping = await SmartMappingListModel.findByPk(id)
+  const fileName = smartMapping.Filename
+  const { search } = req.query
+  let whereClause = {
+    Filename: fileName
+  };
+
+  if (search) {
+    whereClause["Internaldesc"] = {
+      [Op.like]: "%" + search + "%",
+    }
+  }
+
+  const suggestionList = await MultipleMapProduct.findAll({
+    where: whereClause
+  })
+
+  res.json(suggestionList);
+
+}
+
+const fetchMappedRecordsForPeriodDimension = async (req, res, next) => {
+  try {
+
+    const id = req.params.id;
+    const smartMapping = await SmartMappingListModel.findByPk(id)
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+
+    let whereClause = {
+      Filename: smartMapping.Filename
+    }
+
+    const result = await MappingPeriodOutput.findAndCountAll({
+      limit,
+      offset,
+      where: whereClause
+    })
+
+    const responseObj = {
+      result: result.rows,
+      page,
+      page_size: pageSize,
+      total_count: result.count,
+    };
+
+    res.json(responseObj);
   } catch (error) {
     next(error)
   }
 }
 
 module.exports = {
-  fetchSmatMappingList,
+  fetchSmartMappingList,
   fetchSmartMappingDashboardCount,
   fetchSmartMappingMappedDetails,
   fetchIndividualSmartMapping,
@@ -333,5 +412,7 @@ module.exports = {
   updateSmartMappingDetails,
   fetchCountryMeta,
   fetchProviderMeta,
-  fetchCategoryMeta
+  fetchCategoryMeta,
+  fetchUnmappedRecordsSuggestions,
+  fetchMappedRecordsForPeriodDimension
 };
