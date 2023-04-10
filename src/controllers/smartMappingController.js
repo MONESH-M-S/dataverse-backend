@@ -168,9 +168,9 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
 
   const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
-  const tempList = await TempManualMappingModel.findAll({
-    MappingOutputId: id,
-  })
+  // const tempList = await TempManualMappingModel.findAll({
+  //   MappingOutputId: id,
+  // })
 
   const idList = tempList.map((item) => item.MappingOutputId)
   let whereClause = {
@@ -180,11 +180,11 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
       {
         Confidencelevel: "Low"
       },
-      {
-        Id: {
-          [Op.notIn]: idList
-        },
-      },
+      // {
+      //   Id: {
+      //     [Op.notIn]: idList
+      //   },
+      // },
     ]
   };
 
