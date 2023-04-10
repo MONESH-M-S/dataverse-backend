@@ -338,10 +338,10 @@ const fetchCategoryMeta = async (req, res, next) => {
 const fetchUnmappedRecordsSuggestions = async (req, res, next) => {
   const id = req.params.id;
   const smartMapping = await SmartMappingDetailsModel.findByPk(id)
-  const fileName = smartMapping.Filename
+  const externalDesc = smartMapping.Externaldesc
   const { search } = req.query
   let whereClause = {
-    Filename: fileName
+    Externaldesc: externalDesc
   };
 
   if (search) {
