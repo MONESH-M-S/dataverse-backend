@@ -135,29 +135,27 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
     const smartMapping = await SmartMappingListModel.findByPk(id)
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
-    // let orderClause = [["id", "desc"]];
-    // let whereClause = {
-    //   Filename: smartMapping.Filename,
-    //   Confidencelevel: "HIGH"
-    // }
+    let orderClause = [["id", "desc"]];
+    let whereClause = {
+      Filename: smartMapping.Filename,
+      Confidencelevel: "HIGH"
+    }
 
-    // const mappedList = await SmartMappingDetailsModel.findAndCountAll({
-    //   limit,
-    //   offset,
-    //   order: orderClause,
-    //   where: whereClause
-    // })
+    const mappedList = await SmartMappingDetailsModel.findAndCountAll({
+      limit,
+      offset,
+      // order: orderClause,
+      // where: whereClause
+    })
 
-    // const responseObj = {
-    //   result: mappedList.rows,
-    //   page,
-    //   page_size: pageSize,
-    //   total_count: mappedList.count,
-    // };
+    const responseObj = {
+      result: mappedList.rows,
+      page,
+      page_size: pageSize,
+      total_count: mappedList.count,
+    };
 
-    res.json({
-      "filename": smartMapping.Filename
-    });
+    res.json(responseObj);
 
   } catch (error) {
     next(error);
