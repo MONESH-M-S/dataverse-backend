@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
-const SmartMappingDetailsModel = sequelize.define('MappingOutput', {
+const SmartMappingDetailsModel = sequelize.define('MappingProductOutput', {
     Id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -21,7 +21,7 @@ const SmartMappingDetailsModel = sequelize.define('MappingOutput', {
     Confidencelevel: DataTypes.STRING,
     Brandformname: DataTypes.STRING
 }, {
-    tableName: 'MappingOutput',
+    tableName: 'MappingProductOutput',
     schema: 'Mapping',
     timestamps: false,
 });

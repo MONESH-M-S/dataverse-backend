@@ -20,6 +20,7 @@ const SmartMappingListModel = sequelize.define('MappingReportSummary', {
   CreatedOn: DataTypes.DATE,
   Country: DataTypes.STRING,
   Category: DataTypes.STRING,
+  Dimension: DataTypes.STRING,
 }, {
   tableName: 'MappingReportSummary',
   schema: 'info',
