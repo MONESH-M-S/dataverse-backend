@@ -24,7 +24,7 @@ async function connectAndQuery() {
     // console.log("Reading rows from the Table...", poolConnection);
     var resultSet = await poolConnection
       .request()
-      .query(`SELECT * from [Mapping].[MappingProductOutput]`);
+      .query(`SELECT TOP(10) * from [Mapping].[MappingProductOutput]`);
     console.log(`${resultSet.recordset.length} rows returned.`);
     poolConnection.close();
   } catch (err) {
