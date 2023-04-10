@@ -1,8 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
-const TempManualMappingModel = require("./tempManualMapping.model");
 
-const SmartMappingListModel = sequelize.define('MappingReportSummary', {
+const SmartMappingListModel = sequelize.define('vw_MappingReportSummary', {
   Id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -22,11 +21,10 @@ const SmartMappingListModel = sequelize.define('MappingReportSummary', {
   Category: DataTypes.STRING,
   Dimension: DataTypes.STRING,
 }, {
-  tableName: 'MappingReportSummary',
-  schema: 'info',
+  tableName: 'vw_MappingReportSummary',
+  schema: 'Mapping',
   timestamps: false,
 });
 
-SmartMappingListModel.hasOne(TempManualMappingModel, { foreignKey: 'MappingOutputId' });
 
 module.exports = SmartMappingListModel
