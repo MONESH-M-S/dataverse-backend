@@ -136,11 +136,16 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
     let orderClause = [["id", "desc"]];
+    let whereClause = {
+      Filename: smartMapping.Filename,
+      Confidencelevel: "HIGH"
+    }
 
     const mappedList = await SmartMappingDetailsModel.findAndCountAll({
       limit,
       offset,
-      order: orderClause
+      order: orderClause,
+      where: whereClause
     })
 
     const responseObj = {
@@ -243,7 +248,7 @@ const updateSmartMappingDetails = async (req, res, next) => {
       await SmartMappingDetailsModel.update({
         Confidencelevel: "High",
         Internaldesc: suggestedProduct.Internaldesc
-      },{
+      }, {
         where: {
           Id: data[i].source
         }
