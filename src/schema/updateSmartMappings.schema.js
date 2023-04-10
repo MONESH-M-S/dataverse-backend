@@ -1,6 +1,8 @@
 const Joi = require("joi");
 
-module.exports = Joi.array().items({
-    source: Joi.string().required(),
-    target: Joi.string().required(),
+module.exports = Joi.object({
+    mapping: Joi.array().items({
+        source: Joi.string().required(),
+        target: Joi.string().required(),
+    })
 })

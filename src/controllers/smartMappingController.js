@@ -54,6 +54,8 @@ const fetchSmartMappingList = async (req, res, next) => {
 
     if (filterByDimension) {
       whereClause["Dimension"] = filterByDimension
+    } else {
+      whereClause["Dimension"] = dimensionEnum.product
     }
 
     const mappingDataList = await SmartMappingListModel.findAndCountAll({
@@ -133,31 +135,11 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
     const smartMapping = await SmartMappingListModel.findByPk(id)
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
-    const tempList = await TempManualMappingModel.findAll({
-      MappingOutputId: id,
-    })
-
-    const idList = tempList.map((item) => item.MappingOutputId)
-    let whereClause = {
-      Filename: smartMapping.Filename,
-      [Op.or]: [
-        {
-          Id: {
-            [Op.in]: idList
-          },
-        },
-        {
-          Confidencelevel: "HIGH"
-        }
-      ]
-    };
-
     let orderClause = [["id", "desc"]];
 
     const mappedList = await SmartMappingDetailsModel.findAndCountAll({
       limit,
       offset,
-      where: whereClause,
       order: orderClause
     })
 
@@ -254,21 +236,19 @@ const fetchSmartMappingMediumResults = async (req, res, next) => {
 const updateSmartMappingDetails = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const data = req.body;
+    const data = req.body.mapping;
 
-    const sourceList = data.map((item) => item.source);
-
-    await SmartMappingDetailsModel.update({
-      Confidencelevel: "High"
-    }, {
-      where: {
-        Id: {
-          [Op.in]: sourceList
+    for (let i = 0; i < data.length; i++) {
+      const suggestedProduct = await MultipleMapProduct.findByPk(data[i].target)
+      await SmartMappingDetailsModel.update({
+        Confidencelevel: "High",
+        Internaldesc: suggestedProduct.Internaldesc
+      },{
+        where: {
+          Id: data[i].source
         }
-      }
-    });
-
-    // TODO: Need to add the suggested mapping
+      })
+    }
 
     res.json({
       status: statusTypeEnum.success,
@@ -351,7 +331,7 @@ const fetchCategoryMeta = async (req, res, next) => {
 
 const fetchUnmappedRecordsSuggestions = async (req, res, next) => {
   const id = req.params.id;
-  const smartMapping = await SmartMappingListModel.findByPk(id)
+  const smartMapping = await SmartMappingDetailsModel.findByPk(id)
   const fileName = smartMapping.Filename
   const { search } = req.query
   let whereClause = {
