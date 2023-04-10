@@ -141,21 +141,21 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
       Confidencelevel: "HIGH"
     }
 
-    const mappedList = await SmartMappingDetailsModel.findAndCountAll({
-      limit,
-      offset,
+    const mappedList = await SmartMappingDetailsModel.findAll({
+      // limit,
+      // offset,
       // order: orderClause,
       // where: whereClause
     })
 
-    const responseObj = {
-      result: mappedList.rows,
-      page,
-      page_size: pageSize,
-      total_count: mappedList.count,
-    };
+    // const responseObj = {
+    //   result: mappedList.rows,
+    //   page,
+    //   page_size: pageSize,
+    //   total_count: mappedList.count,
+    // };
 
-    res.json(responseObj);
+    res.json(mappedList);
 
   } catch (error) {
     next(error);
