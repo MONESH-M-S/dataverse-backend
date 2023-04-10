@@ -1,4 +1,4 @@
-const env = process.env.APP_ENVIRONMENT||'local';
+const env = process.env.APP_ENVIRONMENT || 'local';
 
 const { DB_NAME, DB_HOST, DB_USERNAME, DB_PASSWORD, DB_DIALECT } = process.env;
 
@@ -24,6 +24,7 @@ const configMap = {
   development: {
     dialect: "mssql",
     dialectOptions: {
+      options: { requestTimeout: 120000 },
       authentication: {
         type: "azure-active-directory-msi-app-service",
       },
