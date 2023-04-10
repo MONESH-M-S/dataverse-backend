@@ -172,7 +172,7 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
   //   MappingOutputId: id,
   // })
 
-  const idList = tempList.map((item) => item.MappingOutputId)
+  // const idList = tempList.map((item) => item.MappingOutputId)
   let whereClause = {
 
     Filename: smartMapping.Filename,
