@@ -20,12 +20,12 @@ pool:
   vmImage: windows-latest
 
 steps:
-  - task: CmdLine@2
-    inputs:
-      script: |
-        rmdir /S /Q ui
-      workingDirectory: '.'
-    displayName: 'clean ui folder'
+  # - task: CmdLine@2
+  #   inputs:
+  #     script: |
+  #       rmdir /S /Q ui
+  #     workingDirectory: '.'
+  #   displayName: 'clean ui folder'
 
   - task: DownloadPipelineArtifact@2
     inputs:
