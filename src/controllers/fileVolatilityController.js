@@ -130,7 +130,7 @@ const fetchColumnMappings = async (req, res, next) => {
 const updateColumnMapping = async (req, res) => {
     try {
 
-        const { SourceColumn, Entity, FileName } = req.body;
+        const { SourceColumn, Id } = req.body;
 
         await FactColumnMappingModel.update(
             {
@@ -138,8 +138,7 @@ const updateColumnMapping = async (req, res) => {
             },
             {
                 where: {
-                    Entity,
-                    FileName,
+                    Id
                 },
             }
         );
