@@ -115,7 +115,7 @@ const fetchColumnMappings = async (req, res, next) => {
 
         const fileData = await FactColumnMappingModel.findOne({
             where: {
-                FileName: logDetails.FILENAME,
+                ZipFileName: logDetails.FILENAME,
                 Entity: "Product",
             },
         });
