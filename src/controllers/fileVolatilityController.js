@@ -23,6 +23,8 @@ const fetchVolatilityList = async (req, res, next) => {
 
         if (filterByProvider) {
             whereClause['SOURCE'] = filterByProvider
+        }else{
+            whereClause['SOURCE'] = 'Nielsen'
         }
 
         if (startDate && endDate) {
