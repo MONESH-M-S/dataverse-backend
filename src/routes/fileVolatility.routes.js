@@ -20,7 +20,7 @@ router.get("/", auth, fetchVolatilityList);
 router.get("/dashboard", auth, fetchDashboardDetails);
 router.get("/:id", auth, fetchIndividualVolatilityFile);
 router.get("/:id/mappings", auth, fetchColumnMappings);
-router.put("/:id/mappings", auth, validator.body(updateColumnMappingsSchema), updateColumnMapping);
+router.put("/:id/mappings", auth, updateColumnMapping);
 router.get("/:id/details", auth, fetchLeadLogDetails);
 router.post("/:id/target-column", auth, validator.body(addTargetSchema), addTargetColumn);
 
