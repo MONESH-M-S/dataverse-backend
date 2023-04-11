@@ -6,7 +6,6 @@ const LoadLogDetailModel = require("../models/loadLogDetail.model");
 const ColumnMappingModel = require("../models/columnMapping.model");
 const { sequelize } = require("../../models");
 const fileVolatilityFilterEnum = require("../enums/fileVolatilityFilter.enum");
-const FactColumnMappingModel = require("../models/factColumnMapping.model");
 
 const fetchVolatilityList = async (req, res, next) => {
     try {
@@ -113,14 +112,17 @@ const fetchColumnMappings = async (req, res, next) => {
 
         const logDetails = await LoadLogModel.findByPk(id)
 
-        const fileData = await FactColumnMappingModel.findOne({
+        const mappingList = await ColumnMappingModel.findAll({
             where: {
-                FileName: logDetails.FILENAME,
-                Entity: "Product",
-            },
-        });
+                FileName: logDetails.FILENAME
+            }
+        })
 
-        res.json(fileData);
+        const responseObj = {
+            result: mappingList
+        }
+
+        res.json(responseObj)
 
     } catch (error) {
         next(error)
@@ -130,25 +132,30 @@ const fetchColumnMappings = async (req, res, next) => {
 const updateColumnMapping = async (req, res) => {
     try {
 
-        const { SourceColumn, Entity, FileName } = req.body;
+        const data = req.body.mappings
 
-        await FactColumnMappingModel.update(
-            {
-                SourceColumn,
-            },
-            {
-                where: {
-                    Entity,
-                    FileName,
-                },
-            }
-        );
+        const statements = [];
+        const tableName = "ColumnMapping";
+        const schema = "metadata";
+
+        //  Added Raw Query, since MSSQL doesn't support Bulk Update
+        for (let i = 0; i < data.length; i++) {
+            statements.push(
+                sequelize.query(
+                    `UPDATE [${schema}].[${tableName}] 
+                    SET SourceColumn='${data[i].SourceColumn}' 
+                    WHERE ID=${data[i].ID};`
+                )
+            );
+        }
+
+        await Promise.all(statements);
 
         res.json({
             message: "Successfully updated"
         })
     } catch (error) {
-        next(error);
+        res.json({ error: error.message })
     }
 }
 
