@@ -6,6 +6,7 @@ const LoadLogDetailModel = require("../models/loadLogDetail.model");
 const ColumnMappingModel = require("../models/columnMapping.model");
 const { sequelize } = require("../../models");
 const fileVolatilityFilterEnum = require("../enums/fileVolatilityFilter.enum");
+const FactColumnMappingModel = require("../models/factColumnMapping.model");
 
 const fetchVolatilityList = async (req, res, next) => {
     try {
@@ -112,17 +113,14 @@ const fetchColumnMappings = async (req, res, next) => {
 
         const logDetails = await LoadLogModel.findByPk(id)
 
-        const mappingList = await ColumnMappingModel.findAll({
+        const fileData = await FactColumnMappingModel.findOne({
             where: {
-                FileName: logDetails.FILENAME
-            }
-        })
+                FileName: logDetails.FILENAME,
+                Entity: "Product",
+            },
+        });
 
-        const responseObj = {
-            result: mappingList
-        }
-
-        res.json(responseObj)
+        res.json(fileData);
 
     } catch (error) {
         next(error)
@@ -132,30 +130,25 @@ const fetchColumnMappings = async (req, res, next) => {
 const updateColumnMapping = async (req, res) => {
     try {
 
-        const data = req.body.mappings
+        const { SourceColumn, Entity, FileName } = req.body;
 
-        const statements = [];
-        const tableName = "ColumnMapping";
-        const schema = "metadata";
-
-        //  Added Raw Query, since MSSQL doesn't support Bulk Update
-        for (let i = 0; i < data.length; i++) {
-            statements.push(
-                sequelize.query(
-                    `UPDATE [${schema}].[${tableName}] 
-                    SET SourceColumn='${data[i].SourceColumn}' 
-                    WHERE ID=${data[i].ID};`
-                )
-            );
-        }
-
-        await Promise.all(statements);
+        await FactColumnMappingModel.update(
+            {
+                SourceColumn,
+            },
+            {
+                where: {
+                    Entity,
+                    FileName,
+                },
+            }
+        );
 
         res.json({
             message: "Successfully updated"
         })
     } catch (error) {
-        res.json({ error: error.message })
+        next(error);
     }
 }
 
