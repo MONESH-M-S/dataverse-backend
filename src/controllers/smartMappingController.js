@@ -167,13 +167,6 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
 
   const smartMapping = await SmartMappingListModel.findByPk(id)
 
-  const { limit, offset, page, pageSize } = getPaginationDetails(req);
-
-  // const tempList = await TempManualMappingModel.findAll({
-  //   MappingOutputId: id,
-  // })
-
-  // const idList = tempList.map((item) => item.MappingOutputId)
   let whereClause = {
 
     Filename: smartMapping.Filename,
@@ -181,28 +174,18 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
       {
         Confidencelevel: "Low"
       },
-      // {
-      //   Id: {
-      //     [Op.notIn]: idList
-      //   },
-      // },
     ]
   };
 
   let orderClause = [["id", "desc"]];
 
-  const mappedList = await SmartMappingDetailsModel.findAndCountAll({
-    limit,
-    offset,
+  const mappedList = await SmartMappingDetailsModel.findAll({
     where: whereClause,
     order: orderClause
   })
 
   const responseObj = {
-    result: mappedList.rows,
-    page,
-    page_size: pageSize,
-    total_count: mappedList.count,
+    result: mappedList,
   };
 
   res.json(responseObj);
