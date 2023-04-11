@@ -6,6 +6,7 @@ const LoadLogDetailModel = require("../models/loadLogDetail.model");
 const ColumnMappingModel = require("../models/columnMapping.model");
 const { sequelize } = require("../../models");
 const fileVolatilityFilterEnum = require("../enums/fileVolatilityFilter.enum");
+const FactColumnMappingModel = require("../models/factColumnMapping.model");
 
 const fetchVolatilityList = async (req, res, next) => {
     try {
