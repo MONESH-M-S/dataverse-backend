@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 const TempManualMappingModel = require("./tempManualMapping.model");
 
-const SmartMappingFactListModel = sequelize.define('MappingReportSummary', {
+const SmartMappingFactListModel = sequelize.define('vw_MappingReportSummary', {
   Id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -20,10 +20,10 @@ const SmartMappingFactListModel = sequelize.define('MappingReportSummary', {
   CreatedOn: DataTypes.DATE,
   Country: DataTypes.STRING,
   Category: DataTypes.STRING,
-  Dimension: DataTypes.ENUM('Product', 'Fact')
+  Dimension: DataTypes.STRING,
 }, {
-  tableName: 'MappingReportSummary',
-  schema: 'info',
+  tableName: 'vw_MappingReportSummary',
+  schema: 'Mapping',
   timestamps: false,
 });
 
