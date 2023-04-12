@@ -231,7 +231,8 @@ const updateSmartMappingDetails = async (req, res, next) => {
       const suggestedProduct = await MultipleMapProduct.findByPk(data[i].target)
       await SmartMappingDetailsModel.update({
         Confidencelevel: "High",
-        Internaldesc: suggestedProduct.Internaldesc
+        Internaldesc: suggestedProduct.Internaldesc,
+        Confidencescore: "1"
       }, {
         where: {
           Id: data[i].source
