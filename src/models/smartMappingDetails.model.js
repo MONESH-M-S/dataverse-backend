@@ -19,7 +19,8 @@ const SmartMappingDetailsModel = sequelize.define('MappingProductOutput', {
     Segmentname: DataTypes.STRING,
     Productformmediumname: DataTypes.STRING,
     Confidencelevel: DataTypes.STRING,
-    Brandformname: DataTypes.STRING
+    Brandformname: DataTypes.STRING,
+    Confidencescore: DataTypes.STRING
 }, {
     tableName: 'MappingProductOutput',
     schema: 'Mapping',
