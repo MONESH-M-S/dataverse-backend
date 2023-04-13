@@ -190,12 +190,13 @@ const fetchMappingDataforLow = async (req, res, next) => {
 const updateFactSmartMappingLowDetails = async (req, res, next) => {
   try {
     const { FileName } = req.query;
-    const { Internaldesc, Externaldesc } = req.body;
+    const { Internaldesc, Externaldesc, FactType } = req.body;
 
     const updatedFile = await SmartMappingFactDetailsModel.update(
       {
         Short: Internaldesc,
         Confidencelevel: "HIGH",
+        Facttype: FactType
       },
       {
         where: {
