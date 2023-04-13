@@ -2,12 +2,10 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
 const MappingPeriodOutput = sequelize.define('MappingPeriodOutput', {
-    Id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+    FileName: {
+        type:DataTypes.STRING,
+        primaryKey: true
     },
-    FileName: DataTypes.STRING,
     Tag: DataTypes.STRING,
     Country: DataTypes.STRING,
     Category: DataTypes.STRING,
