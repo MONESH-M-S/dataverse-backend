@@ -323,9 +323,11 @@ const fetchUnmappedRecordsSuggestions = async (req, res, next) => {
   const id = req.params.id;
   const smartMapping = await SmartMappingDetailsModel.findByPk(id)
   const externalDesc = smartMapping.Externaldesc
+  const tag = smartMapping.Tag
   const { search } = req.query
   let whereClause = {
-    Externaldesc: externalDesc
+    Externaldesc: externalDesc,
+    Tag: tag
   };
 
   if (search) {
