@@ -23,7 +23,7 @@ const fetchVolatilityList = async (req, res, next) => {
 
         if (filterByProvider) {
             whereClause['SOURCE'] = filterByProvider
-        }else{
+        } else {
             whereClause['SOURCE'] = 'Nielsen'
         }
 
@@ -216,34 +216,18 @@ const fetchLeadLogDetails = async (req, res, next) => {
 const addTargetColumn = async (req, res, next) => {
     try {
         const id = req.params.id
-        const data = await LoadLogModel.findByPk(id)
-        const fileName = data.FILENAME
-        const mappingColumns = req.body.map((item) => {
-            item.FileName = fileName
-            item.ID = item.id
-            item.TargetColumn = item.target
-            item.SourceColumn = item.source ?? ""
-            return item
-        })
+        const { source, target } = req.body
 
-        const addtarget = mappingColumns.filter((item) => item.ID === undefined)
-
-        const updateTargetColumns = mappingColumns.filter((item) => item.ID != undefined)
-
-        await ColumnMappingModel.bulkCreate(addtarget);
-
-        for (let i = 0; i < updateTargetColumns.length; i++) {
-            await ColumnMappingModel.update(
-                {
-                    TargetColumn: updateTargetColumns[i].TargetColumn
+        await FactColumnMappingModel.update({
+            SourceColumn: source,
+            TargetColumn: target
+        },
+            {
+                where: {
+                    Id: id
                 },
-                {
-                    where: {
-                        ID: updateTargetColumns[i].ID
-                    }
-                }
-            )
-        }
+            }
+        )
 
         res.json({
             staus: "Success",

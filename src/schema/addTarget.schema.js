@@ -1,8 +1,6 @@
 const Joi = require("joi");
 
-module.exports = Joi.array().items({
-    id: Joi.number().optional(),
-    key: Joi.number().optional(),
+module.exports = Joi.object({
     target: Joi.string().required(),
-    source: Joi.string().allow("")
+    source: Joi.string().required(),
 })
