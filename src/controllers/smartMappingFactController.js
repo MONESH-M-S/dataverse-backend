@@ -130,7 +130,6 @@ const fetchSmartMappingFactDetail = async (req, res, next) => {
 
 const fetchLowMappingDetails = async (req, res, next) => {
   try {
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
     const { FileName, search } = req.query;
 
     let whereClause = {};
@@ -153,16 +152,12 @@ const fetchLowMappingDetails = async (req, res, next) => {
         Filename: FileName,
       },
       order: [["Externaldesc", "ASC"]],
-      limit,
-      offset,
     });
 
     res.json({
       result: data.rows,
-      page,
-      page_size: pageSize,
-      total_count: data.count,
     });
+    
   } catch (error) {
     console.log(error);
     next(error);
