@@ -122,6 +122,11 @@ const fetchColumnMappings = async (req, res, next) => {
             },
         });
 
+        if (fileData === null) {
+            res.json({})
+            return
+        }
+
         res.json(fileData);
 
     } catch (error) {
