@@ -3,7 +3,8 @@ const {
     fetchVolatilityList, fetchIndividualVolatilityFile, fetchColumnMappings,
     updateColumnMapping, fetchDashboardDetails, fetchLeadLogDetails, addTargetColumn
 } = require("../controllers/fileVolatilityController");
-const { fetchFactColumnMappings, updateColumnMappingValues } = require("../controllers/fileVolatilityFactController");
+const { fetchFactColumnMappings, updateColumnMappingFactValues } = require("../controllers/fileVolatilityFactController");
+const { fetchPeriodColumnMappings, updateColumnMappingPeriodValues } = require("../controllers/fileVolatilityPeriodController");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
 const addTargetSchema = require("../schema/addTarget.schema");
@@ -14,7 +15,11 @@ const validator = require("express-joi-validation").createValidator({
 
 // Fact
 router.get("/fact", auth, fetchFactColumnMappings);
-router.put("/", auth, updateColumnMappingValues)
+router.put("/", auth, updateColumnMappingFactValues)
+
+//Period
+router.get("/period",auth, fetchPeriodColumnMappings);
+router.put("/", auth, updateColumnMappingPeriodValues)
 
 router.get("/", auth, fetchVolatilityList);
 router.get("/dashboard", auth, fetchDashboardDetails);
