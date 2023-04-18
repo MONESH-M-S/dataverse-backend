@@ -15,11 +15,11 @@ const validator = require("express-joi-validation").createValidator({
 
 // Fact
 router.get("/fact", auth, fetchFactColumnMappings);
-router.put("/", auth, updateColumnMappingFactValues)
+router.put("/fact", auth, updateColumnMappingFactValues)
 
 //Period
 router.get("/period",auth, fetchPeriodColumnMappings);
-router.put("/", auth, updateColumnMappingPeriodValues)
+router.put("/period", auth, updateColumnMappingPeriodValues)
 
 router.get("/", auth, fetchVolatilityList);
 router.get("/dashboard", auth, fetchDashboardDetails);
