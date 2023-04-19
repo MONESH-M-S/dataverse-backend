@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
-const ColumnMappingModel = sequelize.define('ColumnMappingv3', {
+const ColumnMappingModel = sequelize.define('ColumnMappingv5', {
     Id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -15,7 +15,7 @@ const ColumnMappingModel = sequelize.define('ColumnMappingv3', {
     TargetColumn: DataTypes.STRING,
     ZipFileName: DataTypes.STRING,
 }, {
-    tableName: 'ColumnMappingv3',
+    tableName: 'ColumnMappingv5',
     schema: 'metadata',
     timestamps: false,
 });
