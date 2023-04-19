@@ -112,13 +112,14 @@ const fetchIndividualVolatilityFile = async (req, res, next) => {
 const fetchColumnMappings = async (req, res, next) => {
     try {
         const { id } = req.params
+        const { entity } = req.query
 
         const logDetails = await LoadLogModel.findByPk(id)
 
         const fileData = await FactColumnMappingModel.findOne({
             where: {
                 ZipFileName: logDetails.FILENAME,
-                Entity: "Product",
+                Entity: entity ?? "Product",
             },
         });
 
