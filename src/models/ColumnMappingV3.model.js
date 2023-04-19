@@ -11,6 +11,7 @@ const ColumnMappingModel = sequelize.define('ColumnMappingv5', {
     Country: DataTypes.STRING,
     Category: DataTypes.STRING,
     Entity: DataTypes.STRING,
+    SourceColumnList: DataTypes.STRING,
     SourceColumn: DataTypes.STRING,
     TargetColumn: DataTypes.STRING,
     ZipFileName: DataTypes.STRING,
