@@ -3,7 +3,8 @@ const {
   fetchSmartMappingList, fetchSmartMappingDashboardCount, fetchIndividualSmartMapping,
   fetchSmartMappingMappedDetails, fetchSmartMappingUnMappedDetails, updateSmartMappingDetails,
   fetchCategoryMeta, fetchProviderMeta, fetchCountryMeta, fetchSmartMappingMediumResults, fetchUnmappedRecordsSuggestions,
-  fetchMappedRecordsForPeriodDimension
+  fetchMappedRecordsForPeriodDimension,
+  fetchMappedRecordsForMarketDimension
 } = require("../controllers/smartMappingController");
 const {
   fetchSmartMappingFactList,
@@ -34,6 +35,7 @@ router.get("/:id/low", auth, fetchSmartMappingUnMappedDetails);
 router.put("/:id", auth, validator.body(updateSmartMappingsSchema), updateSmartMappingDetails);
 router.get("/:id/suggestion", auth, fetchUnmappedRecordsSuggestions);
 router.get("/:id/period/mapped", auth, fetchMappedRecordsForPeriodDimension);
+router.get("/:id/market/:confidenceLevel", auth, fetchMappedRecordsForMarketDimension);
 
 // Fact
 router.get("/fact/summary", auth, fetchSmartMappingFactList);

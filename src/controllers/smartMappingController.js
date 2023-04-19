@@ -9,6 +9,7 @@ const moment = require("moment");
 const { Sequelize } = require("../../models");
 const MultipleMapProduct = require("../models/multipleMapProduct.model");
 const dimensionEnum = require("../models/enums/dimension.enum");
+const MappingMarketOutput = require("../models/mappingMarketOutput.model");
 
 const fetchSmartMappingList = async (req, res, next) => {
   try {
@@ -374,6 +375,43 @@ const fetchMappedRecordsForPeriodDimension = async (req, res, next) => {
   }
 }
 
+const fetchMappedRecordsForMarketDimension = async (req, res, next) => {
+  try {
+
+    const id = req.params.id;
+    const smartMapping = await SmartMappingListModel.findByPk(id)
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { search } = req.query
+
+    let whereClause = {
+      Filename: smartMapping.Filename
+    }
+
+    if (search) {
+      whereClause["Long"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
+
+    const result = await MappingMarketOutput.findAndCountAll({
+      limit,
+      offset,
+      where: whereClause
+    })
+
+    const responseObj = {
+      result: result.rows,
+      page,
+      page_size: pageSize,
+      total_count: result.count,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   fetchSmartMappingList,
   fetchSmartMappingDashboardCount,
@@ -386,5 +424,6 @@ module.exports = {
   fetchProviderMeta,
   fetchCategoryMeta,
   fetchUnmappedRecordsSuggestions,
-  fetchMappedRecordsForPeriodDimension
+  fetchMappedRecordsForPeriodDimension,
+  fetchMappedRecordsForMarketDimension
 };
