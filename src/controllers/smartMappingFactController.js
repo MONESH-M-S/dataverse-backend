@@ -141,13 +141,8 @@ const fetchLowMappingDetails = async (req, res, next) => {
       };
     }
 
-    const data = await MultipleMapFact.findAndCountAll({
-      attributes: [
-        [
-          Sequelize.fn("DISTINCT", Sequelize.col("Externaldesc")),
-          "Externaldesc",
-        ],
-      ],
+    const data = await SmartMappingFactDetailsModel.findAndCountAll({
+      attributes: ['Externaldesc'],
       where: {
         Filename: FileName,
       },
@@ -167,7 +162,7 @@ const fetchLowMappingDetails = async (req, res, next) => {
 const fetchMappingDataforLow = async (req, res, next) => {
   try {
     const { Externaldesc } = req.query;
-
+    
     const data = await MultipleMapFact.findAndCountAll({
       attributes: { exclude: ["Filename", "Tag", "Externaldesc"] },
       where: { Externaldesc: Externaldesc },
