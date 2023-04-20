@@ -12,6 +12,7 @@ const dimensionEnum = require("../models/enums/dimension.enum");
 const MappingMarketOutput = require("../models/mappingMarketOutput.model");
 const UnporcessedRecordProductModel = require("../models/unporcessedRecordProduct.model");
 const UnporcessedRecordMarketModel = require("../models/unporcessedRecordMarket.model");
+const ExcelJS = require('exceljs');
 
 const fetchSmartMappingList = async (req, res, next) => {
   try {
@@ -468,6 +469,72 @@ const fetchUnprocessedRecords = async (req, res, next) => {
   }
 }
 
+const downloadUnProcessedExcel = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const smartMapping = await SmartMappingListModel.findByPk(id)
+
+    let modelName;
+    let columns;
+
+    switch (smartMapping.Dimension) {
+      case dimensionEnum.market:
+        modelName = UnporcessedRecordMarketModel
+        columns = [
+          { header: 'ID', key: 'Id', width: 10 },
+          { header: 'File Name', key: 'FileName', width: 40 },
+          { header: 'Tag', key: 'Tag', width: 40 },
+          { header: 'External Description', key: 'Long', width: 30 },
+          { header: 'HierName', key: 'HierName', width: 40 },
+          { header: 'HierLevelName', key: 'HierLevelName', width: 40 },
+          { header: 'Country', key: 'Country', width: 10 },
+          { header: 'Category', key: 'Category', width: 20 },
+          { header: 'Cell', key: 'Cell', width: 20 },
+          { header: 'Createdon', key: 'Createdon', width: 20 },
+        ]
+      break
+      case dimensionEnum.product:
+      default:
+        modelName = UnporcessedRecordProductModel
+        columns = [
+          { header: 'ID', key: 'Id', width: 10 },
+          { header: 'File Name', key: 'FileName', width: 40 },
+          { header: 'Tag', key: 'Tag', width: 40 },
+          { header: 'External Description', key: 'Externaldesc', width: 30 },
+          { header: 'Created On', key: 'Createdon', width: 10 },
+          { header: 'Remark', key: 'Remark', width: 40 }
+        ]
+    }
+
+    const data = await modelName.findAll()
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('');
+
+    worksheet.columns = columns
+
+    data.forEach((item) => {
+      worksheet.addRow(item.toJSON());
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=file.xlsx'
+    );
+
+    await workbook.xlsx.write(res);
+
+    res.end();
+
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   fetchSmartMappingList,
   fetchSmartMappingDashboardCount,
@@ -482,5 +549,6 @@ module.exports = {
   fetchUnmappedRecordsSuggestions,
   fetchMappedRecordsForPeriodDimension,
   fetchMappedRecordsForMarketDimension,
-  fetchUnprocessedRecords
+  fetchUnprocessedRecords,
+  downloadUnProcessedExcel
 };

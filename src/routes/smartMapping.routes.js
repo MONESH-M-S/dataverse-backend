@@ -5,7 +5,8 @@ const {
   fetchCategoryMeta, fetchProviderMeta, fetchCountryMeta, fetchSmartMappingMediumResults, fetchUnmappedRecordsSuggestions,
   fetchMappedRecordsForPeriodDimension,
   fetchMappedRecordsForMarketDimension,
-  fetchUnprocessedRecords
+  fetchUnprocessedRecords,
+  downloadUnProcessedExcel
 } = require("../controllers/smartMappingController");
 const {
   fetchSmartMappingFactList,
@@ -34,6 +35,7 @@ router.get("/:id/high", auth, fetchSmartMappingMappedDetails);
 router.get("/:id/medium", auth, fetchSmartMappingMediumResults);
 router.get("/:id/low", auth, fetchSmartMappingUnMappedDetails);
 router.get("/:id/unprocessed", auth, fetchUnprocessedRecords);
+router.get("/:id/unprocessed/download", auth, downloadUnProcessedExcel);
 router.put("/:id", auth, validator.body(updateSmartMappingsSchema), updateSmartMappingDetails);
 router.get("/:id/suggestion", auth, fetchUnmappedRecordsSuggestions);
 router.get("/:id/period/mapped", auth, fetchMappedRecordsForPeriodDimension);
