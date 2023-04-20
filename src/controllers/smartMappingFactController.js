@@ -134,6 +134,7 @@ const fetchLowMappingDetails = async (req, res, next) => {
 
     let whereClause = {};
     whereClause["FileName"] = FileName;
+    whereClause['Confidencelevel'] = 'LOW'
 
     if (search) {
       whereClause["Externaldesc"] = {
