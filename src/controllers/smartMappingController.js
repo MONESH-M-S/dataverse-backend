@@ -10,6 +10,8 @@ const { Sequelize } = require("../../models");
 const MultipleMapProduct = require("../models/multipleMapProduct.model");
 const dimensionEnum = require("../models/enums/dimension.enum");
 const MappingMarketOutput = require("../models/mappingMarketOutput.model");
+const UnporcessedRecordProductModel = require("../models/unporcessedRecordProduct.model");
+const UnporcessedRecordMarketModel = require("../models/unporcessedRecordMarket.model");
 
 const fetchSmartMappingList = async (req, res, next) => {
   try {
@@ -412,6 +414,60 @@ const fetchMappedRecordsForMarketDimension = async (req, res, next) => {
   }
 }
 
+const fetchUnprocessedRecords = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const smartMapping = await SmartMappingListModel.findByPk(id)
+    const { search } = req.query
+
+    let modelName;
+    let whereClause = {}
+
+    switch (smartMapping.Dimension) {
+      case dimensionEnum.market:
+        modelName = UnporcessedRecordMarketModel
+        whereClause = {
+          "Long": {
+            [Op.like]: "%" + search + "%",
+          }
+        }
+        break
+      case dimensionEnum.product:
+      default:
+        modelName = UnporcessedRecordProductModel
+        whereClause = {
+          "Externaldesc": {
+            [Op.like]: "%" + search + "%",
+          }
+        }
+    }
+
+    if (!search) whereClause = {}
+
+    const result = await modelName.findAndCountAll({
+      limit,
+      offset,
+      where: {
+        Filename: smartMapping.Filename,
+        ...whereClause
+      },
+    })
+
+    const responseObj = {
+      result: result.rows,
+      page,
+      page_size: pageSize,
+      total_count: result.count,
+    };
+
+    res.json(responseObj);
+
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   fetchSmartMappingList,
   fetchSmartMappingDashboardCount,
@@ -425,5 +481,6 @@ module.exports = {
   fetchCategoryMeta,
   fetchUnmappedRecordsSuggestions,
   fetchMappedRecordsForPeriodDimension,
-  fetchMappedRecordsForMarketDimension
+  fetchMappedRecordsForMarketDimension,
+  fetchUnprocessedRecords
 };
