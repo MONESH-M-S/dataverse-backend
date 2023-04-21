@@ -144,9 +144,7 @@ const fetchLowMappingDetails = async (req, res, next) => {
 
     const data = await SmartMappingFactDetailsModel.findAndCountAll({
       attributes: ['Externaldesc'],
-      where: {
-        Filename: FileName,
-      },
+      where: whereClause,
       order: [["Externaldesc", "ASC"]],
     });
 
