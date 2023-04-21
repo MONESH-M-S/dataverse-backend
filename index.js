@@ -20,6 +20,8 @@ const bodyParser = require("body-parser");
 const http = require("http");
 const cors = require("cors");
 const fs = require('fs');
+const { SecretClient } = require("@azure/keyvault-secrets");
+const { DefaultAzureCredential } = require("@azure/identity");
 
 const errorHandlerMiddleware = require("./src/middlewares/errorHandler.middleware");
 const joiErrorHandlerMiddleware = require("./src/middlewares/joiErrorHandler.middleware");
@@ -52,7 +54,7 @@ app.use("/api/file-volatility", fileVolatilityRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-app.use('/secret', auth, async (req,res)=>{
+app.use('/secret', auth, async (req, res)=>{
   const keyVaultName = process.env.KEY_VAULT_NAME;
   const secretName = process.env.KEY_VAULT_SECRET_NAME;
   const url = `https://${keyVaultName}.vault.azure.net`;
