@@ -21,10 +21,11 @@ const msalConfig = {
 const cca = new msal.ConfidentialClientApplication(msalConfig);
 const scopes = [`api://${process.env.CLIENT_ID}/api.readwrite`];
 
-const redirectionUrl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/auth";
-const postLogoutRedirectionurl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net/auth";
+const frontendUrl = process.env.FRONTEND_URL
+const redirectionUrl = frontendUrl + "/auth";
+const postLogoutRedirectionurl = frontendUrl + "/auth";
 const graphMeEndpoint = "https://graph.microsoft.com" + "v1.0/me";
-const frontendBaseUrl = "https://bieno-da08-d-904380-webapi-02.azurewebsites.net"
+const frontendBaseUrl = frontendUrl
 
 module.exports = {
     redirectionUrl,

@@ -28,7 +28,7 @@ module.exports = async (req, res, next) => {
     return res.status(401).send("Invalid authorization header");
   }
 
-  const token = parts[1];
+  // const token = parts[1];
 
   try {
     jwt.verify(token, getSigningKeys, validationOptions, (err, payload) => {
