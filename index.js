@@ -1,6 +1,5 @@
-const env = process.env.APP_ENVIRONMENT
-const path = require('path');
-
+const env = process.env.APP_ENVIRONMENT;
+const path = require("path");
 
 switch (env) {
   case "test":
@@ -19,7 +18,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const http = require("http");
 const cors = require("cors");
-const fs = require('fs');
+const fs = require("fs");
 const { SecretClient } = require("@azure/keyvault-secrets");
 const { DefaultAzureCredential } = require("@azure/identity");
 
@@ -32,12 +31,12 @@ const server = http.createServer(app);
 
 const port = process.env.PORT || 3000;
 
-const smartMappingRoutes = require("./src/routes/smartMapping.routes")
-const metaRoutes = require("./src/routes/meta.routes")
-const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes")
+const smartMappingRoutes = require("./src/routes/smartMapping.routes");
+const metaRoutes = require("./src/routes/meta.routes");
+const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes");
 const authRoutes = require("./src/routes/auth.routes");
 const dashboardRoutes = require("./src/routes/dashboard.routes");
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 
 app.use(bodyParser.json());
 app.use(
@@ -54,34 +53,33 @@ app.use("/api/file-volatility", fileVolatilityRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-app.get('/secret', async (req, res)=>{
-  const keyVaultName = process.env.KEY_VAULT_NAME;
-  const secretName = process.env.KEY_VAULT_SECRET_NAME;
-  const url = `https://${keyVaultName}.vault.azure.net`;
-  
-  const credential = new DefaultAzureCredential();
-  const client = new SecretClient(url, credential);
-  const secret = await client.getSecret(secretName);
-  res.send(secret).status(200);
-})
+app.get("/secret", async (req, res) => {
+  try {
+    const keyVaultName = process.env.KEY_VAULT_NAME;
+    const secretName = process.env.KEY_VAULT_SECRET_NAME;
+    const url = `https://${keyVaultName}.vault.azure.net`;
 
-app.use(express.static(path.join(__dirname, 'ui')));
+    const credential = new DefaultAzureCredential();
+    const client = new SecretClient(url, credential);
+    const secret = await client.getSecret(secretName);
+    res.send(secret).status(200);
+  } catch (error) {
+    res.send(error).status(400);
+  }
+});
 
-app.get('/*',(req,res)=>{
+app.use(express.static(path.join(__dirname, "ui")));
 
-    let file = '';
-    if(req.url === '/') 
-        file = '/index.html';
-    else 
-        file = req.url;
-    const filePath = path.join(__dirname, 'ui', file);
+app.get("/*", (req, res) => {
+  let file = "";
+  if (req.url === "/") file = "/index.html";
+  else file = req.url;
+  const filePath = path.join(__dirname, "ui", file);
 
-    console.log(filePath);
-    
-    if(fs.existsSync(filePath))
-        res.sendFile(filePath);
-    else
-        res.sendFile(path.join(__dirname, 'ui/index.html'));
+  console.log(filePath);
+
+  if (fs.existsSync(filePath)) res.sendFile(filePath);
+  else res.sendFile(path.join(__dirname, "ui/index.html"));
 });
 
 // Handling Errors message
