@@ -32,6 +32,18 @@ const configMap = {
     host: DB_HOST,
     database: DB_NAME,
     port: 1433,
+  },
+  uat: {
+    dialect: "mssql",
+    dialectOptions: {
+      options: { requestTimeout: 120000 },
+      authentication: {
+        type: "azure-active-directory-msi-app-service",
+      },
+    },
+    host: DB_HOST,
+    database: DB_NAME,
+    port: 1433,
   }
 }
 
