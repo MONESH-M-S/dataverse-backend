@@ -54,7 +54,7 @@ app.use("/api/file-volatility", fileVolatilityRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-app.use('/secret', async (req, res)=>{
+app.get('/secret', async (req, res)=>{
   const keyVaultName = process.env.KEY_VAULT_NAME;
   const secretName = process.env.KEY_VAULT_SECRET_NAME;
   const url = `https://${keyVaultName}.vault.azure.net`;
