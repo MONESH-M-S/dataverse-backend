@@ -506,7 +506,11 @@ const downloadUnProcessedExcel = async (req, res, next) => {
         ]
     }
 
-    const data = await modelName.findAll()
+    const data = await modelName.findAll({
+      where: {
+        Filename: smartMapping.Filename,
+      },
+    })
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('');
