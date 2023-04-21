@@ -26,11 +26,7 @@ async function connectAndQuery() {
       .request()
       .query(`SELECT * from [info].[User]`);
     console.log(`${resultSet.recordset.length} rows returned.`);
-    poolConnection.close();
-  } catch (err) {
-    console.log("---------------------------------------------");
     console.log("--------------- Error occured -----------------------------");
-    console.error(err.message);
     console.log("---------------------------------------------");
   }
 }

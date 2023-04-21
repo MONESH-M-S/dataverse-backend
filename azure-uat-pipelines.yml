@@ -11,13 +11,20 @@ pool:
   vmImage: windows-latest
 
 steps:
-  # Uncomment this when you are running the pipelines first time on any new environment
-  # - task: AzureCLI@2
-  #   inputs:
-  #     azureSubscription: "Project-da06-u-904378-ServiceEndPoint"
-  #     scriptType: "ps"
-  #     scriptLocation: "inlineScript"
-  #     inlineScript: "az webapp config appsettings set --resource-group bieno-da06-u-904378-rg --name bieno-da06-u-904378-webapi-02 --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true"
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: "Project-da06-u-904378-ServiceEndPoint"
+    scriptType: 'ps'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az webapp config appsettings set --resource-group bieno-da06-d-904378-rg --name bieno-da06-u-904378-webapi-02 --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
+
+  - task: AzureCLI@1
+    inputs:
+      azureSubscription: "Project-da06-u-904378-ServiceEndPoint"
+      scriptType: "ps"
+      scriptLocation: "inlineScript"
+      inlineScript: "az webapp config appsettings set --resource-groupbieno-da06-u-904378-rg --namebieno-da06-u-904378-webapi-02 --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true"
 
   - task: AzureCLI@2
     inputs:

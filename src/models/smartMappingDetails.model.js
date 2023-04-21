@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
-const SmartMappingDetailsModel = sequelize.define('MappingOutput', {
+const SmartMappingDetailsModel = sequelize.define('MappingProductOutput', {
     Id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -13,15 +13,16 @@ const SmartMappingDetailsModel = sequelize.define('MappingOutput', {
     Externaldesc: DataTypes.STRING,
     Skucode: DataTypes.STRING,
     Hierlevelname: DataTypes.STRING,
-    Categoryname: DataTypes.STRING,
+    // Categoryname: DataTypes.STRING,
     Divisionname: DataTypes.STRING,
     Categorygroupname: DataTypes.STRING,
     Segmentname: DataTypes.STRING,
     Productformmediumname: DataTypes.STRING,
     Confidencelevel: DataTypes.STRING,
-    Brandformname: DataTypes.STRING
+    Brandformname: DataTypes.STRING,
+    Confidencescore: DataTypes.STRING
 }, {
-    tableName: 'MappingOutput',
+    tableName: 'MappingProductOutput',
     schema: 'Mapping',
     timestamps: false,
 });

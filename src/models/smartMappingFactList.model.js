@@ -1,7 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
+const TempManualMappingModel = require("./tempManualMapping.model");
 
-const SmartMappingListModel = sequelize.define('vw_MappingReportSummary', {
+const SmartMappingFactListModel = sequelize.define('vw_MappingReportSummary', {
   Id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -26,5 +27,6 @@ const SmartMappingListModel = sequelize.define('vw_MappingReportSummary', {
   timestamps: false,
 });
 
+SmartMappingFactListModel.hasOne(TempManualMappingModel, { foreignKey: 'MappingOutputId' });
 
-module.exports = SmartMappingListModel
+module.exports = SmartMappingFactListModel

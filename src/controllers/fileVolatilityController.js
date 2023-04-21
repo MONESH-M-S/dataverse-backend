@@ -6,6 +6,7 @@ const LoadLogDetailModel = require("../models/loadLogDetail.model");
 const ColumnMappingModel = require("../models/columnMapping.model");
 const { sequelize } = require("../../models");
 const fileVolatilityFilterEnum = require("../enums/fileVolatilityFilter.enum");
+const FactColumnMappingModel = require("../models/ColumnMappingV3.model");
 
 const fetchVolatilityList = async (req, res, next) => {
     try {
@@ -22,6 +23,8 @@ const fetchVolatilityList = async (req, res, next) => {
 
         if (filterByProvider) {
             whereClause['SOURCE'] = filterByProvider
+        } else {
+            whereClause['SOURCE'] = 'Nielsen'
         }
 
         if (startDate && endDate) {
@@ -109,20 +112,23 @@ const fetchIndividualVolatilityFile = async (req, res, next) => {
 const fetchColumnMappings = async (req, res, next) => {
     try {
         const { id } = req.params
+        const { entity } = req.query
 
         const logDetails = await LoadLogModel.findByPk(id)
 
-        const mappingList = await ColumnMappingModel.findAll({
+        const fileData = await FactColumnMappingModel.findOne({
             where: {
-                FileName: logDetails.FILENAME
-            }
-        })
+                ZipFileName: logDetails.FILENAME,
+                Entity: entity ?? "Product",
+            },
+        });
 
-        const responseObj = {
-            result: mappingList
+        if (fileData === null) {
+            res.json({})
+            return
         }
 
-        res.json(responseObj)
+        res.json(fileData);
 
     } catch (error) {
         next(error)
@@ -132,30 +138,24 @@ const fetchColumnMappings = async (req, res, next) => {
 const updateColumnMapping = async (req, res) => {
     try {
 
-        const data = req.body.mappings
+        const { SourceColumn, Id } = req.body;
 
-        const statements = [];
-        const tableName = "ColumnMapping";
-        const schema = "metadata";
-
-        //  Added Raw Query, since MSSQL doesn't support Bulk Update
-        for (let i = 0; i < data.length; i++) {
-            statements.push(
-                sequelize.query(
-                    `UPDATE [${schema}].[${tableName}] 
-                    SET SourceColumn='${data[i].SourceColumn}' 
-                    WHERE ID=${data[i].ID};`
-                )
-            );
-        }
-
-        await Promise.all(statements);
+        await FactColumnMappingModel.update(
+            {
+                SourceColumn,
+            },
+            {
+                where: {
+                    Id
+                },
+            }
+        );
 
         res.json({
             message: "Successfully updated"
         })
     } catch (error) {
-        res.json({ error: error.message })
+        next(error);
     }
 }
 
@@ -222,34 +222,18 @@ const fetchLeadLogDetails = async (req, res, next) => {
 const addTargetColumn = async (req, res, next) => {
     try {
         const id = req.params.id
-        const data = await LoadLogModel.findByPk(id)
-        const fileName = data.FILENAME
-        const mappingColumns = req.body.map((item) => {
-            item.FileName = fileName
-            item.ID = item.id
-            item.TargetColumn = item.target
-            item.SourceColumn = item.source ?? ""
-            return item
-        })
+        const { source, target } = req.body
 
-        const addtarget = mappingColumns.filter((item) => item.ID === undefined)
-
-        const updateTargetColumns = mappingColumns.filter((item) => item.ID != undefined)
-
-        await ColumnMappingModel.bulkCreate(addtarget);
-
-        for (let i = 0; i < updateTargetColumns.length; i++) {
-            await ColumnMappingModel.update(
-                {
-                    TargetColumn: updateTargetColumns[i].TargetColumn
+        await FactColumnMappingModel.update({
+            SourceColumn: source,
+            TargetColumn: target
+        },
+            {
+                where: {
+                    Id: id
                 },
-                {
-                    where: {
-                        ID: updateTargetColumns[i].ID
-                    }
-                }
-            )
-        }
+            }
+        )
 
         res.json({
             staus: "Success",

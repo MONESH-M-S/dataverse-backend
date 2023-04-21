@@ -1,25 +1,21 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
-const TempManualMappingModel = sequelize.define('TempManualMapping', {
-    Id: {
+const MultipleMapFact = sequelize.define('MultipleMapFact', {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
     Filename: DataTypes.STRING,
     Tag: DataTypes.STRING,
-    Hierlevelname: DataTypes.STRING,
-    Skucode: DataTypes.STRING,
-    Createdon: DataTypes.STRING,
     Externaldesc: DataTypes.STRING,
     Internaldesc: DataTypes.STRING,
-    MappingOutputId: DataTypes.INTEGER,
+    Facttype: DataTypes.STRING
 }, {
-    tableName: 'TempManualMapping',
-    schema: 'Mapping',
+    tableName: 'MultipleMapFact',
+    schema: 'mapping',
     timestamps: false,
-    hasTrigger: true
 });
 
-module.exports = TempManualMappingModel
+module.exports = MultipleMapFact
