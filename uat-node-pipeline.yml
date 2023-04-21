@@ -1,0 +1,38 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- uat
+
+resources:
+  pipelines:
+  - pipeline: react-pipeline # Name of the pipeline resource.
+    source: 'UAT FE React' # The name of the pipeline referenced by this pipeline resource.
+    trigger: 
+      branches:
+        include: 
+        - refs/heads/uat
+
+pool:
+  vmImage: windows-latest
+
+steps:
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      buildType: 'specific'
+      project: 'e5ec1a4a-2be7-405b-8fe8-d3dfe80b32bf'
+      pipeline: '4199'
+      buildVersionToDownload: 'latest'
+      artifactName: 'ui'
+      targetPath: './ui'
+    displayName: 'download react artifact'
+
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: "Project-da06-u-904378-ServiceEndPoint"
+      scriptType: "ps"
+      scriptLocation: "inlineScript"
+      inlineScript: 'az webapp up --resource-group bieno-da06-u-904378-rg --name bieno-da06-u-904378-webapi-02 --os-type Windows --runtime "NODE:18LTS" --plan "bieno-da06-u-904378-serviceplan-02"'
+    displayName: 'deploy node + react app to appservice'
