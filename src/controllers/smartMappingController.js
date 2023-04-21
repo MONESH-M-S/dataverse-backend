@@ -473,6 +473,7 @@ const downloadUnProcessedExcel = async (req, res, next) => {
   try {
     const id = req.params.id;
     const smartMapping = await SmartMappingListModel.findByPk(id)
+    const fileName = smartMapping.Filename
 
     let modelName;
     let columns;
@@ -492,7 +493,7 @@ const downloadUnProcessedExcel = async (req, res, next) => {
           { header: 'Cell', key: 'Cell', width: 20 },
           { header: 'Createdon', key: 'Createdon', width: 20 },
         ]
-      break
+        break
       case dimensionEnum.product:
       default:
         modelName = UnporcessedRecordProductModel
@@ -508,7 +509,7 @@ const downloadUnProcessedExcel = async (req, res, next) => {
 
     const data = await modelName.findAll({
       where: {
-        Filename: smartMapping.Filename,
+        Filename: fileName
       },
     })
 
@@ -525,9 +526,10 @@ const downloadUnProcessedExcel = async (req, res, next) => {
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
     res.setHeader(
       'Content-Disposition',
-      'attachment; filename=file.xlsx'
+      'attachment; filename=' + fileName
     );
 
     await workbook.xlsx.write(res);
