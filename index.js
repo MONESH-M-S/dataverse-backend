@@ -6,6 +6,10 @@ switch (env) {
     require("custom-env").env("test");
     break;
 
+  case "uat":
+    require("custom-env").env("uat");
+    break;
+
   case "development":
     require("custom-env").env("development");
     break;
