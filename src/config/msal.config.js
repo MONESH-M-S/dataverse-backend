@@ -18,7 +18,7 @@ async function getClientSecret() {
   }
 }
 
-async function initalize() {
+function initalize() {
 
   const msalConfig = {
     tenant: process.env.TENENT_ID,
