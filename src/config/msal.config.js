@@ -43,8 +43,6 @@ async function initalize() {
   return cca;
 }
 
-initalize();
-
 const scopes = [`api://${process.env.CLIENT_ID}/api.readwrite`];
 
 const frontendUrl = process.env.FRONTEND_URL;
@@ -59,5 +57,5 @@ module.exports = {
   graphMeEndpoint,
   scopes,
   frontendBaseUrl,
-  cca,
+  cca: initalize(),
 };
