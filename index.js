@@ -76,14 +76,18 @@ app.use(express.static(path.join(__dirname, "ui")));
 
 app.get("/*", (req, res) => {
   let file = "";
-  if (req.url === "/") file = "/index.html";
-  else file = req.url;
+
+  if (req.url === "/") 
+    file = "/index.html";
+  else 
+    file = req.url;
+
   const filePath = path.join(__dirname, "ui", file);
 
-  console.log(filePath);
-
-  if (fs.existsSync(filePath)) res.sendFile(filePath);
-  else res.sendFile(path.join(__dirname, "ui/index.html"));
+  if (fs.existsSync(filePath)) 
+    res.sendFile(filePath);
+  else 
+    res.sendFile(path.join(__dirname, "ui/index.html"));
 });
 
 // Handling Errors message
