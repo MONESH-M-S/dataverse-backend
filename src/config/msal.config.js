@@ -25,7 +25,8 @@ async function initalize() {
     auth: {
       clientId: process.env.CLIENT_ID, // 'Application (client) ID' of app registration in Azure portal - this value is a GUID
       authority: `https://login.microsoftonline.com/${process.env.TENENT_ID}`, // Full directory URL, in the form of https://login.microsoftonline.com/<tenant>
-      clientSecret: env ? await getClientSecret() : process.env.CLIENT_ID, // Fetch client secret when env is not undefined
+      // clientSecret: env ? await getClientSecret() : process.env.CLIENT_ID, // Fetch client secret when env is not undefined
+      clientSecret: process.env.CLIENT_SECRET,
     },
     system: {
       loggerOptions: {
@@ -58,5 +59,5 @@ module.exports = {
   graphMeEndpoint,
   scopes,
   frontendBaseUrl,
-  cca: initalize(),
+  cca,
 };
