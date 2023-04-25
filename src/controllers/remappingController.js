@@ -41,7 +41,6 @@ const productRemappingOptions = async (req, res, next) => {
   try {
     const columnName = req.params.columnName;
     const dbColumnName = Product_Dropdowns[columnName];
-    console.log(dbColumnName);
     const options = await SmartMappingDetailsModel.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
@@ -57,7 +56,6 @@ const factRemappingOptions = async (req, res, next) => {
   try {
     const columnName = req.params.columnName;
     const dbColumnName = Fact_Dropdowns[columnName];
-    console.log(dbColumnName);
     const options = await SmartMappingFactDetailsModel.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
@@ -73,7 +71,6 @@ const periodRemappingOptions = async (req, res, next) => {
   try {
     const columnName = req.params.columnName;
     const dbColumnName = Period_Dropdowns[columnName];
-    console.log(dbColumnName);
     const options = await MappingPeriodOutput.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
@@ -89,7 +86,6 @@ const marketRemappingOptions = async (req, res, next) => {
   try {
     const columnName = req.params.columnName;
     const dbColumnName = Market_Dropdowns[columnName];
-    console.log(dbColumnName);
     const options = await MappingMarketOutput.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
@@ -129,7 +125,7 @@ const updateRemappingFactValues = async (req, res, next) => {
       updatedValues,
       {
         where: {
-          updatedValues,
+          id,
         },
       }
     );
