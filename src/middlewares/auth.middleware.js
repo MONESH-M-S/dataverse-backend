@@ -18,35 +18,35 @@ const validationOptions = {
 };
 
 module.exports = async (req, res, next) => {
-  // const authHeader = req.headers.authorization;
-  // if (!authHeader) {
-  //   return res.status(401).send("Authorization header missing");
-  // }
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send("Authorization header missing");
+  }
 
-  // const parts = authHeader.split(" ");
-  // if (parts.length !== 2) {
-  //   return res.status(401).send("Invalid authorization header");
-  // }
+  const parts = authHeader.split(" ");
+  if (parts.length !== 2) {
+    return res.status(401).send("Invalid authorization header");
+  }
 
-  // const token = parts[1];
+  const token = parts[1];
 
   try {
-    // jwt.verify(token, getSigningKeys, validationOptions, (err, payload) => {
-    //   if (err) {
-    //     console.log(err);
-    //     return res.send(err).status(403);
-    //   }
+    jwt.verify(token, getSigningKeys, validationOptions, (err, payload) => {
+      if (err) {
+        console.log(err);
+        return res.send(err).status(403);
+      }
 
-    //   // Set the user object on the request for downstream middleware/routes to access
-    //   req.user = {
-    //     name: payload.name,
-    //     email: payload.upn,
-    //   };
+      // Set the user object on the request for downstream middleware/routes to access
+      req.user = {
+        name: payload.name,
+        email: payload.upn,
+      };
 
-    //   next();
-    // });
+      next();
+    });
     
-    next();
+    // next();
 
   } catch (error) {
     console.log(error);
