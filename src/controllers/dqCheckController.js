@@ -3,6 +3,7 @@ const sequelize = require("../config/sequelize.config");
 const DQCheckModel = require("../models/DQCheck.model");
 const getPaginationDetails = require("../utils/response/getPaginationDetails");
 
+// Added raw queries as these will be easier to fetch the data instead of writing multiple sub queires in sequeileize
 const fetchSummaryStatus = async (req, res, next) => {
 
     try {
