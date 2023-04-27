@@ -41,6 +41,7 @@ const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes");
 const authRoutes = require("./src/routes/auth.routes");
 const dashboardRoutes = require("./src/routes/dashboard.routes");
 const remappingRoutes = require("./src/routes/remapping.routes");
+const dqCheckRoutes = require("./src/routes/dqChecks.routes");
 
 const cookieParser = require("cookie-parser");
 
@@ -59,6 +60,7 @@ app.use("/api/file-volatility", fileVolatilityRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/remapping", remappingRoutes);
+app.use("/api/dq-checks", dqCheckRoutes);
 
 app.get("/secret", async (req, res) => {
   try {
