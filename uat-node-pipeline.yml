@@ -6,14 +6,14 @@
 trigger:
 - uat
 
-resources:
-  pipelines:
-  - pipeline: react-pipeline # Name of the pipeline resource.
-    source: 'UAT FE React' # The name of the pipeline referenced by this pipeline resource.
-    trigger: 
-      branches:
-        include: 
-        - refs/heads/uat
+# resources:
+#   pipelines:
+#   - pipeline: react-pipeline # Name of the pipeline resource.
+#     source: 'UAT FE React' # The name of the pipeline referenced by this pipeline resource.
+#     trigger: 
+#       branches:
+#         include: 
+#         - refs/heads/uat
 
 pool:
   vmImage: windows-latest
