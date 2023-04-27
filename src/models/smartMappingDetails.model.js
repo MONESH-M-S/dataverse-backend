@@ -29,6 +29,7 @@ const SmartMappingDetailsModel = sequelize.define('MappingProductOutput', {
     Sectorname: DataTypes.STRING,
     Formname: DataTypes.STRING,
     Subformname: DataTypes.STRING,
+    Productpackformname: DataTypes.STRING,
     Productpacksizename: DataTypes.STRING,
     Productvariantname: DataTypes.STRING,
     Productcodename: DataTypes.STRING,

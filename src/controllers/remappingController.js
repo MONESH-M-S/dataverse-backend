@@ -12,6 +12,15 @@ const Product_Dropdowns = {
   "corporate-brand-name": "Corporatebrandname",
   "product-form-name": "Productformname",
   "sub-product-form-variant-name": "Spfvname",
+  "division-name": "Divisionname",
+  "sector-name": "Sectorname",
+  "segment-name": "Segmentname",
+  "form-name": "Formname",
+  "sub-form-name": "Subformname",
+  "product-pack-form-name": "Productpackformname",
+  "product-pack-size-name": "Productpacksizename",
+  "product-variant-name": "Productvariantname",
+  "product-code-name": "Productcodename",
 };
 
 const Fact_Dropdowns = {
