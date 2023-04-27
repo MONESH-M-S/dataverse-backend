@@ -36,6 +36,12 @@ const Period_Dropdowns = {
   week: "WeekBr",
   "start-date": "PeriodStartDate",
   "end-date": "PeriodEndDate",
+  "min-period-number": "MinPeriodNumBr",
+  "max-period-number": "MaxPeriodNumBr",
+  "country-week-start-day": "WeekStartDayCountry",
+  "periodicity-identifier": "PeriodicityIdentifier",
+  convention: "Convention",
+  "period-number": "PeriodNumberBr",
 };
 
 const Market_Dropdowns = {
