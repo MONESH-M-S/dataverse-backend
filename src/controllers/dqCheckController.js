@@ -176,7 +176,7 @@ const downloadDQCheckReport = async (req, res, next) => {
     res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
     res.setHeader(
         'Content-Disposition',
-        'attachment; filename=DQ Checks.xlsx'
+        'attachment; filename=File Volatility Checks.xlsx'
     );
 
     await workbook.xlsx.write(res);
