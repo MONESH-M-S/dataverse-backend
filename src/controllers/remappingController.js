@@ -39,7 +39,7 @@ const Period_Dropdowns = {
   "min-period-number": "MinPeriodNumBr",
   "max-period-number": "MaxPeriodNumBr",
   "country-week-start-day": "WeekStartDayCountry",
-  "periodicity-identifier": "PeriodicityIdentifier",
+  "periodicity-identifer": "PeriodicityIdentifer",
   convention: "Convention",
   "period-number": "PeriodNumberBr",
 };
