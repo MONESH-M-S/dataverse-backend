@@ -1,7 +1,11 @@
 const { Sequelize } = require("../../models");
 const sequelize = require("../config/sequelize.config");
+const dqCheckStatusEnum = require("../enums/dqCheckStatus.enum");
 const DQCheckModel = require("../models/DQCheck.model");
 const getPaginationDetails = require("../utils/response/getPaginationDetails");
+const { Op } = require("sequelize");
+const ExcelJS = require('exceljs');
+
 
 // Added raw queries as these will be easier to fetch the data instead of writing multiple sub queires in sequeileize
 const fetchSummaryStatus = async (req, res, next) => {
@@ -49,37 +53,65 @@ const fetchSummaryStatus = async (req, res, next) => {
 
 }
 
+const getFiltersForDQChecks = (req) => {
+    const {
+        filter_by_category: filterByCategory, filter_by_country: filterByCountry,
+        filter_by_in_success: filterBySuccess, filter_by_in_failure: filterByFailure,
+        filter_by_in_progress: filterByInProgress
+    } = req.query
+
+    let whereClause = {}
+    let statusFilterList = []
+
+    if (filterByCategory) {
+        whereClause['Category'] = filterByCategory
+    }
+
+    if (filterByCountry) {
+        whereClause['Country'] = filterByCountry
+    }
+
+    if (filterBySuccess && filterBySuccess != 'false') {
+        statusFilterList.push(dqCheckStatusEnum.SUCCESS)
+    }
+    if (filterByFailure && filterByFailure != 'false') {
+        statusFilterList.push(dqCheckStatusEnum.FAILURE)
+    }
+    if (filterByInProgress && filterByInProgress != 'false') {
+        statusFilterList.push(dqCheckStatusEnum.IN_PROGRESS)
+    }
+
+    if (statusFilterList.length > 0) {
+        whereClause['Overall_Status'] = {
+            [Op.in]: statusFilterList
+        }
+    }
+
+    return whereClause
+}
+
 const fetchDQChecksData = async (req, res, next) => {
     try {
 
         const { limit, offset, page, pageSize } = getPaginationDetails(req)
-        const {
-            filter_by_category: filterByCategory, filter_by_country: filterByCountry,
-        } = req.query
 
-        let whereClause = {}
-
-        if (filterByCategory) {
-            whereClause['Category'] = filterByCategory
-        }
-
-        if (filterByCountry) {
-            whereClause['Country'] = filterByCountry
-        }
+        const whereClause = getFiltersForDQChecks(req)
 
         const data = await DQCheckModel.findAndCountAll({
             limit,
             offset,
             where: whereClause,
         })
+
         const responseObj = {
             result: data.rows,
             page,
             page_size: pageSize,
-            total_count: data.count
-        }
+            total_count: data.count,
+        };
 
-        res.json(responseObj)
+        res.json(responseObj);
+
     } catch (error) {
         next(error)
     }
@@ -111,11 +143,53 @@ const fetchDQCategoryMeta = async (req, res, next) => {
     }
 }
 
+const downloadDQCheckReport = async (req, res, next) => {
+    const whereClause = getFiltersForDQChecks(req)
+    const data = await DQCheckModel.findAll({
+        where: whereClause,
+    })
+
+    const columns = [
+        { header: 'Country', key: 'Country', width: 20 },
+        { header: 'Category', key: 'Category', width: 20 },
+        { header: 'Cell Database', key: 'CellDatabase', width: 20 },
+        { header: 'File Name', key: 'zipFile', width: 40 },
+        { header: 'Overall Status', key: 'Overall_Status', width: 20 },
+        { header: 'Checks Passed', key: 'Number_of_files_that_passed_Check', width: 20 },
+        { header: 'Checks Failed', key: 'Number_of_files_that_failed_Check', width: 20 },
+        { header: 'Remarks', key: 'Remarks', width: 40 },
+    ]
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('');
+
+    worksheet.columns = columns
+
+    data.forEach((item) => {
+        worksheet.addRow(item.toJSON());
+    });
+
+    res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+    res.setHeader(
+        'Content-Disposition',
+        'attachment; filename=DQ Checks.xlsx'
+    );
+
+    await workbook.xlsx.write(res);
+
+    res.end();
+}
+
 
 
 module.exports = {
     fetchSummaryStatus,
     fetchDQChecksData,
     fetchDQCategoryMeta,
-    fetchDQCountryMeta
+    fetchDQCountryMeta,
+    downloadDQCheckReport
 }
