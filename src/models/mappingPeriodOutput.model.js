@@ -26,6 +26,7 @@ const MappingPeriodOutput = sequelize.define('MappingPeriodOutput', {
     MaxPeriodNumBr: DataTypes.STRING,
     PeriodStartDate: DataTypes.STRING,
     PeriodEndDate: DataTypes.STRING,
+    PeriodNumberBr: DataTypes.STRING,
     WeekStartDayCountry: DataTypes.STRING,
     UniqueTag: DataTypes.STRING,
 }, {
