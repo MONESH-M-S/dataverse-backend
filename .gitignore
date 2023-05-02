@@ -169,3 +169,6 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/node,windows
 config/config.json
+.DS_Store
+sample.js
+file-output.txt
