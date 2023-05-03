@@ -51,9 +51,10 @@ const fetchSmartMappingList = async (req, res, next) => {
     }
 
     if (search) {
-      whereClause["Filename"] = {
-        [Op.like]: "%" + search + "%",
-      }
+      whereClause[Op.or] = [
+        { Filename: { [Op.like]: `%${search.trim()}%` } },
+        { Category: { [Op.like]: `%${search.trim()}%` } }
+      ]
     }
 
     if (filterByDimension) {
