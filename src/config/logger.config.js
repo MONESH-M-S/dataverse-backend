@@ -11,10 +11,9 @@ const logger = createLogger({
         format.json()
     ),
     transports: [
-            new transports.File({ filename: 'log/error.log', level: 'error' }),
-            new transports.File({ filename: 'log/info.log', level: 'info' })
-        ]
-    },
+        new transports.Console(),
+    ]
+},
 );
 
 module.exports = logger
