@@ -3,8 +3,8 @@ const { Op } = require("sequelize");
 const LoadLogModel = require('../models/loadLog.model')
 const statusTypeEnum = require("../enums/statusType.enum");
 const LoadLogDetailModel = require("../models/loadLogDetail.model");
-const ColumnMappingModel = require("../models/columnMapping.model");
-const { sequelize } = require("../../models");
+const { Sequelize } = require("../../models");
+const sequelize = require("../config/sequelize.config");
 const fileVolatilityFilterEnum = require("../enums/fileVolatilityFilter.enum");
 const FactColumnMappingModel = require("../models/ColumnMappingV3.model");
 
@@ -160,36 +160,54 @@ const updateColumnMapping = async (req, res) => {
 }
 
 const fetchDashboardDetails = async (req, res) => {
-    const mappingListCount = await LoadLogModel.count();
-    const excelFileCount = await LoadLogModel.count({
-        where: {
-            "FILENAME": {
-                [Op.endsWith]: "xlsx",
-            }
-        },
-    });
-    const csvFileCount = await LoadLogModel.count({
-        where: {
-            "FILENAME": {
-                [Op.endsWith]: "csv",
-            }
-        }
-    });
-    const docFileCount = await LoadLogModel.count({
-        where: {
-            "FILENAME": {
-                [Op.endsWith]: "doc",
-            }
-        },
-    });
+    const totalCount = await LoadLogModel.count();
+    // Added raw queries as these will be easier to fetch the data
+    // instead of writing multiple sub queires in sequeileize
+
+    const csvCountQuery = "SELECT " +
+        "    COUNT(spl.value) AS count " +
+        "FROM " +
+        "    (SELECT RIGHT(LogMessage, CHARINDEX(' ', REVERSE(LogMessage)) -1) as Extract_List " +
+        "        FROM info.LoadDetailLog " +
+        "    WHERE    LogMessage like '%.% %' " +
+        "            AND TaskName='Extract_zip' " +
+        "    )ext_list " +
+        "CROSS APPLY STRING_SPLIT(ext_list.Extract_List, '|') spl " +
+        "WHERE spl.value like '%.csv'";
+
+    const excelCountQuery = "SELECT " +
+        "    COUNT(spl.value) AS count " +
+        "FROM " +
+        "    (SELECT RIGHT(LogMessage, CHARINDEX(' ', REVERSE(LogMessage)) -1) as Extract_List " +
+        "        FROM info.LoadDetailLog " +
+        "    WHERE    LogMessage like '%.% %' " +
+        "            AND TaskName='Extract_zip' " +
+        "    )ext_list " +
+        "CROSS APPLY STRING_SPLIT(ext_list.Extract_List, '|') spl " +
+        "WHERE spl.value like '%.xlsx'";
+
+    const docCountQuery = "SELECT " +
+        "    COUNT(spl.value) AS count " +
+        "FROM " +
+        "    (SELECT RIGHT(LogMessage, CHARINDEX(' ', REVERSE(LogMessage)) -1) as Extract_List " +
+        "        FROM info.LoadDetailLog " +
+        "    WHERE    LogMessage like '%.% %' " +
+        "            AND TaskName='Extract_zip' " +
+        "    )ext_list " +
+        "CROSS APPLY STRING_SPLIT(ext_list.Extract_List, '|') spl " +
+        "WHERE spl.value like '%.doc' or spl.value like '%.docx'";
+
+    const csvCount = await sequelize.query(csvCountQuery, { type: Sequelize.QueryTypes.SELECT })
+    const excelCount = await sequelize.query(excelCountQuery, { type: Sequelize.QueryTypes.SELECT })
+    const docCount = await sequelize.query(docCountQuery, { type: Sequelize.QueryTypes.SELECT })
 
     res.json({
         status: statusTypeEnum.success,
         data: {
-            total_count: mappingListCount,
-            excel_count: excelFileCount,
-            csv_count: csvFileCount,
-            doc_count: docFileCount,
+            csv_count: csvCount[0].count,
+            excel_count: excelCount[0].count,
+            doc_count: docCount[0].count,
+            total_count: totalCount,
         },
     });
 }
