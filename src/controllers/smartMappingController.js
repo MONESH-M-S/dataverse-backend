@@ -4,8 +4,6 @@ const { Op } = require("sequelize");
 const statusTypeEnum = require("../enums/statusType.enum");
 const SmartMappingDetailsModel = require("../models/smartMappingDetails.model");
 const MappingPeriodOutput = require("../models/mappingPeriodOutput.model");
-const TempManualMappingModel = require("../models/tempManualMapping.model");
-const moment = require("moment");
 const { Sequelize } = require("../../models");
 const MultipleMapProduct = require("../models/multipleMapProduct.model");
 const dimensionEnum = require("../models/enums/dimension.enum");
@@ -144,7 +142,10 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
     let orderClause = [["id", "desc"]];
     let whereClause = {
       Filename: smartMapping.Filename,
-      Confidencelevel: "HIGH"
+      Confidencelevel: "HIGH",
+      Hierlevelnum: {
+        [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[MappingProductOutput] where Hierlevelnum is not null group by filename))')
+      }
     }
 
     const mappedList = await SmartMappingDetailsModel.findAndCountAll({
@@ -168,32 +169,35 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
 };
 
 const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
-  const id = req.params.id;
+  try {
+    const id = req.params.id;
 
-  const smartMapping = await SmartMappingListModel.findByPk(id)
+    const smartMapping = await SmartMappingListModel.findByPk(id)
 
-  let whereClause = {
+    let whereClause = {
+      Filename: smartMapping.Filename,
+      Confidencelevel: "Low",
+      Hierlevelnum: {
+        [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[MappingProductOutput] where Hierlevelnum is not null group by filename))')
+      }
+    };
 
-    Filename: smartMapping.Filename,
-    [Op.and]: [
-      {
-        Confidencelevel: "Low"
-      },
-    ]
-  };
+    let orderClause = [["id", "desc"]];
 
-  let orderClause = [["id", "desc"]];
+    const mappedList = await SmartMappingDetailsModel.findAll({
+      where: whereClause,
+      order: orderClause
+    })
 
-  const mappedList = await SmartMappingDetailsModel.findAll({
-    where: whereClause,
-    order: orderClause
-  })
+    const responseObj = {
+      result: mappedList,
+    };
 
-  const responseObj = {
-    result: mappedList,
-  };
+    res.json(responseObj);
+  } catch (error) {
+    next(error)
+  }
 
-  res.json(responseObj);
 };
 
 const fetchSmartMappingMediumResults = async (req, res, next) => {
@@ -208,7 +212,10 @@ const fetchSmartMappingMediumResults = async (req, res, next) => {
       offset,
       where: {
         Filename: smartMapping.Filename,
-        Confidencelevel: "MEDIUM"
+        Confidencelevel: "MEDIUM",
+        Hierlevelnum: {
+          [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[MappingProductOutput] where Hierlevelnum is not null group by filename))')
+        }
       },
       order: [["id", "desc"]]
     })
@@ -229,7 +236,6 @@ const fetchSmartMappingMediumResults = async (req, res, next) => {
 
 const updateSmartMappingDetails = async (req, res, next) => {
   try {
-    const id = req.params.id;
     const data = req.body.mapping;
 
     for (let i = 0; i < data.length; i++) {
@@ -325,27 +331,32 @@ const fetchCategoryMeta = async (req, res, next) => {
 }
 
 const fetchUnmappedRecordsSuggestions = async (req, res, next) => {
-  const id = req.params.id;
-  const smartMapping = await SmartMappingDetailsModel.findByPk(id)
-  const externalDesc = smartMapping.Externaldesc
-  const tag = smartMapping.Tag
-  const { search } = req.query
-  let whereClause = {
-    Externaldesc: externalDesc,
-    Tag: tag
-  };
+  try {
+    const id = req.params.id;
+    const smartMapping = await SmartMappingDetailsModel.findByPk(id)
+    const externalDesc = smartMapping.Externaldesc
+    const tag = smartMapping.Tag
+    const { search } = req.query
+    let whereClause = {
+      Externaldesc: externalDesc,
+      Tag: tag
+    };
 
-  if (search) {
-    whereClause["Internaldesc"] = {
-      [Op.like]: "%" + search + "%",
+    if (search) {
+      whereClause["Internaldesc"] = {
+        [Op.like]: "%" + search + "%",
+      }
     }
+
+    const suggestionList = await MultipleMapProduct.findAll({
+      where: whereClause
+    })
+
+    res.json(suggestionList);
+  } catch (error) {
+    next(error)
   }
 
-  const suggestionList = await MultipleMapProduct.findAll({
-    where: whereClause
-  })
-
-  res.json(suggestionList);
 
 }
 
