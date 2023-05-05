@@ -436,11 +436,12 @@ const fetchUnprocessedRecords = async (req, res, next) => {
 
     let modelName;
     let whereClause = {}
+    let searchClause = {}
 
     switch (smartMapping.Dimension) {
       case dimensionEnum.market:
         modelName = UnporcessedRecordMarketModel
-        whereClause = {
+        searchClause = {
           "Long": {
             [Op.like]: "%" + search + "%",
           }
@@ -449,21 +450,27 @@ const fetchUnprocessedRecords = async (req, res, next) => {
       case dimensionEnum.product:
       default:
         modelName = UnporcessedRecordProductModel
-        whereClause = {
+        searchClause = {
           "Externaldesc": {
             [Op.like]: "%" + search + "%",
+          },
+        }
+        whereClause = {
+          "Hierlevelnum": {
+            [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[UnProcessedRecordsProduct] where Hierlevelnum is not null group by filename))')
           }
         }
     }
 
-    if (!search) whereClause = {}
+    if (!search) searchClause = {}
 
     const result = await modelName.findAndCountAll({
       limit,
       offset,
       where: {
+        ...searchClause,
         Filename: smartMapping.Filename,
-        ...whereClause
+        ...whereClause,
       },
     })
 
