@@ -22,6 +22,10 @@ const MappingMarketOutput = sequelize.define('MappingMarketOutput', {
     TotalMarket: DataTypes.STRING,
     CreatedOn: DataTypes.STRING,
     Flag: DataTypes.STRING,
+    ParentTag: DataTypes.STRING,
+    HierNum: DataTypes.STRING,
+    Short: DataTypes.STRING,
+    HierLevelNum: DataTypes.STRING
 }, {
     tableName: 'MappingMarketOutput',
     schema: 'mapping',
