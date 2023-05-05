@@ -457,7 +457,7 @@ const fetchUnprocessedRecords = async (req, res, next) => {
         }
         whereClause = {
           "Hierlevelnum": {
-            [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[MappingProductOutput] where Hierlevelnum is not null group by filename))')
+            [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[UnProcessedRecordsProduct] where Hierlevelnum is not null group by filename))')
           }
         }
     }
