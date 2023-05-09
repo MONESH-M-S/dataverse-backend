@@ -156,7 +156,7 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
     });
 
     const rowData = mappedList.rows.map((row) => {
-      return { ...row.dataValues, Hierlevelnum: null}
+      return { ...row.dataValues, Short: null, Hiernum: null, Hiername: null, Hierlevelnum: null, Parenttag: null, Company: null}
      })
 
     const responseObj = {
@@ -225,7 +225,7 @@ const fetchSmartMappingMediumResults = async (req, res, next) => {
     });
 
     const rowData = mediumList.rows.map((row) => {
-      return { ...row.dataValues, Hierlevelnum: null}
+      return { ...row.dataValues, Short: null, Hiernum: null, Hiername: null, Hierlevelnum: null, Parenttag: null, Company: null}
      })
 
     const responseObj = {
