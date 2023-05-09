@@ -143,9 +143,9 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
     let whereClause = {
       Filename: smartMapping.Filename,
       Confidencelevel: "HIGH",
-      Hierlevelnum: {
-        [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[MappingProductOutput] where Hierlevelnum is not null group by filename))')
-      }
+      // Hierlevelnum: {
+      //   [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[MappingProductOutput] where Hierlevelnum is not null group by filename))')
+      // }
     }
 
     const mappedList = await SmartMappingDetailsModel.findAndCountAll({
@@ -153,10 +153,14 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
       offset,
       order: orderClause,
       where: whereClause
-    })
+    });
+
+    const rowData = mappedList.rows.map((row) => {
+      return { ...row.dataValues, Hierlevelnum: null}
+     })
 
     const responseObj = {
-      result: mappedList.rows,
+      result: rowData,
       page,
       page_size: pageSize,
       total_count: mappedList.count,
@@ -177,9 +181,9 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
     let whereClause = {
       Filename: smartMapping.Filename,
       Confidencelevel: "Low",
-      Hierlevelnum: {
-        [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[MappingProductOutput] where Hierlevelnum is not null group by filename))')
-      }
+      // Hierlevelnum: {
+      //   [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[MappingProductOutput] where Hierlevelnum is not null group by filename))')
+      // }
     };
 
     let orderClause = [["id", "desc"]];
@@ -213,15 +217,19 @@ const fetchSmartMappingMediumResults = async (req, res, next) => {
       where: {
         Filename: smartMapping.Filename,
         Confidencelevel: "MEDIUM",
-        Hierlevelnum: {
-          [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[MappingProductOutput] where Hierlevelnum is not null group by filename))')
-        }
+        // Hierlevelnum: {
+        //   [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[MappingProductOutput] where Hierlevelnum is not null group by filename))')
+        // }
       },
       order: [["id", "desc"]]
-    })
+    });
+
+    const rowData = mediumList.rows.map((row) => {
+      return { ...row.dataValues, Hierlevelnum: null}
+     })
 
     const responseObj = {
-      result: mediumList.rows,
+      result: rowData,
       page,
       page_size: pageSize,
       total_count: mediumList.count,

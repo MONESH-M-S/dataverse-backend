@@ -37,7 +37,7 @@ const SmartMappingDetailsModel = sequelize.define('MappingProductOutput', {
     Short: DataTypes.STRING,
     Hiernum: DataTypes.STRING,
     Hiername: DataTypes.STRING,
-    Hierlevelnum: DataTypes.STRING,
+    // Hierlevelnum: DataTypes.STRING,
     Parenttag: DataTypes.STRING,
     Company: DataTypes.STRING,
     Brand: DataTypes.STRING,
