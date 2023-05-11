@@ -412,7 +412,7 @@ const fetchUnprocessedProductRecords = async (req, res, next) => {
     } else {
       result = await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
       from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-      and u.filename=${smartMapping.Filename}`);
+      and u.filename='${smartMapping.Filename}'`);
     };
 
     console.log(result);
