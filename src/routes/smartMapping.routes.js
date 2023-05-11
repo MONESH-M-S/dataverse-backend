@@ -16,6 +16,8 @@ const {
   fetchUnprocessedRecords,
   downloadUnProcessedExcel,
   fetchSmartMappingListPagination,
+  downloadUnProcessedExcel,
+  fetchUnprocessedProductRecords,
 } = require("../controllers/smartMappingController");
 const {
   fetchSmartMappingFactList,
@@ -47,6 +49,7 @@ router.get("/:id/high", auth, fetchSmartMappingMappedDetails);
 router.get("/:id/medium", auth, fetchSmartMappingMediumResults);
 router.get("/:id/low", auth, fetchSmartMappingUnMappedDetails);
 router.get("/:id/unprocessed", auth, fetchUnprocessedRecords);
+router.get("/:id/product/unprocessed", auth, fetchUnprocessedProductRecords); // updated query for product unprocessed
 router.get("/:id/unprocessed/download", auth, downloadUnProcessedExcel);
 router.put(
   "/:id",
