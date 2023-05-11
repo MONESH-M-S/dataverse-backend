@@ -1,12 +1,21 @@
 const express = require("express");
 const {
-  fetchSmartMappingList, fetchSmartMappingDashboardCount, fetchIndividualSmartMapping,
-  fetchSmartMappingMappedDetails, fetchSmartMappingUnMappedDetails, updateSmartMappingDetails,
-  fetchCategoryMeta, fetchProviderMeta, fetchCountryMeta, fetchSmartMappingMediumResults, fetchUnmappedRecordsSuggestions,
+  fetchSmartMappingList,
+  fetchSmartMappingDashboardCount,
+  fetchIndividualSmartMapping,
+  fetchSmartMappingMappedDetails,
+  fetchSmartMappingUnMappedDetails,
+  updateSmartMappingDetails,
+  fetchCategoryMeta,
+  fetchProviderMeta,
+  fetchCountryMeta,
+  fetchSmartMappingMediumResults,
+  fetchUnmappedRecordsSuggestions,
   fetchMappedRecordsForPeriodDimension,
   fetchMappedRecordsForMarketDimension,
   fetchUnprocessedRecords,
-  downloadUnProcessedExcel
+  downloadUnProcessedExcel,
+  fetchSmartMappingListPagination,
 } = require("../controllers/smartMappingController");
 const {
   fetchSmartMappingFactList,
@@ -15,8 +24,10 @@ const {
   fetchFactCountryMeta,
   fetchFactProviderMeta,
   updateFactSmartMappingLowDetails,
-  fetchLowMappingDetails,fetchMappingDataforLow,
-  fetchSmartMappingFactById
+  fetchLowMappingDetails,
+  fetchMappingDataforLow,
+  fetchSmartMappingFactById,
+  fetchSmartMappingFactListPagination,
 } = require("../controllers/smartMappingFactController");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
@@ -30,19 +41,30 @@ router.get("/meta/provider", auth, fetchProviderMeta);
 router.get("/meta/country", auth, fetchCountryMeta);
 router.get("/dashboard", auth, fetchSmartMappingDashboardCount);
 router.get("/", auth, fetchSmartMappingList);
+router.get("/count", auth, fetchSmartMappingListPagination);
 router.get("/:id", auth, fetchIndividualSmartMapping);
 router.get("/:id/high", auth, fetchSmartMappingMappedDetails);
 router.get("/:id/medium", auth, fetchSmartMappingMediumResults);
 router.get("/:id/low", auth, fetchSmartMappingUnMappedDetails);
 router.get("/:id/unprocessed", auth, fetchUnprocessedRecords);
 router.get("/:id/unprocessed/download", auth, downloadUnProcessedExcel);
-router.put("/:id", auth, validator.body(updateSmartMappingsSchema), updateSmartMappingDetails);
+router.put(
+  "/:id",
+  auth,
+  validator.body(updateSmartMappingsSchema),
+  updateSmartMappingDetails
+);
 router.get("/:id/suggestion", auth, fetchUnmappedRecordsSuggestions);
 router.get("/:id/period/mapped", auth, fetchMappedRecordsForPeriodDimension);
-router.get("/:id/market/:confidenceLevel", auth, fetchMappedRecordsForMarketDimension);
+router.get(
+  "/:id/market/:confidenceLevel",
+  auth,
+  fetchMappedRecordsForMarketDimension
+);
 
 // Fact
 router.get("/fact/summary", auth, fetchSmartMappingFactList);
+router.get("/fact/summary/count", auth, fetchSmartMappingFactListPagination);
 router.get("/fact/details", auth, fetchSmartMappingFactDetail);
 router.get("/fact/details/low", auth, fetchLowMappingDetails);
 router.get("/fact/details/low-map", auth, fetchMappingDataforLow);

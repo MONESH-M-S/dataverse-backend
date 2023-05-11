@@ -9,6 +9,72 @@ const { Op } = require("sequelize");
 
 const fetchSmartMappingFactList = async (req, res, next) => {
   try {
+    const { limit, offset } = getPaginationDetails(req);
+    const {
+      search,
+      orderKey,
+      orderValue,
+      start_date: startDate,
+      end_date: endDate,
+      filter_by_country: filterByCountry,
+      filter_by_provider: filterByProvider,
+      filter_by_category: filterByCategory,
+    } = req.query;
+
+    let whereClause = {};
+    whereClause["Dimension"] = "Fact";
+
+    let orderClause = [];
+
+    if (orderKey || orderValue) {
+      orderClause = [[orderKey ?? "id", orderValue ?? "DESC"]];
+    }
+
+    if (startDate && endDate) {
+      whereClause["CreatedOn"] = {
+        [Op.between]: [startDate, endDate],
+      };
+    }
+
+    if (filterByCountry) {
+      whereClause["Country"] = {
+        [Op.in]: [filterByCountry],
+      };
+    }
+
+    if (filterByProvider) {
+      whereClause["ExternalDataProvider"] = filterByProvider;
+    }
+
+    if (filterByCategory) {
+      whereClause["CATEGORY"] = filterByCategory;
+    }
+
+    if (search) {
+      whereClause["Filename"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
+
+    const mappingDataList = await SmartMappingFactListModel.findAll({
+      limit,
+      offset,
+      where: whereClause,
+      order: orderClause,
+    });
+
+    const responseObj = {
+      result: mappingDataList,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+const fetchSmartMappingFactListPagination = async (req, res, next) => {
+  try {
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
     const {
       search,
@@ -56,7 +122,7 @@ const fetchSmartMappingFactList = async (req, res, next) => {
       };
     }
 
-    const mappingDataList = await SmartMappingFactListModel.findAndCountAll({
+    const count = await SmartMappingFactListModel.count({
       limit,
       offset,
       where: whereClause,
@@ -64,10 +130,9 @@ const fetchSmartMappingFactList = async (req, res, next) => {
     });
 
     const responseObj = {
-      result: mappingDataList.rows,
       page,
       page_size: pageSize,
-      total_count: mappingDataList.count,
+      total_count: count,
     };
 
     res.json(responseObj);
@@ -134,7 +199,7 @@ const fetchLowMappingDetails = async (req, res, next) => {
 
     let whereClause = {};
     whereClause["FileName"] = FileName;
-    whereClause['Confidencelevel'] = 'LOW'
+    whereClause["Confidencelevel"] = "LOW";
 
     if (search) {
       whereClause["Externaldesc"] = {
@@ -143,7 +208,7 @@ const fetchLowMappingDetails = async (req, res, next) => {
     }
 
     const data = await SmartMappingFactDetailsModel.findAndCountAll({
-      attributes: ['Externaldesc'],
+      attributes: ["Externaldesc"],
       where: whereClause,
       order: [["Externaldesc", "ASC"]],
     });
@@ -151,7 +216,6 @@ const fetchLowMappingDetails = async (req, res, next) => {
     res.json({
       result: data.rows,
     });
-    
   } catch (error) {
     console.log(error);
     next(error);
@@ -161,7 +225,7 @@ const fetchLowMappingDetails = async (req, res, next) => {
 const fetchMappingDataforLow = async (req, res, next) => {
   try {
     const { Externaldesc } = req.query;
-    
+
     const data = await MultipleMapFact.findAndCountAll({
       attributes: { exclude: ["Filename", "Tag", "Externaldesc"] },
       where: { Externaldesc: Externaldesc },
@@ -185,7 +249,7 @@ const updateFactSmartMappingLowDetails = async (req, res, next) => {
       {
         Short: Internaldesc,
         Confidencelevel: "HIGH",
-        Facttype: FactType
+        Facttype: FactType,
       },
       {
         where: {
@@ -265,4 +329,5 @@ module.exports = {
   fetchLowMappingDetails,
   fetchMappingDataforLow,
   fetchSmartMappingFactById,
+  fetchSmartMappingFactListPagination,
 };

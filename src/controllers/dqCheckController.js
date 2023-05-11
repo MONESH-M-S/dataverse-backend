@@ -125,7 +125,7 @@ const fetchDQChecksDataCount = async (req, res, next) => {
 
     const whereClause = getFiltersForDQChecks(req);
 
-    const data = await DQCheckModel.findAndCountAll({
+    const count = await DQCheckModel.count({
       limit,
       offset,
       where: whereClause,
@@ -134,7 +134,7 @@ const fetchDQChecksDataCount = async (req, res, next) => {
     const responseObj = {
       page,
       page_size: pageSize,
-      total_count: data.count,
+      total_count: count,
     };
 
     res.json(responseObj);
