@@ -16,8 +16,11 @@ const {
   fetchUnprocessedRecords,
   downloadUnProcessedExcel,
   fetchSmartMappingListPagination,
-  downloadUnProcessedExcel,
   fetchUnprocessedProductRecords,
+  fetchSmartMappingMappedDetailsPagination,
+  fetchSmartMappingMediumResultsPagination,
+  fetchUnprocessedProductRecordsPagination,
+  fetchMappedRecordsForMarketDimensionPagination,
 } = require("../controllers/smartMappingController");
 const {
   fetchSmartMappingFactList,
@@ -30,6 +33,7 @@ const {
   fetchMappingDataforLow,
   fetchSmartMappingFactById,
   fetchSmartMappingFactListPagination,
+  fetchSmartMappingFactDetailPagination,
 } = require("../controllers/smartMappingFactController");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
@@ -46,10 +50,17 @@ router.get("/", auth, fetchSmartMappingList);
 router.get("/count", auth, fetchSmartMappingListPagination);
 router.get("/:id", auth, fetchIndividualSmartMapping);
 router.get("/:id/high", auth, fetchSmartMappingMappedDetails);
+router.get("/:id/high/count", auth, fetchSmartMappingMappedDetailsPagination);
 router.get("/:id/medium", auth, fetchSmartMappingMediumResults);
+router.get("/:id/medium/count", auth, fetchSmartMappingMediumResultsPagination);
 router.get("/:id/low", auth, fetchSmartMappingUnMappedDetails);
 router.get("/:id/unprocessed", auth, fetchUnprocessedRecords);
 router.get("/:id/product/unprocessed", auth, fetchUnprocessedProductRecords); // updated query for product unprocessed
+router.get(
+  "/:id/product/unprocessed/count",
+  auth,
+  fetchUnprocessedProductRecordsPagination
+); // updated query for product unprocessed
 router.get("/:id/unprocessed/download", auth, downloadUnProcessedExcel);
 router.put(
   "/:id",
@@ -64,11 +75,17 @@ router.get(
   auth,
   fetchMappedRecordsForMarketDimension
 );
+router.get(
+  "/:id/market/:confidenceLevel/count",
+  auth,
+  fetchMappedRecordsForMarketDimensionPagination
+);
 
 // Fact
 router.get("/fact/summary", auth, fetchSmartMappingFactList);
 router.get("/fact/summary/count", auth, fetchSmartMappingFactListPagination);
 router.get("/fact/details", auth, fetchSmartMappingFactDetail);
+router.get("/fact/details/count", auth, fetchSmartMappingFactDetailPagination);
 router.get("/fact/details/low", auth, fetchLowMappingDetails);
 router.get("/fact/details/low-map", auth, fetchMappingDataforLow);
 router.get("/fact/:id", auth, fetchSmartMappingFactById);

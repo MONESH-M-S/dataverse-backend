@@ -158,7 +158,7 @@ const fetchSmartMappingFactById = async (req, res, next) => {
 
 const fetchSmartMappingFactDetail = async (req, res, next) => {
   try {
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { limit, offset } = getPaginationDetails(req);
     const { FileName, Confidencelevel, search } = req.query;
 
     let whereClause = {};
@@ -182,9 +182,41 @@ const fetchSmartMappingFactDetail = async (req, res, next) => {
 
     const responseObj = {
       result: mappingDataList.rows,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchSmartMappingFactDetailPagination = async (req, res, next) => {
+  try {
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { FileName, Confidencelevel, search } = req.query;
+
+    let whereClause = {};
+
+    if (FileName) whereClause["Filename"] = FileName;
+
+    if (Confidencelevel)
+      whereClause["Confidencelevel"] = Confidencelevel.toUpperCase();
+
+    if (search) {
+      whereClause["Externaldesc"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
+
+    const count = await SmartMappingFactDetailsModel.count({
+      limit,
+      offset,
+      where: whereClause,
+    });
+
+    const responseObj = {
       page,
       page_size: pageSize,
-      total_count: mappingDataList.count,
+      total_count: count,
     };
 
     res.json(responseObj);
@@ -330,4 +362,5 @@ module.exports = {
   fetchMappingDataforLow,
   fetchSmartMappingFactById,
   fetchSmartMappingFactListPagination,
+  fetchSmartMappingFactDetailPagination,
 };

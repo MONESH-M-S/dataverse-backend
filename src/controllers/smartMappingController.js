@@ -213,7 +213,7 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
     const id = req.params.id;
 
     const smartMapping = await SmartMappingListModel.findByPk(id);
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { limit, offset } = getPaginationDetails(req);
 
     const mappedData =
       await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
@@ -222,9 +222,29 @@ const fetchSmartMappingMappedDetails = async (req, res, next) => {
 
     const responseObj = {
       result: mappedData[0],
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchSmartMappingMappedDetailsPagination = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+
+    const count =
+      await sequelize.query(`select count(*) from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+    from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
+    and u.filename = '${smartMapping.Filename}' and u.Confidencelevel = 'HIGH'`);
+
+    const responseObj = {
       page,
       page_size: pageSize,
-      total_count: mappedData[1],
+      total_count: count[0][0][""],
     };
 
     res.json(responseObj);
@@ -258,7 +278,7 @@ const fetchSmartMappingMediumResults = async (req, res, next) => {
   try {
     const id = req.params.id;
 
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { limit, offset } = getPaginationDetails(req);
     const smartMapping = await SmartMappingListModel.findByPk(id);
 
     const mediumList =
@@ -268,9 +288,29 @@ const fetchSmartMappingMediumResults = async (req, res, next) => {
 
     const responseObj = {
       result: mediumList[0],
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchSmartMappingMediumResultsPagination = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+
+    const count =
+      await sequelize.query(`select count(*) from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+    from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
+    and u.filename = '${smartMapping.Filename}' and u.Confidencelevel = 'MEDIUM'`);
+
+    const responseObj = {
       page,
       page_size: pageSize,
-      total_count: mediumList[1],
+      total_count: count[0][0][""],
     };
 
     res.json(responseObj);
@@ -443,7 +483,7 @@ const fetchMappedRecordsForMarketDimension = async (req, res, next) => {
   try {
     const id = req.params.id;
     const smartMapping = await SmartMappingListModel.findByPk(id);
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { limit, offset } = getPaginationDetails(req);
     const { search } = req.query;
 
     let whereClause = {
@@ -464,9 +504,44 @@ const fetchMappedRecordsForMarketDimension = async (req, res, next) => {
 
     const responseObj = {
       result: result.rows,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchMappedRecordsForMarketDimensionPagination = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const id = req.params.id;
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { search } = req.query;
+
+    let whereClause = {
+      Filename: smartMapping.Filename,
+    };
+
+    if (search) {
+      whereClause["Long"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
+
+    const count = await MappingMarketOutput.count({
+      limit,
+      offset,
+      where: whereClause,
+    });
+
+    const responseObj = {
       page,
       page_size: pageSize,
-      total_count: result.count,
+      total_count: count,
     };
 
     res.json(responseObj);
@@ -478,7 +553,7 @@ const fetchMappedRecordsForMarketDimension = async (req, res, next) => {
 const fetchUnprocessedProductRecords = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { limit, offset } = getPaginationDetails(req);
     const smartMapping = await SmartMappingListModel.findByPk(id);
     const { search } = req.query;
 
@@ -500,9 +575,38 @@ const fetchUnprocessedProductRecords = async (req, res, next) => {
 
     const responseObj = {
       result: result[0],
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchUnprocessedProductRecordsPagination = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const { page, pageSize } = getPaginationDetails(req);
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+    const { search } = req.query;
+
+    let result;
+
+    if (search !== undefined && search.length) {
+      result =
+        await sequelize.query(`select count(*) from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+        from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
+        and u.Filename='${smartMapping.Filename}' and u.Externaldesc LIKE '% ${search} %'`);
+    } else {
+      result =
+        await sequelize.query(`select count(*) from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+      from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
+      and u.filename='${smartMapping.Filename}'`);
+    }
+
+    const responseObj = {
       page,
       page_size: pageSize,
-      total_count: result[1],
+      total_count: result[0][0][""],
     };
 
     res.json(responseObj);
@@ -657,4 +761,8 @@ module.exports = {
   downloadUnProcessedExcel,
   fetchSmartMappingListPagination,
   fetchUnprocessedProductRecords,
+  fetchSmartMappingMappedDetailsPagination,
+  fetchSmartMappingMediumResultsPagination,
+  fetchUnprocessedProductRecordsPagination,
+  fetchMappedRecordsForMarketDimensionPagination,
 };
