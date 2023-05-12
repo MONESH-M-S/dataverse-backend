@@ -29,7 +29,7 @@ const MappingMarketOutput = sequelize.define('MappingMarketOutput', {
     ChannelConfidence: DataTypes.STRING,
     TotalConfidence: DataTypes.STRING
 }, {
-    tableName: 'MappingMarketOutputV2',
+    tableName: 'MappingMarketOutput',
     schema: 'mapping',
     timestamps: false,
 });
