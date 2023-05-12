@@ -454,23 +454,51 @@ const fetchMappedRecordsForPeriodDimension = async (req, res, next) => {
   try {
     const id = req.params.id;
     const smartMapping = await SmartMappingListModel.findByPk(id);
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { limit, offset } = getPaginationDetails(req);
 
     let whereClause = {
       Filename: smartMapping.Filename,
     };
 
-    const result = await MappingPeriodOutput.findAndCountAll({
+    const result = await MappingPeriodOutput.findAll({
       limit,
       offset,
       where: whereClause,
     });
 
     const responseObj = {
-      result: result.rows,
+      result: result,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchMappedRecordsForPeriodDimensionPagination = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const id = req.params.id;
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+
+    let whereClause = {
+      Filename: smartMapping.Filename,
+    };
+
+    const result = await MappingPeriodOutput.count({
+      limit,
+      offset,
+      where: whereClause,
+    });
+
+    const responseObj = {
       page,
       page_size: pageSize,
-      total_count: result.count,
+      total_count: result,
     };
 
     res.json(responseObj);
@@ -765,4 +793,5 @@ module.exports = {
   fetchSmartMappingMediumResultsPagination,
   fetchUnprocessedProductRecordsPagination,
   fetchMappedRecordsForMarketDimensionPagination,
+  fetchMappedRecordsForPeriodDimensionPagination,
 };
