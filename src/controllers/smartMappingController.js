@@ -10,15 +10,21 @@ const dimensionEnum = require("../models/enums/dimension.enum");
 const MappingMarketOutput = require("../models/mappingMarketOutput.model");
 const UnporcessedRecordProductModel = require("../models/unporcessedRecordProduct.model");
 const UnporcessedRecordMarketModel = require("../models/unporcessedRecordMarket.model");
-const ExcelJS = require('exceljs');
+const ExcelJS = require("exceljs");
 
 const fetchSmartMappingList = async (req, res, next) => {
   try {
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { limit, offset } = getPaginationDetails(req);
     const {
-      search, orderKey, orderValue, start_date: startDate, filter_by_dimension: filterByDimension,
-      end_date: endDate, filter_by_country: filterByCountry,
-      filter_by_provider: filterByProvider, filter_by_category: filterByCategory
+      search,
+      orderKey,
+      orderValue,
+      start_date: startDate,
+      filter_by_dimension: filterByDimension,
+      end_date: endDate,
+      filter_by_country: filterByCountry,
+      filter_by_provider: filterByProvider,
+      filter_by_category: filterByCategory,
     } = req.query;
 
     let whereClause = {};
@@ -30,38 +36,38 @@ const fetchSmartMappingList = async (req, res, next) => {
 
     if (startDate && endDate) {
       whereClause["CreatedOn"] = {
-        [Op.between]: [startDate, endDate]
-      }
+        [Op.between]: [startDate, endDate],
+      };
     }
 
     if (filterByCountry) {
       whereClause["Country"] = {
-        [Op.in]: [filterByCountry]
-      }
+        [Op.in]: [filterByCountry],
+      };
     }
 
     if (filterByProvider) {
-      whereClause['ExternalDataProvider'] = filterByProvider
+      whereClause["ExternalDataProvider"] = filterByProvider;
     }
 
     if (filterByCategory) {
-      whereClause['CATEGORY'] = filterByCategory
+      whereClause["CATEGORY"] = filterByCategory;
     }
 
     if (search) {
       whereClause[Op.or] = [
         { Filename: { [Op.like]: `%${search.trim()}%` } },
-        { Category: { [Op.like]: `%${search.trim()}%` } }
-      ]
+        { Category: { [Op.like]: `%${search.trim()}%` } },
+      ];
     }
 
     if (filterByDimension) {
-      whereClause["Dimension"] = filterByDimension
+      whereClause["Dimension"] = filterByDimension;
     } else {
-      whereClause["Dimension"] = dimensionEnum.product
+      whereClause["Dimension"] = dimensionEnum.product;
     }
 
-    const mappingDataList = await SmartMappingListModel.findAndCountAll({
+    const mappingDataList = await SmartMappingListModel.findAll({
       limit,
       offset,
       where: whereClause,
@@ -69,10 +75,81 @@ const fetchSmartMappingList = async (req, res, next) => {
     });
 
     const responseObj = {
-      result: mappingDataList.rows,
+      result: mappingDataList,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    console.error("Error is ", error);
+    next(error);
+  }
+};
+const fetchSmartMappingListPagination = async (req, res, next) => {
+  try {
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const {
+      search,
+      orderKey,
+      orderValue,
+      start_date: startDate,
+      filter_by_dimension: filterByDimension,
+      end_date: endDate,
+      filter_by_country: filterByCountry,
+      filter_by_provider: filterByProvider,
+      filter_by_category: filterByCategory,
+    } = req.query;
+
+    let whereClause = {};
+    let orderClause = [];
+
+    if (orderKey || orderValue) {
+      orderClause = [[orderKey ?? "id", orderValue ?? "DESC"]];
+    }
+
+    if (startDate && endDate) {
+      whereClause["CreatedOn"] = {
+        [Op.between]: [startDate, endDate],
+      };
+    }
+
+    if (filterByCountry) {
+      whereClause["Country"] = {
+        [Op.in]: [filterByCountry],
+      };
+    }
+
+    if (filterByProvider) {
+      whereClause["ExternalDataProvider"] = filterByProvider;
+    }
+
+    if (filterByCategory) {
+      whereClause["CATEGORY"] = filterByCategory;
+    }
+
+    if (search) {
+      whereClause[Op.or] = [
+        { Filename: { [Op.like]: `%${search.trim()}%` } },
+        { Category: { [Op.like]: `%${search.trim()}%` } },
+      ];
+    }
+
+    if (filterByDimension) {
+      whereClause["Dimension"] = filterByDimension;
+    } else {
+      whereClause["Dimension"] = dimensionEnum.product;
+    }
+
+    const count = await SmartMappingListModel.count({
+      limit,
+      offset,
+      where: whereClause,
+      order: orderClause,
+    });
+
+    const responseObj = {
       page,
       page_size: pageSize,
-      total_count: mappingDataList.count,
+      total_count: count,
     };
 
     res.json(responseObj);
@@ -97,23 +174,23 @@ const fetchSmartMappingDashboardCount = async (req, res, next) => {
     const mappingListCount = await SmartMappingListModel.count();
     const excelFileCount = await SmartMappingListModel.count({
       where: {
-        "FILENAME": {
+        FILENAME: {
           [Op.endsWith]: "xlsx",
-        }
+        },
       },
     });
     const csvFileCount = await SmartMappingListModel.count({
       where: {
-        "FILENAME": {
+        FILENAME: {
           [Op.endsWith]: "csv",
-        }
-      }
+        },
+      },
     });
     const docFileCount = await SmartMappingListModel.count({
       where: {
-        "FILENAME": {
+        FILENAME: {
           [Op.endsWith]: "doc",
-        }
+        },
       },
     });
 
@@ -131,23 +208,43 @@ const fetchSmartMappingDashboardCount = async (req, res, next) => {
   }
 };
 
-
 const fetchSmartMappingMappedDetails = async (req, res, next) => {
   try {
     const id = req.params.id;
 
-    const smartMapping = await SmartMappingListModel.findByPk(id)
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+    const { limit, offset } = getPaginationDetails(req);
 
-    const mappedData = await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+    const mappedData =
+      await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
     from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
     and u.filename = '${smartMapping.Filename}' and u.Confidencelevel = 'HIGH' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
 
     const responseObj = {
       result: mappedData[0],
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchSmartMappingMappedDetailsPagination = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+
+    const count =
+      await sequelize.query(`select count(*) from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+    from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
+    and u.filename = '${smartMapping.Filename}' and u.Confidencelevel = 'HIGH'`);
+
+    const responseObj = {
       page,
       page_size: pageSize,
-      total_count: mappedData[1],
+      total_count: count[0][0][""],
     };
 
     res.json(responseObj);
@@ -160,9 +257,10 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
   try {
     const id = req.params.id;
 
-    const smartMapping = await SmartMappingListModel.findByPk(id)
+    const smartMapping = await SmartMappingListModel.findByPk(id);
 
-    const mappedList = await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+    const mappedList =
+      await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
     from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
     and u.filename = '${smartMapping.Filename}' and u.Confidencelevel = 'LOW' order by u.Id desc`);
 
@@ -172,52 +270,75 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
 
     res.json(responseObj);
   } catch (error) {
-    next(error)
+    next(error);
   }
-
 };
 
 const fetchSmartMappingMediumResults = async (req, res, next) => {
   try {
     const id = req.params.id;
 
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
-    const smartMapping = await SmartMappingListModel.findByPk(id)
+    const { limit, offset } = getPaginationDetails(req);
+    const smartMapping = await SmartMappingListModel.findByPk(id);
 
-    const mediumList = await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+    const mediumList =
+      await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
     from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
     and u.filename = '${smartMapping.Filename}' and u.Confidencelevel = 'MEDIUM' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
 
-
     const responseObj = {
       result: mediumList[0],
-      page,
-      page_size: pageSize,
-      total_count: mediumList[1],
     };
 
     res.json(responseObj);
   } catch (error) {
     next(error);
   }
+};
+const fetchSmartMappingMediumResultsPagination = async (req, res, next) => {
+  try {
+    const id = req.params.id;
 
-}
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+
+    const count =
+      await sequelize.query(`select count(*) from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+    from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
+    and u.filename = '${smartMapping.Filename}' and u.Confidencelevel = 'MEDIUM'`);
+
+    const responseObj = {
+      page,
+      page_size: pageSize,
+      total_count: count[0][0][""],
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
 
 const updateSmartMappingDetails = async (req, res, next) => {
   try {
     const data = req.body.mapping;
 
     for (let i = 0; i < data.length; i++) {
-      const suggestedProduct = await MultipleMapProduct.findByPk(data[i].target)
-      await SmartMappingDetailsModel.update({
-        Confidencelevel: "HIGH",
-        Internaldesc: suggestedProduct.Internaldesc,
-        Confidencescore: "1"
-      }, {
-        where: {
-          Id: data[i].source
+      const suggestedProduct = await MultipleMapProduct.findByPk(
+        data[i].target
+      );
+      await SmartMappingDetailsModel.update(
+        {
+          Confidencelevel: "HIGH",
+          Internaldesc: suggestedProduct.Internaldesc,
+          Confidencescore: "1",
+        },
+        {
+          where: {
+            Id: data[i].source,
+          },
         }
-      })
+      );
     }
 
     res.json({
@@ -231,120 +352,119 @@ const updateSmartMappingDetails = async (req, res, next) => {
 
 const fetchCountryMeta = async (req, res, next) => {
   try {
-    const { filter_by_dimension: filterByDimension } = req.query
+    const { filter_by_dimension: filterByDimension } = req.query;
 
     let whereClause = {};
     if (filterByDimension) {
-      whereClause["Dimension"] = filterByDimension
+      whereClause["Dimension"] = filterByDimension;
     } else {
-      whereClause["Dimension"] = dimensionEnum.product
+      whereClause["Dimension"] = dimensionEnum.product;
     }
 
     const countryList = await SmartMappingListModel.findAll({
       attributes: [
-        [Sequelize.fn('DISTINCT', Sequelize.col('Country')), 'name']
+        [Sequelize.fn("DISTINCT", Sequelize.col("Country")), "name"],
       ],
-      where: whereClause
+      where: whereClause,
     });
-    res.json(countryList)
+    res.json(countryList);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchProviderMeta = async (req, res, next) => {
   try {
-    const { filter_by_dimension: filterByDimension } = req.query
+    const { filter_by_dimension: filterByDimension } = req.query;
 
     let whereClause = {};
     if (filterByDimension) {
-      whereClause["Dimension"] = filterByDimension
+      whereClause["Dimension"] = filterByDimension;
     } else {
-      whereClause["Dimension"] = dimensionEnum.product
+      whereClause["Dimension"] = dimensionEnum.product;
     }
 
     const providerList = await SmartMappingListModel.findAll({
       attributes: [
-        [Sequelize.fn('DISTINCT', Sequelize.col('ExternalDataProvider')), 'name']
+        [
+          Sequelize.fn("DISTINCT", Sequelize.col("ExternalDataProvider")),
+          "name",
+        ],
       ],
-      where: whereClause
+      where: whereClause,
     });
-    res.json(providerList)
+    res.json(providerList);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchCategoryMeta = async (req, res, next) => {
   try {
-
-    const { filter_by_dimension: filterByDimension } = req.query
+    const { filter_by_dimension: filterByDimension } = req.query;
 
     let whereClause = {};
     if (filterByDimension) {
-      whereClause["Dimension"] = filterByDimension
+      whereClause["Dimension"] = filterByDimension;
     } else {
-      whereClause["Dimension"] = dimensionEnum.product
+      whereClause["Dimension"] = dimensionEnum.product;
     }
 
     const providerList = await SmartMappingListModel.findAll({
       attributes: [
-        [Sequelize.fn('DISTINCT', Sequelize.col('Category')), 'name']
+        [Sequelize.fn("DISTINCT", Sequelize.col("Category")), "name"],
       ],
-      where: whereClause
+      where: whereClause,
     });
-    res.json(providerList)
+    res.json(providerList);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchUnmappedRecordsSuggestions = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const smartMapping = await SmartMappingDetailsModel.findByPk(id)
-    const externalDesc = smartMapping.Externaldesc
-    const tag = smartMapping.Tag
-    const { search } = req.query
+    const smartMapping = await SmartMappingDetailsModel.findByPk(id);
+    const externalDesc = smartMapping.Externaldesc;
+    const tag = smartMapping.Tag;
+    const { search } = req.query;
     let whereClause = {
       Externaldesc: externalDesc,
-      Tag: tag
+      Tag: tag,
     };
 
     if (search) {
       whereClause["Internaldesc"] = {
         [Op.like]: "%" + search + "%",
-      }
+      };
     }
 
     const suggestionList = await MultipleMapProduct.findAll({
-      where: whereClause
-    })
+      where: whereClause,
+    });
 
     res.json(suggestionList);
   } catch (error) {
-    next(error)
+    next(error);
   }
-
-
-}
+};
 
 const fetchMappedRecordsForPeriodDimension = async (req, res, next) => {
   try {
-
     const id = req.params.id;
-    const smartMapping = await SmartMappingListModel.findByPk(id)
+    const smartMapping = await SmartMappingListModel.findByPk(id);
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
     let whereClause = {
-      Filename: smartMapping.Filename
-    }
+      Filename: smartMapping.Filename,
+    };
 
     const result = await MappingPeriodOutput.findAndCountAll({
       limit,
       offset,
-      where: whereClause
-    })
+      where: whereClause,
+    });
 
     const responseObj = {
       result: result.rows,
@@ -355,21 +475,20 @@ const fetchMappedRecordsForPeriodDimension = async (req, res, next) => {
 
     res.json(responseObj);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchMappedRecordsForMarketDimension = async (req, res, next) => {
   try {
-
     const id = req.params.id;
-    const smartMapping = await SmartMappingListModel.findByPk(id)
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
-    const { search } = req.query
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+    const { limit, offset } = getPaginationDetails(req);
+    const { search } = req.query;
 
     let whereClause = {
-      Filename: smartMapping.Filename
-    }
+      Filename: smartMapping.Filename,
+    };
 
     if (search) {
       whereClause["Long"] = {
@@ -380,85 +499,150 @@ const fetchMappedRecordsForMarketDimension = async (req, res, next) => {
     const result = await MappingMarketOutput.findAndCountAll({
       limit,
       offset,
-      where: whereClause
-    })
+      where: whereClause,
+    });
 
     const responseObj = {
       result: result.rows,
-      page,
-      page_size: pageSize,
-      total_count: result.count,
     };
 
     res.json(responseObj);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
+const fetchMappedRecordsForMarketDimensionPagination = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const id = req.params.id;
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const { search } = req.query;
+
+    let whereClause = {
+      Filename: smartMapping.Filename,
+    };
+
+    if (search) {
+      whereClause["Long"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
+
+    const count = await MappingMarketOutput.count({
+      limit,
+      offset,
+      where: whereClause,
+    });
+
+    const responseObj = {
+      page,
+      page_size: pageSize,
+      total_count: count,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
 
 const fetchUnprocessedProductRecords = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const { limit, offset } = getPaginationDetails(req);
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+    const { search } = req.query;
+
+    let result;
+
+    if (search !== undefined && search.length) {
+      result =
+        await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+        from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
+        and u.Filename='${smartMapping.Filename}' and u.Externaldesc LIKE '% ${search} %' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
+    } else {
+      result =
+        await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+      from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
+      and u.filename='${smartMapping.Filename}' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
+    }
+
+    console.log(result);
+
+    const responseObj = {
+      result: result[0],
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchUnprocessedProductRecordsPagination = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const { page, pageSize } = getPaginationDetails(req);
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+    const { search } = req.query;
+
+    let result;
+
+    if (search !== undefined && search.length) {
+      result =
+        await sequelize.query(`select count(*) from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+        from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
+        and u.Filename='${smartMapping.Filename}' and u.Externaldesc LIKE '% ${search} %'`);
+    } else {
+      result =
+        await sequelize.query(`select count(*) from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+      from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
+      and u.filename='${smartMapping.Filename}'`);
+    }
+
+    const responseObj = {
+      page,
+      page_size: pageSize,
+      total_count: result[0][0][""],
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const fetchUnprocessedRecords = async (req, res, next) => {
   try {
     const id = req.params.id;
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
     const smartMapping = await SmartMappingListModel.findByPk(id);
     const { search } = req.query;
 
-    let result;
-
-    if(search !== undefined && search.length) {
-      result = await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
-        from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
-        and u.Filename='${smartMapping.Filename}' and u.Externaldesc LIKE '% ${search} %' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
-    } else {
-      result = await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
-      from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-      and u.filename='${smartMapping.Filename}' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
-    };
-
-    console.log(result);
-    
-    const responseObj = {
-      result: result[0],
-      page,
-      page_size: pageSize,
-      total_count: result[1],
-    };
-
-    res.json(responseObj);
-
-  } catch (error) {
-    next(error)
-  }
-}
-
-const fetchUnprocessedRecords = async (req, res, next) => {
-  try {
-    const id = req.params.id;
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
-    const smartMapping = await SmartMappingListModel.findByPk(id)
-    const { search } = req.query
-
     let modelName;
-    let whereClause = {}
-    let searchClause = {}
+    let whereClause = {};
+    let searchClause = {};
 
     switch (smartMapping.Dimension) {
       case dimensionEnum.market:
-        modelName = UnporcessedRecordMarketModel
+        modelName = UnporcessedRecordMarketModel;
         searchClause = {
-          "Long": {
-            [Op.like]: "%" + search + "%",
-          }
-        }
-        break
-      case dimensionEnum.product:
-      default:
-        modelName = UnporcessedRecordProductModel
-        searchClause = {
-          "Externaldesc": {
+          Long: {
             [Op.like]: "%" + search + "%",
           },
-        }
+        };
+        break;
+      case dimensionEnum.product:
+      default:
+        modelName = UnporcessedRecordProductModel;
+        searchClause = {
+          Externaldesc: {
+            [Op.like]: "%" + search + "%",
+          },
+        };
         whereClause = {
           // "Hierlevelnum": {
           //   [Sequelize.Op.in]: Sequelize.literal('((select max(cast(Hierlevelnum as int)) from [Mapping].[UnProcessedRecordsProduct] where Hierlevelnum is not null group by filename))')
@@ -466,7 +650,7 @@ const fetchUnprocessedRecords = async (req, res, next) => {
         };
     }
 
-    if (!search) searchClause = {}
+    if (!search) searchClause = {};
 
     const result = await modelName.findAndCountAll({
       limit,
@@ -476,7 +660,7 @@ const fetchUnprocessedRecords = async (req, res, next) => {
         Filename: smartMapping.Filename,
         ...whereClause,
       },
-    })
+    });
 
     const responseObj = {
       result: result.rows,
@@ -486,83 +670,78 @@ const fetchUnprocessedRecords = async (req, res, next) => {
     };
 
     res.json(responseObj);
-
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const downloadUnProcessedExcel = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const smartMapping = await SmartMappingListModel.findByPk(id)
-    const fileName = smartMapping.Filename
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+    const fileName = smartMapping.Filename;
 
     let modelName;
     let columns;
 
     switch (smartMapping.Dimension) {
       case dimensionEnum.market:
-        modelName = UnporcessedRecordMarketModel
+        modelName = UnporcessedRecordMarketModel;
         columns = [
-          { header: 'ID', key: 'Id', width: 10 },
-          { header: 'File Name', key: 'FileName', width: 40 },
-          { header: 'Tag', key: 'Tag', width: 40 },
-          { header: 'External Description', key: 'Long', width: 30 },
-          { header: 'HierName', key: 'HierName', width: 40 },
-          { header: 'HierLevelName', key: 'HierLevelName', width: 40 },
-          { header: 'Country', key: 'Country', width: 10 },
-          { header: 'Category', key: 'Category', width: 20 },
-          { header: 'Cell', key: 'Cell', width: 20 },
-          { header: 'Createdon', key: 'Createdon', width: 20 },
-        ]
-        break
+          { header: "ID", key: "Id", width: 10 },
+          { header: "File Name", key: "FileName", width: 40 },
+          { header: "Tag", key: "Tag", width: 40 },
+          { header: "External Description", key: "Long", width: 30 },
+          { header: "HierName", key: "HierName", width: 40 },
+          { header: "HierLevelName", key: "HierLevelName", width: 40 },
+          { header: "Country", key: "Country", width: 10 },
+          { header: "Category", key: "Category", width: 20 },
+          { header: "Cell", key: "Cell", width: 20 },
+          { header: "Createdon", key: "Createdon", width: 20 },
+        ];
+        break;
       case dimensionEnum.product:
       default:
-        modelName = UnporcessedRecordProductModel
+        modelName = UnporcessedRecordProductModel;
         columns = [
-          { header: 'ID', key: 'Id', width: 10 },
-          { header: 'File Name', key: 'FileName', width: 40 },
-          { header: 'Tag', key: 'Tag', width: 40 },
-          { header: 'External Description', key: 'Externaldesc', width: 30 },
-          { header: 'Created On', key: 'Createdon', width: 10 },
-          { header: 'Remark', key: 'Remark', width: 40 }
-        ]
+          { header: "ID", key: "Id", width: 10 },
+          { header: "File Name", key: "FileName", width: 40 },
+          { header: "Tag", key: "Tag", width: 40 },
+          { header: "External Description", key: "Externaldesc", width: 30 },
+          { header: "Created On", key: "Createdon", width: 10 },
+          { header: "Remark", key: "Remark", width: 40 },
+        ];
     }
 
     const data = await modelName.findAll({
       where: {
-        Filename: fileName
+        Filename: fileName,
       },
-    })
+    });
 
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('');
+    const worksheet = workbook.addWorksheet("");
 
-    worksheet.columns = columns
+    worksheet.columns = columns;
 
     data.forEach((item) => {
       worksheet.addRow(item.toJSON());
     });
 
     res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
-    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-    res.setHeader(
-      'Content-Disposition',
-      'attachment; filename=' + fileName
-    );
+    res.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+    res.setHeader("Content-Disposition", "attachment; filename=" + fileName);
 
     await workbook.xlsx.write(res);
 
     res.end();
-
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 module.exports = {
   fetchSmartMappingList,
@@ -580,5 +759,10 @@ module.exports = {
   fetchMappedRecordsForMarketDimension,
   fetchUnprocessedRecords,
   downloadUnProcessedExcel,
-  fetchUnprocessedProductRecords
+  fetchSmartMappingListPagination,
+  fetchUnprocessedProductRecords,
+  fetchSmartMappingMappedDetailsPagination,
+  fetchSmartMappingMediumResultsPagination,
+  fetchUnprocessedProductRecordsPagination,
+  fetchMappedRecordsForMarketDimensionPagination,
 };
