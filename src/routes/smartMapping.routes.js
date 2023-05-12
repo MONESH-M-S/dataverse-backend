@@ -21,6 +21,7 @@ const {
   fetchSmartMappingMediumResultsPagination,
   fetchUnprocessedProductRecordsPagination,
   fetchMappedRecordsForMarketDimensionPagination,
+  fetchMappedRecordsForPeriodDimensionPagination,
 } = require("../controllers/smartMappingController");
 const {
   fetchSmartMappingFactList,
@@ -70,6 +71,11 @@ router.put(
 );
 router.get("/:id/suggestion", auth, fetchUnmappedRecordsSuggestions);
 router.get("/:id/period/mapped", auth, fetchMappedRecordsForPeriodDimension);
+router.get(
+  "/:id/period/mapped/count",
+  auth,
+  fetchMappedRecordsForPeriodDimensionPagination
+);
 router.get(
   "/:id/market/:confidenceLevel",
   auth,
