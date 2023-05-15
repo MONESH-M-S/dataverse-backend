@@ -174,14 +174,14 @@ const fetchSmartMappingFactDetail = async (req, res, next) => {
       };
     }
 
-    const mappingDataList = await SmartMappingFactDetailsModel.findAndCountAll({
+    const mappingDataList = await SmartMappingFactDetailsModel.findAll({
       limit,
       offset,
       where: whereClause,
     });
 
     const responseObj = {
-      result: mappingDataList.rows,
+      result: mappingDataList,
     };
 
     res.json(responseObj);
@@ -239,14 +239,14 @@ const fetchLowMappingDetails = async (req, res, next) => {
       };
     }
 
-    const data = await SmartMappingFactDetailsModel.findAndCountAll({
+    const data = await SmartMappingFactDetailsModel.findAll({
       attributes: ["Externaldesc"],
       where: whereClause,
       order: [["Externaldesc", "ASC"]],
     });
 
     res.json({
-      result: data.rows,
+      result: data,
     });
   } catch (error) {
     console.log(error);
