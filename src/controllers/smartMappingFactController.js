@@ -159,14 +159,14 @@ const fetchSmartMappingFactById = async (req, res, next) => {
 const fetchSmartMappingFactDetail = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
-    const { FileName, Confidencelevel, search } = req.query;
+    const { Filename, confidenceLevel, search } = req.query;
 
     let whereClause = {};
 
-    if (FileName) whereClause["Filename"] = FileName;
+    if (Filename) whereClause["Filename"] = Filename;
 
-    if (Confidencelevel)
-      whereClause["Confidencelevel"] = Confidencelevel.toUpperCase();
+    if (confidenceLevel)
+      whereClause["Confidencelevel"] = confidenceLevel.toUpperCase();
 
     if (search) {
       whereClause["Externaldesc"] = {
@@ -192,14 +192,14 @@ const fetchSmartMappingFactDetail = async (req, res, next) => {
 const fetchSmartMappingFactDetailPagination = async (req, res, next) => {
   try {
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
-    const { FileName, Confidencelevel, search } = req.query;
+    const { Filename, confidenceLevel, search } = req.query;
 
     let whereClause = {};
 
-    if (FileName) whereClause["Filename"] = FileName;
+    if (Filename) whereClause["Filename"] = Filename;
 
-    if (Confidencelevel)
-      whereClause["Confidencelevel"] = Confidencelevel.toUpperCase();
+    if (confidenceLevel)
+      whereClause["confidenceLevel"] = confidenceLevel.toUpperCase();
 
     if (search) {
       whereClause["Externaldesc"] = {
