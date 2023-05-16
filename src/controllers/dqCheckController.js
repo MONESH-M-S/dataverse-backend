@@ -144,11 +144,18 @@ const fetchDQChecksDataCount = async (req, res, next) => {
 };
 
 const fetchDQCountryMeta = async (req, res, next) => {
+  const { category } = req.query;
+
+  const whereClause = {};
+
+  if (category) whereClause["Category"] = category;
+
   try {
     const data = await DQCheckModel.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col("Country")), "name"],
       ],
+      where: whereClause,
     });
     res.json(data);
   } catch (error) {
@@ -157,11 +164,18 @@ const fetchDQCountryMeta = async (req, res, next) => {
 };
 
 const fetchDQCategoryMeta = async (req, res, next) => {
+  const { country } = req.query;
+
+  const whereClause = {};
+
+  if (country) whereClause["Country"] = country;
+
   try {
     const data = await DQCheckModel.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col("Category")), "name"],
       ],
+      where: whereClause,
     });
     res.json(data);
   } catch (error) {

@@ -98,8 +98,8 @@ router.get("/fact/:id", auth, fetchSmartMappingFactById);
 router.put("/fact/details/low", auth, updateFactSmartMappingLowDetails);
 
 // Fact Filters
-router.get("/fact/meta/category/", auth, fetchFactCategoryMeta);
-router.get("/fact/meta/provider/", auth, fetchFactProviderMeta);
-router.get("/fact/meta/country/", auth, fetchFactCountryMeta);
+router.get("/fact/meta/category", auth, fetchFactCategoryMeta);
+router.get("/fact/meta/provider", auth, fetchFactProviderMeta);
+router.get("/fact/meta/country", auth, fetchFactCountryMeta);
 
 module.exports = router;

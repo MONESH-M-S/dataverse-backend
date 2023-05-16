@@ -301,14 +301,20 @@ const updateFactSmartMappingLowDetails = async (req, res, next) => {
 };
 
 const fetchFactCountryMeta = async (req, res, next) => {
+  const { category } = req.query;
+
+  const whereClause = {
+    Dimension: "Fact",
+  };
+
+  if (category) whereClause["Category"] = category;
+
   try {
     const countryList = await SmartMappingFactListModel.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col("Country")), "name"],
       ],
-      where: {
-        Dimension: "Fact",
-      },
+      where: whereClause,
     });
     res.json(countryList);
   } catch (error) {
@@ -336,14 +342,20 @@ const fetchFactProviderMeta = async (req, res, next) => {
 };
 
 const fetchFactCategoryMeta = async (req, res, next) => {
+  const { country } = req.query;
+
+  const whereClause = {
+    Dimension: "Fact",
+  };
+
+  if (country) whereClause["Country"] = country;
+
   try {
     const providerList = await SmartMappingFactListModel.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col("Category")), "name"],
       ],
-      where: {
-        Dimension: "Fact",
-      },
+      where: whereClause,
     });
     res.json(providerList);
   } catch (error) {
