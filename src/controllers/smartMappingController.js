@@ -352,14 +352,17 @@ const updateSmartMappingDetails = async (req, res, next) => {
 
 const fetchCountryMeta = async (req, res, next) => {
   try {
-    const { filter_by_dimension: filterByDimension } = req.query;
+    const { filter_by_dimension: filterByDimension, category } = req.query;
 
     let whereClause = {};
+
     if (filterByDimension) {
       whereClause["Dimension"] = filterByDimension;
     } else {
       whereClause["Dimension"] = dimensionEnum.product;
     }
+
+    if (category) whereClause["Category"] = category;
 
     const countryList = await SmartMappingListModel.findAll({
       attributes: [
@@ -401,14 +404,17 @@ const fetchProviderMeta = async (req, res, next) => {
 
 const fetchCategoryMeta = async (req, res, next) => {
   try {
-    const { filter_by_dimension: filterByDimension } = req.query;
+    const { filter_by_dimension: filterByDimension, country } = req.query;
 
     let whereClause = {};
+
     if (filterByDimension) {
       whereClause["Dimension"] = filterByDimension;
     } else {
       whereClause["Dimension"] = dimensionEnum.product;
     }
+
+    if (country) whereClause["Country"] = country;
 
     const providerList = await SmartMappingListModel.findAll({
       attributes: [
