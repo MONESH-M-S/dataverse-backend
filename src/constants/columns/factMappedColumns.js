@@ -15,7 +15,7 @@ module.exports = [
     width: 30,
   },
   {
-    header: "External TAG",
+    header: "Currency",
     key: "Currency",
     width: 30,
   },

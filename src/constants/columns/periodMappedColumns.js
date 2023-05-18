@@ -20,6 +20,11 @@ module.exports = [
     width: 30,
   },
   {
+    header: "Unique TAG",
+    key: "UniqueTag",
+    width: 30,
+  },
+  {
     header: "Periodicity",
     key: "Periodicity",
     width: 30,

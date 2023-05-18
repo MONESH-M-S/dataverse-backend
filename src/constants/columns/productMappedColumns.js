@@ -45,15 +45,14 @@ module.exports = [
     width: 30,
   },
   {
-    header: "SEGMENT",
-    key: "Segmentname",
+    header: "MACHINE_VS_HAND",
+    key: "Flag",
     width: 30,
-    id: "externalSegment",
   },
 
   {
     header: "Internal Product Description",
-    key: "Internaldesc",
+    key: "Productname",
     width: 30,
   },
   {
@@ -73,7 +72,7 @@ module.exports = [
   },
   {
     header: "Product Form Name",
-    key: "Productformmediumname",
+    key: "Productformname",
     width: 30,
   },
   {
@@ -95,7 +94,6 @@ module.exports = [
     header: "Segment Name",
     key: "Segmentname",
     width: 30,
-    id: "internalSegment",
   },
   {
     header: "Form Name",

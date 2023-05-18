@@ -69,14 +69,4 @@ module.exports = [
     key: "TotalMarket",
     width: 30,
   },
-  {
-    header: "Channel Confidence",
-    key: "ChannelConfidence",
-    width: 30,
-  },
-  {
-    header: "Total Confidence",
-    key: "TotalConfidence",
-    width: 30,
-  },
 ];
