@@ -3,5 +3,5 @@ module.exports = Object.freeze({
   MEDIUM: "medium",
   LOW: "low",
   MAPPED: "mapped",
-  UNMAPPED: "unmapped",
+  UNPROCESSED: "unprocessed",
 });
