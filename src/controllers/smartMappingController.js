@@ -7,10 +7,20 @@ const MappingPeriodOutput = require("../models/mappingPeriodOutput.model");
 const { Sequelize, sequelize } = require("../../models");
 const MultipleMapProduct = require("../models/multipleMapProduct.model");
 const dimensionEnum = require("../models/enums/dimension.enum");
+const ConfidenceLevels = require("../enums/confidenceLevel.enum");
 const MappingMarketOutput = require("../models/mappingMarketOutput.model");
-const UnporcessedRecordProductModel = require("../models/unporcessedRecordProduct.model");
-const UnporcessedRecordMarketModel = require("../models/unporcessedRecordMarket.model");
+const UnprocessedRecordProductModel = require("../models/unprocessedRecordProduct.model");
+const UnprocessedRecordMarketModel = require("../models/unprocessedRecordMarket.model");
 const ExcelJS = require("exceljs");
+const SmartMappingFactListModel = require("../models/smartMappingFactList.model");
+const SmartMappingFactDetailsModel = require("../models/smartMappingFactDetails.model");
+const productMappedColumns = require("./../constants/columns/productMappedColumns");
+const factMappedColumns = require("../constants/columns/factMappedColumns");
+const periodMappedColumns = require("../constants/columns/periodMappedColumns");
+const marketMappedColumns = require("../constants/columns/marketMappedColumns");
+const marketUnprocessedColumns = require("../constants/columns/marketUnprocessedColumns");
+const productUnprocessedColumns = require("../constants/columns/productUnprocessedColumns");
+const sendAsExcelFile = require("../utils/response/sendAsExcelFile");
 
 const fetchSmartMappingList = async (req, res, next) => {
   try {
@@ -662,7 +672,7 @@ const fetchUnprocessedRecords = async (req, res, next) => {
 
     switch (smartMapping.Dimension) {
       case dimensionEnum.market:
-        modelName = UnporcessedRecordMarketModel;
+        modelName = UnprocessedRecordMarketModel;
         searchClause = {
           Long: {
             [Op.like]: "%" + search + "%",
@@ -671,7 +681,7 @@ const fetchUnprocessedRecords = async (req, res, next) => {
         break;
       case dimensionEnum.product:
       default:
-        modelName = UnporcessedRecordProductModel;
+        modelName = UnprocessedRecordProductModel;
         searchClause = {
           Externaldesc: {
             [Op.like]: "%" + search + "%",
@@ -720,7 +730,7 @@ const downloadUnProcessedExcel = async (req, res, next) => {
 
     switch (smartMapping.Dimension) {
       case dimensionEnum.market:
-        modelName = UnporcessedRecordMarketModel;
+        modelName = UnprocessedRecordMarketModel;
         columns = [
           { header: "ID", key: "Id", width: 10 },
           { header: "File Name", key: "FileName", width: 40 },
@@ -736,7 +746,7 @@ const downloadUnProcessedExcel = async (req, res, next) => {
         break;
       case dimensionEnum.product:
       default:
-        modelName = UnporcessedRecordProductModel;
+        modelName = UnprocessedRecordProductModel;
         columns = [
           { header: "ID", key: "Id", width: 10 },
           { header: "File Name", key: "FileName", width: 40 },
@@ -777,6 +787,128 @@ const downloadUnProcessedExcel = async (req, res, next) => {
   }
 };
 
+const downloadProductExcelFile = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const { confidenceLevel, fileName } = req.query;
+
+    if (!id || !confidenceLevel || !fileName) res.end();
+
+    const { HIGH, MEDIUM, LOW, UNPROCESSED } = ConfidenceLevels;
+
+    const table = {};
+
+    const whereClause = {
+      Filename: fileName,
+    };
+
+    switch (confidenceLevel) {
+      case HIGH:
+      case MEDIUM:
+      case LOW:
+        whereClause.Confidencelevel = confidenceLevel.toUpperCase();
+        table.model = SmartMappingDetailsModel;
+        table.columns = productMappedColumns;
+        break;
+      case UNPROCESSED:
+        table.model = UnprocessedRecordProductModel;
+        table.columns = productUnprocessedColumns;
+        break;
+    }
+
+    sendAsExcelFile(res, table, whereClause);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const downloadFactExcelFile = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const { confidenceLevel, fileName } = req.query;
+
+    if (!id || !confidenceLevel || !fileName) res.end();
+
+    const table = {
+      model: SmartMappingFactDetailsModel,
+      columns: factMappedColumns,
+    };
+
+    const whereClause = {
+      Filename: fileName,
+      Confidencelevel: confidenceLevel.toUpperCase(),
+    };
+
+    sendAsExcelFile(res, table, whereClause);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const downloadMarketExcelFile = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const { confidenceLevel, fileName } = req.query;
+
+    if (!id || !confidenceLevel || !fileName) res.end();
+
+    const { MAPPED, UNPROCESSED } = ConfidenceLevels;
+
+    const table = {};
+
+    const whereClause = {
+      Filename: fileName,
+    };
+
+    switch (confidenceLevel) {
+      case MAPPED:
+        table.model = MappingMarketOutput;
+        table.columns = marketMappedColumns;
+        break;
+      case UNPROCESSED:
+        table.model = UnprocessedRecordMarketModel;
+        table.columns = marketUnprocessedColumns;
+        break;
+    }
+
+    sendAsExcelFile(res, table, whereClause);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const downloadPeriodExcelFile = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const { confidenceLevel, fileName } = req.query;
+
+    if (!id || !confidenceLevel || !fileName) res.end();
+
+    const { MAPPED } = ConfidenceLevels;
+
+    const table = {};
+
+    const whereClause = {
+      Filename: fileName,
+    };
+
+    switch (confidenceLevel) {
+      case MAPPED:
+        table.model = MappingPeriodOutput;
+        table.columns = periodMappedColumns;
+        break;
+    }
+
+    sendAsExcelFile(res, table, whereClause);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   fetchSmartMappingList,
   fetchSmartMappingDashboardCount,
@@ -800,4 +932,8 @@ module.exports = {
   fetchUnprocessedProductRecordsPagination,
   fetchMappedRecordsForMarketDimensionPagination,
   fetchMappedRecordsForPeriodDimensionPagination,
+  downloadProductExcelFile,
+  downloadFactExcelFile,
+  downloadMarketExcelFile,
+  downloadPeriodExcelFile,
 };

@@ -22,6 +22,11 @@ const {
   fetchUnprocessedProductRecordsPagination,
   fetchMappedRecordsForMarketDimensionPagination,
   fetchMappedRecordsForPeriodDimensionPagination,
+  downloadExcelFile,
+  downloadProductExcelFile,
+  downloadFactExcelFile,
+  downloadMarketExcelFile,
+  downloadPeriodExcelFile,
 } = require("../controllers/smartMappingController");
 const {
   fetchSmartMappingFactList,
@@ -101,5 +106,11 @@ router.put("/fact/details/low", auth, updateFactSmartMappingLowDetails);
 router.get("/fact/meta/category", auth, fetchFactCategoryMeta);
 router.get("/fact/meta/provider", auth, fetchFactProviderMeta);
 router.get("/fact/meta/country", auth, fetchFactCountryMeta);
+
+//Download
+router.get("/:id/download/product", auth, downloadProductExcelFile);
+router.get("/:id/download/fact", auth, downloadFactExcelFile);
+router.get("/:id/download/market", auth, downloadMarketExcelFile);
+router.get("/:id/download/period", auth, downloadPeriodExcelFile);
 
 module.exports = router;
