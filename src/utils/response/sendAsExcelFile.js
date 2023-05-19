@@ -1,10 +1,6 @@
 const ExcelJS = require("exceljs");
 
-module.exports = async (res, table, whereClause) => {
-  const data = await table.model.findAll({
-    where: whereClause,
-  });
-
+module.exports = async (res, table, whereClause, data) => {
   const workbook = new ExcelJS.Workbook();
 
   const worksheet = workbook.addWorksheet("");
