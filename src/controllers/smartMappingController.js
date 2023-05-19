@@ -810,14 +810,22 @@ const downloadProductExcelFile = async (req, res, next) => {
         whereClause.Confidencelevel = confidenceLevel.toUpperCase();
         table.model = SmartMappingDetailsModel;
         table.columns = productMappedColumns;
+        table.data =
+          await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+  from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
+  and u.filename = '${whereClause.Filename}' and u.Confidencelevel = '${whereClause.confidenceLevel}'`);
         break;
       case UNPROCESSED:
         table.model = UnprocessedRecordProductModel;
         table.columns = productUnprocessedColumns;
+        table.data =
+          await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+        from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
+        and u.filename='${whereClause.Filename}'`);
         break;
     }
 
-    sendAsExcelFile(res, table, whereClause);
+    sendAsExcelFile(res, table, whereClause, table.data[0]);
   } catch (error) {
     next(error);
   }
@@ -841,7 +849,11 @@ const downloadFactExcelFile = async (req, res, next) => {
       Confidencelevel: confidenceLevel.toUpperCase(),
     };
 
-    sendAsExcelFile(res, table, whereClause);
+    const data = await table.model.findAll({
+      where: whereClause,
+    });
+
+    sendAsExcelFile(res, table, whereClause, data);
   } catch (error) {
     next(error);
   }
@@ -874,7 +886,11 @@ const downloadMarketExcelFile = async (req, res, next) => {
         break;
     }
 
-    sendAsExcelFile(res, table, whereClause);
+    const data = await table.model.findAll({
+      where: whereClause,
+    });
+
+    sendAsExcelFile(res, table, whereClause, data);
   } catch (error) {
     next(error);
   }
@@ -903,7 +919,11 @@ const downloadPeriodExcelFile = async (req, res, next) => {
         break;
     }
 
-    sendAsExcelFile(res, table, whereClause);
+    const data = await table.model.findAll({
+      where: whereClause,
+    });
+
+    sendAsExcelFile(res, table, whereClause, data);
   } catch (error) {
     next(error);
   }
