@@ -5,6 +5,21 @@ const DQCheckModel = require("../models/DQCheck.model");
 const getPaginationDetails = require("../utils/response/getPaginationDetails");
 const { Op } = require("sequelize");
 const ExcelJS = require("exceljs");
+const dqCardStatsQuery = require("../constants/dq-checks/dqCardStatsQuery");
+
+const fetchDQCardStats = async (req, res, next) => {
+  const stat = req.params.stats;
+  try{
+    const result = await sequelize.query(dqCardStatsQuery[stat], {
+      type: Sequelize.QueryTypes.SELECT,
+    });
+    res.json({
+      result: result[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
 // Added raw queries as these will be easier to fetch the data instead of writing multiple sub queires in sequeileize
 const fetchSummaryStatus = async (req, res, next) => {
@@ -239,4 +254,5 @@ module.exports = {
   fetchDQCountryMeta,
   downloadDQCheckReport,
   fetchDQChecksDataCount,
+  fetchDQCardStats
 };
