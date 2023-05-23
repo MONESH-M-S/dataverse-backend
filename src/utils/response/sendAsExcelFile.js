@@ -8,7 +8,12 @@ module.exports = async (res, table, whereClause, data) => {
   worksheet.columns = table.columns;
 
   data.forEach((item) => {
-    worksheet.addRow(item.toJSON());
+    if(table.dimension && table.dimension === 'Product') {
+      worksheet.addRow(item);
+    } else {
+      worksheet.addRow(item.toJSON());
+    }
+
   });
 
   res.setHeader(
