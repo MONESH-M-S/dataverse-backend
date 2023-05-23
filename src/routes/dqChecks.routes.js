@@ -7,6 +7,7 @@ const {
   fetchDQCountryMeta,
   downloadDQCheckReport,
   fetchDQChecksDataCount,
+  fetchDQCardStats,
 } = require("../controllers/dqCheckController");
 const router = express.Router();
 
@@ -16,5 +17,5 @@ router.get("/count", auth, fetchDQChecksDataCount);
 router.get("/report", auth, downloadDQCheckReport);
 router.get("/meta/country", auth, fetchDQCountryMeta);
 router.get("/meta/category", auth, fetchDQCategoryMeta);
-
+router.get("/card/:stats",auth,fetchDQCardStats);
 module.exports = router;

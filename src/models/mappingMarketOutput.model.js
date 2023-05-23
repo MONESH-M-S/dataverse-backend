@@ -1,14 +1,16 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
-const MappingMarketOutput = sequelize.define('MappingMarketOutput', {
+const MappingMarketOutput = sequelize.define(
+  "MappingMarketOutput",
+  {
     Id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
     FileName: {
-        type: DataTypes.STRING,
+      type: DataTypes.STRING,
     },
     Cell: DataTypes.STRING,
     Long: DataTypes.STRING,
@@ -26,12 +28,12 @@ const MappingMarketOutput = sequelize.define('MappingMarketOutput', {
     HierNum: DataTypes.STRING,
     Short: DataTypes.STRING,
     HierLevelNum: DataTypes.STRING,
-    ChannelConfidence: DataTypes.STRING,
-    TotalConfidence: DataTypes.STRING
-}, {
-    tableName: 'MappingMarketOutput',
-    schema: 'mapping',
+  },
+  {
+    tableName: "MappingMarketOutput",
+    schema: "mapping",
     timestamps: false,
-});
+  }
+);
 
-module.exports = MappingMarketOutput
+module.exports = MappingMarketOutput;
