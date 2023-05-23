@@ -822,7 +822,7 @@ const downloadProductExcelFile = async (req, res, next) => {
         table.dimension = 'Product';
         table.columns = productUnprocessedColumns;
         table.data =
-          await sequelize.query(`select Id, Filename, Tag, Externaldesc, Createdon, Remark from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+          await sequelize.query(`select Id, u.filename as Filename, Tag, Externaldesc, Createdon, Remark from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
         from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
         and u.filename='${whereClause.Filename}'`);
         break;
