@@ -116,16 +116,49 @@ const fetchDQChecksData = async (req, res, next) => {
   try {
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
-    const whereClause = getFiltersForDQChecks(req);
+    let query = '';
+    let metaDataFilter = []
+    let statusFilter = [];
 
-    const data = await DQCheckModel.findAll({
-      limit,
-      offset,
-      where: whereClause,
-    });
+    if(req.query.filter_by_country)  metaDataFilter.push(`Country = '${req.query.filter_by_country}'`)
 
+    if(req.query.filter_by_delivery_period)  metaDataFilter.push(`DeliveryPeriod = '${req.query.filter_by_delivery_period}'`)
+
+    if(req.query.filter_by_category)  metaDataFilter.push(`Category = '${req.query.filter_by_category}'`)
+
+    if(req.query.filter_by_in_success === 'true')  statusFilter.push(`'Success'`);
+
+    if(req.query.filter_by_in_failure === 'true') statusFilter.push(`'Failure'`);
+
+    if(req.query.filter_by_in_progress === 'true') statusFilter.push(`'In Progress'`);
+
+    if(metaDataFilter.length || statusFilter.length) {
+      query = 'WHERE ';
+
+      if(metaDataFilter.length) {
+        query += metaDataFilter.join(' AND ')
+      }
+
+      if(statusFilter.length) {
+        if(metaDataFilter.length) {
+          query += ' AND ';
+        }
+        query += `Overall_Status IN (${statusFilter.join(',')})`
+      } 
+    }
+
+    const data = await sequelize.query(`SELECT Country, Category,concat(Country, '  ', Category) as CellDatabase,zipFile,DeliveryPeriod,Overall_Status, 
+    Checks_Passed, Checks_Failed, LogMessage as Remarks FROM (select *, CASE when x.Checks_Failed=0 then 'Success' else 'Failure' END as Overall_Status
+    from ( select base.Country as Country, base.Category as Category,base.Filename as zipFile,DATENAME(m,LoadStartTime)+'-'+CAST(YEAR(LoadStartTime) 
+    AS varchar(10)) AS DeliveryPeriod, LogDate,MessageType,A.LogId,LogMessage,TaskName,(LEN(MessageType) - LEN(REPLACE(MessageType, 'Success', '')))  / 7
+    AS Checks_Passed,(LEN(MessageType) - LEN(REPLACE(MessageType, 'Error', '')))  / 5 AS Checks_Failed from [info].[LoadDetailLog] A
+    join info.LoadLog base on base.LogId=A.LogId where A.TaskName in ('NumberoFilesCheck','FileSizeCheck','FileNameCheck','FileDelimiterCheck',
+    'FileEncodingCheck','ConstraintCheck','LastPeriodDeliveredCheck','DimvsTransTagsCheck','SchemaCheck'))x)A PIVOT (COUNT(A.TaskName) FOR
+    TaskName in ( NumberoFilesCheck,FileSizeCheck,FileNameCheck,FileDelimiterCheck,
+    FileEncodingCheck,ConstraintCheck,LastPeriodDeliveredCheck,DimvsTransTagsCheck,SchemaCheck) ) AS PivotTable ${query} order by Category offset ${offset} rows fetch next ${limit} rows only;`)
+    
     const responseObj = {
-      result: data,
+      result: data[0],
     };
 
     res.json(responseObj);
@@ -208,6 +241,7 @@ const downloadDQCheckReport = async (req, res, next) => {
     { header: "Country", key: "Country", width: 20 },
     { header: "Category", key: "Category", width: 20 },
     { header: "Cell Database", key: "CellDatabase", width: 20 },
+    { header: "Delivery Period", key: "DeliveryPeriod", width: 20 },
     { header: "File Name", key: "zipFile", width: 40 },
     { header: "Overall Status", key: "Overall_Status", width: 20 },
     {

@@ -10,6 +10,7 @@ const DQCheckModel = sequelize.define('vw_MappingReportSummary', {
   CellDatabase: DataTypes.STRING,
   zipFile: DataTypes.STRING,
   Overall_Status: DataTypes.STRING,
+  DeliveryPeriod: DataTypes.STRING,
   Number_of_files_that_passed_Check: DataTypes.STRING,
   Number_of_files_that_failed_Check: DataTypes.STRING,
   Remarks: DataTypes.STRING,
