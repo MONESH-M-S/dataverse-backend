@@ -594,6 +594,48 @@ const fetchMappedRecordsForMarketDimensionPagination = async (
   }
 };
 
+const fetchUnproccessedMarket = async (req, res, next) => {
+  try {
+    const {Filename} = req.query;
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+
+    let whereClause = {
+      Filename: Filename,
+    };
+
+    const result = await UnprocessedRecordMarketModel.findAll({
+      limit,
+      offset,
+      where: whereClause,
+    });
+
+    res.json({result});
+  } catch(err) {
+    next(err)
+  }
+}
+
+const fetchUnproccessedMarketCount = async (req, res, next) => {
+  try {
+    const {Filename} = req.query;
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+
+    let whereClause = {
+      Filename: Filename,
+    };
+
+    const result = await UnprocessedRecordMarketModel.count({
+      limit,
+      offset,
+      where: whereClause,
+    });
+
+    res.json({page, page_size: pageSize, total_count: result});
+  } catch(err) {
+    next(err)
+  }
+}
+
 const fetchUnprocessedProductRecords = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -614,8 +656,6 @@ const fetchUnprocessedProductRecords = async (req, res, next) => {
       from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
       and u.filename='${smartMapping.Filename}' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
     }
-
-    console.log(result);
 
     const responseObj = {
       result: result[0],
@@ -954,6 +994,8 @@ module.exports = {
   fetchSmartMappingMediumResultsPagination,
   fetchUnprocessedProductRecordsPagination,
   fetchMappedRecordsForMarketDimensionPagination,
+  fetchUnproccessedMarket,
+  fetchUnproccessedMarketCount,
   fetchMappedRecordsForPeriodDimensionPagination,
   downloadProductExcelFile,
   downloadFactExcelFile,

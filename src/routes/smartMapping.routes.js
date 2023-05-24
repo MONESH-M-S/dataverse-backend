@@ -21,6 +21,8 @@ const {
   fetchSmartMappingMediumResultsPagination,
   fetchUnprocessedProductRecordsPagination,
   fetchMappedRecordsForMarketDimensionPagination,
+  fetchUnproccessedMarket,
+  fetchUnproccessedMarketCount,
   fetchMappedRecordsForPeriodDimensionPagination,
   downloadExcelFile,
   downloadProductExcelFile,
@@ -81,6 +83,10 @@ router.get(
   auth,
   fetchMappedRecordsForPeriodDimensionPagination
 );
+
+router.get('/:id/market/unprocessed', auth, fetchUnproccessedMarket);
+router.get('/:id/market/unprocessed/count', auth, fetchUnproccessedMarketCount);
+
 router.get(
   "/:id/market/:confidenceLevel",
   auth,
