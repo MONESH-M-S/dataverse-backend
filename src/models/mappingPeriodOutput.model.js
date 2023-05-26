@@ -30,7 +30,8 @@ const MappingPeriodOutput = sequelize.define('MappingPeriodOutput', {
     WeekStartDayCountry: DataTypes.STRING,
     UniqueTag: DataTypes.STRING,
     Short: DataTypes.STRING,
-    LastPeriodTagFormat: DataTypes.STRING
+    LastPeriodTagFormat: DataTypes.STRING,
+    Flag: DataTypes.STRING
 }, {
     tableName: 'MappingPeriodOutput',
     schema: 'mapping',
