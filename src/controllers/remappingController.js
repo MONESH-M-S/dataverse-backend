@@ -140,6 +140,7 @@ const updateRemappingProductValues = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedValues = req.body;
+    updatedValues['Flag'] = 'MM';
 
     const updatedFile = await SmartMappingDetailsModel.update(updatedValues, {
       where: { id },
@@ -159,6 +160,7 @@ const updateRemappingFactValues = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedValues = req.body;
+    updatedValues['Flag'] = 'MM';
 
     const updatedFile = await SmartMappingFactDetailsModel.update(
       updatedValues,
@@ -181,6 +183,7 @@ const updateRemappingPeriodValues = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedValues = req.body;
+    updatedValues['Flag'] = 'MM';
 
     const updatedFile = await MappingPeriodOutput.update(updatedValues, {
       where: {
@@ -202,6 +205,7 @@ const updateRemappingMarketValues = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedValues = req.body;
+    updatedValues['Flag'] = 'MM';
 
     const updatedFile = await MappingMarketOutput.update(updatedValues, {
       where: {

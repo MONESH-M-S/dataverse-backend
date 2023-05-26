@@ -21,7 +21,8 @@ const SmartMappingFactDetailsModel = sequelize.define('MappingFactOutput', {
     Facttype: DataTypes.ENUM('Non Additive', 'Additive'),
     Harmonizedname: DataTypes.STRING,
     Confidencescore: DataTypes.DECIMAL,
-    Confidencelevel: DataTypes.STRING
+    Confidencelevel: DataTypes.STRING,
+    Flag: DataTypes.STRING
 }, {
     tableName: 'MappingFactOutput',
     schema: 'Mapping',
