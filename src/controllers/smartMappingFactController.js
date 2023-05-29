@@ -303,11 +303,20 @@ const updateFactSmartMappingLowDetails = async (req, res, next) => {
 
 const fetchFactUnprocessed = async (req, res, next) => {
   try {
-    const { Filename } = req.query;
+    const { Filename, search } = req.query;
     const { limit, offset } = getPaginationDetails(req);
 
+    let whereClause = {};
+    whereClause['Filename'] = Filename;
+
+    if(search) {
+      whereClause["Externaldesc"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
+
     const result = await FactUnprocessed.findAll({
-      where: {Filename: Filename},
+      where: whereClause,
       limit,
       offset
     });
@@ -322,16 +331,25 @@ const fetchFactUnprocessed = async (req, res, next) => {
 
 const fetchFactUnprocessedCount = async (req, res, next) => {
   try {
-    const { Filename } = req.query;
+    const { Filename, search } = req.query;
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
+    let whereClause = {};
+    whereClause['Filename'] = Filename;
+
+    if(search) {
+      whereClause["Externaldesc"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
+
     const result = await FactUnprocessed.count({
-      where: {Filename: Filename},
+      where: whereClause,
       limit,
       offset
     });
 
-    res.json({count: result, page: page, total_count: pageSize}).status(200)
+    res.json({page, page_size: pageSize, total_count: result}).status(200);
 
   } catch(err) {
     next(err)
