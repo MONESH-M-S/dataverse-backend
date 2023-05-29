@@ -20,7 +20,9 @@ const periodMappedColumns = require("../constants/columns/periodMappedColumns");
 const marketMappedColumns = require("../constants/columns/marketMappedColumns");
 const marketUnprocessedColumns = require("../constants/columns/marketUnprocessedColumns");
 const productUnprocessedColumns = require("../constants/columns/productUnprocessedColumns");
+const factUnprocessedColumn = require("../constants/columns/factUnprocessedColumn");
 const sendAsExcelFile = require("../utils/response/sendAsExcelFile");
+const FactUnprocessed = require("../models/factUnprocessed.model");
 
 const fetchSmartMappingList = async (req, res, next) => {
   try {
@@ -882,15 +884,18 @@ const downloadFactExcelFile = async (req, res, next) => {
 
     if (!id || !confidenceLevel || !fileName) res.end();
 
-    const table = {
-      model: SmartMappingFactDetailsModel,
-      columns: factMappedColumns,
-    };
-
-    const whereClause = {
-      Filename: fileName,
-      Confidencelevel: confidenceLevel.toUpperCase(),
-    };
+    let table = {}, whereClause = {};
+    
+    if(confidenceLevel === 'unprocessed') {
+      table['model'] = FactUnprocessed,
+        table['columns'] = factUnprocessedColumn
+        whereClause['Filename'] = fileName
+    } else if(confidenceLevel) {
+      table['model'] = SmartMappingFactDetailsModel
+      table['columns'] = factMappedColumns
+      whereClause['Filename'] = fileName
+      whereClause['Confidencelevel'] = confidenceLevel.toUpperCase()
+    }
 
     const data = await table.model.findAll({
       where: whereClause,

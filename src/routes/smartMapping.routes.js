@@ -42,6 +42,8 @@ const {
   fetchSmartMappingFactById,
   fetchSmartMappingFactListPagination,
   fetchSmartMappingFactDetailPagination,
+  fetchFactUnprocessed,
+  fetchFactUnprocessedCount
 } = require("../controllers/smartMappingFactController");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
@@ -105,6 +107,8 @@ router.get("/fact/details", auth, fetchSmartMappingFactDetail);
 router.get("/fact/details/count", auth, fetchSmartMappingFactDetailPagination);
 router.get("/fact/details/low", auth, fetchLowMappingDetails);
 router.get("/fact/details/low-map", auth, fetchMappingDataforLow);
+router.get("/fact/details/unprocessed", auth, fetchFactUnprocessed);
+router.get("/fact/details/unprocessed/count", auth, fetchFactUnprocessedCount);
 router.get("/fact/:id", auth, fetchSmartMappingFactById);
 router.put("/fact/details/low", auth, updateFactSmartMappingLowDetails);
 

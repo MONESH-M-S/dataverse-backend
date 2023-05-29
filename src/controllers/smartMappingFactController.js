@@ -1,6 +1,7 @@
 const SmartMappingFactListModel = require("../models/smartMappingFactList.model");
 const SmartMappingFactDetailsModel = require("../models/smartMappingFactDetails.model");
 const MultipleMapFact = require("../models/multipleMapFact.model");
+const FactUnprocessed = require("../models/factUnprocessed.model");
 const getPaginationDetails = require("../utils/response/getPaginationDetails");
 const { Sequelize } = require("../../models");
 const statusTypeEnum = require("../enums/statusType.enum");
@@ -300,6 +301,43 @@ const updateFactSmartMappingLowDetails = async (req, res, next) => {
   }
 };
 
+const fetchFactUnprocessed = async (req, res, next) => {
+  try {
+    const { Filename } = req.query;
+    const { limit, offset } = getPaginationDetails(req);
+
+    const result = await FactUnprocessed.findAll({
+      where: {Filename: Filename},
+      limit,
+      offset
+    });
+
+    res.json({result: result}).status(200)
+
+  } catch(err) {
+    next(err)
+  }
+}
+ 
+
+const fetchFactUnprocessedCount = async (req, res, next) => {
+  try {
+    const { Filename } = req.query;
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+
+    const result = await FactUnprocessed.count({
+      where: {Filename: Filename},
+      limit,
+      offset
+    });
+
+    res.json({count: result, page: page, total_count: pageSize}).status(200)
+
+  } catch(err) {
+    next(err)
+  }
+}
+
 const fetchFactCountryMeta = async (req, res, next) => {
   const { category } = req.query;
 
@@ -375,4 +413,6 @@ module.exports = {
   fetchSmartMappingFactById,
   fetchSmartMappingFactListPagination,
   fetchSmartMappingFactDetailPagination,
+  fetchFactUnprocessed,
+  fetchFactUnprocessedCount
 };
