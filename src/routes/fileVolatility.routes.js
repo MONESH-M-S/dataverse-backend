@@ -46,6 +46,5 @@ router.post(
   validator.body(addTargetSchema),
   addTargetColumn
 );
-router.put("/:id/critical-attributes", auth, updateColumnMapping);
 
 module.exports = router;
