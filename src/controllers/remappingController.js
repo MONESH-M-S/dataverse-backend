@@ -2,6 +2,7 @@ const SmartMappingDetailsModel = require("../models/smartMappingDetails.model");
 const SmartMappingFactDetailsModel = require("../models/smartMappingFactDetails.model");
 const MappingPeriodOutput = require("../models/mappingPeriodOutput.model");
 const MappingMarketOutput = require("../models/mappingMarketOutput.model");
+const MarketMetaData = require("../models/marketMetaData.model");
 const { Sequelize } = require("../../models");
 const statusTypeEnum = require("../enums/statusType.enum");
 
@@ -123,8 +124,17 @@ const marketRemappingOptions = async (req, res, next) => {
     const whereClause = getWhereObjectFromQuery(req.query);
 
     const columnName = req.params.columnName;
-    const dbColumnName = Market_Dropdowns[columnName];
-    const options = await MappingMarketOutput.findAll({
+    let dbColumnName = Market_Dropdowns[columnName];
+    let modal = MappingMarketOutput;
+
+    if(dbColumnName === 'Channel' || dbColumnName === 'TotalMarket') {
+      modal = MarketMetaData;
+      dbColumnName = dbColumnName === 'TotalMarket' ? 'Total' : dbColumnName;
+    } else {
+      modal = MappingMarketOutput;
+    }
+
+    const options = await modal.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
       ],

@@ -375,6 +375,5 @@ module.exports = {
   updateColumnMapping,
   fetchDashboardDetails,
   fetchLeadLogDetails,
-  addTargetColumn,
-  updateCriticalAttributes,
+  addTargetColumn
 };

@@ -888,8 +888,8 @@ const downloadFactExcelFile = async (req, res, next) => {
     
     if(confidenceLevel === 'unprocessed') {
       table['model'] = FactUnprocessed,
-        table['columns'] = factUnprocessedColumn
-        whereClause['Filename'] = fileName
+      table['columns'] = factUnprocessedColumn
+      whereClause['Filename'] = fileName
     } else if(confidenceLevel) {
       table['model'] = SmartMappingFactDetailsModel
       table['columns'] = factMappedColumns
