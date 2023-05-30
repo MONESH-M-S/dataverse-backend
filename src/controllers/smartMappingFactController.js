@@ -1,6 +1,7 @@
 const SmartMappingFactListModel = require("../models/smartMappingFactList.model");
 const SmartMappingFactDetailsModel = require("../models/smartMappingFactDetails.model");
 const MultipleMapFact = require("../models/multipleMapFact.model");
+const FactUnprocessed = require("../models/factUnprocessed.model");
 const getPaginationDetails = require("../utils/response/getPaginationDetails");
 const { Sequelize } = require("../../models");
 const statusTypeEnum = require("../enums/statusType.enum");
@@ -300,6 +301,61 @@ const updateFactSmartMappingLowDetails = async (req, res, next) => {
   }
 };
 
+const fetchFactUnprocessed = async (req, res, next) => {
+  try {
+    const { Filename, search } = req.query;
+    const { limit, offset } = getPaginationDetails(req);
+
+    let whereClause = {};
+    whereClause['Filename'] = Filename;
+
+    if(search) {
+      whereClause["Externaldesc"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
+
+    const result = await FactUnprocessed.findAll({
+      where: whereClause,
+      limit,
+      offset
+    });
+
+    res.json({result: result}).status(200)
+
+  } catch(err) {
+    next(err)
+  }
+}
+ 
+
+const fetchFactUnprocessedCount = async (req, res, next) => {
+  try {
+    const { Filename, search } = req.query;
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+
+    let whereClause = {};
+    whereClause['Filename'] = Filename;
+
+    if(search) {
+      whereClause["Externaldesc"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
+
+    const result = await FactUnprocessed.count({
+      where: whereClause,
+      limit,
+      offset
+    });
+
+    res.json({page, page_size: pageSize, total_count: result}).status(200);
+
+  } catch(err) {
+    next(err)
+  }
+}
+
 const fetchFactCountryMeta = async (req, res, next) => {
   const { category } = req.query;
 
@@ -375,4 +431,6 @@ module.exports = {
   fetchSmartMappingFactById,
   fetchSmartMappingFactListPagination,
   fetchSmartMappingFactDetailPagination,
+  fetchFactUnprocessed,
+  fetchFactUnprocessedCount
 };

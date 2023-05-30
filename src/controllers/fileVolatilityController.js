@@ -232,11 +232,12 @@ const fetchColumnMappings = async (req, res, next) => {
 
 const updateColumnMapping = async (req, res) => {
   try {
-    const { SourceColumn, Id } = req.body;
+    const { SourceColumn, Id, criticalAttributes } = req.body;
 
     await FactColumnMappingModel.update(
       {
         SourceColumn,
+        CriticalAttributes_Flag: criticalAttributes,
       },
       {
         where: {
@@ -374,5 +375,5 @@ module.exports = {
   updateColumnMapping,
   fetchDashboardDetails,
   fetchLeadLogDetails,
-  addTargetColumn,
+  addTargetColumn
 };
