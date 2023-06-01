@@ -9,7 +9,7 @@ const dqCardStatsQuery = require("../constants/dq-checks/dqCardStatsQuery");
 
 const fetchDQCardStats = async (req, res, next) => {
   const stat = req.params.stats;
-  try{
+  try {
     const result = await sequelize.query(dqCardStatsQuery[stat], {
       type: Sequelize.QueryTypes.SELECT,
     });
@@ -19,7 +19,7 @@ const fetchDQCardStats = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
 
 // Added raw queries as these will be easier to fetch the data instead of writing multiple sub queires in sequeileize
 const fetchSummaryStatus = async (req, res, next) => {
@@ -116,38 +116,47 @@ const fetchDQChecksData = async (req, res, next) => {
   try {
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
-    let query = '';
-    let metaDataFilter = []
+    let query = "";
+    let metaDataFilter = [];
     let statusFilter = [];
 
-    if(req.query.filter_by_country)  metaDataFilter.push(`Country = '${req.query.filter_by_country}'`)
+    if (req.query.filter_by_country)
+      metaDataFilter.push(`Country = '${req.query.filter_by_country}'`);
 
-    if(req.query.filter_by_delivery_period)  metaDataFilter.push(`DeliveryPeriod = '${req.query.filter_by_delivery_period}'`)
+    if (req.query.filter_by_delivery_period)
+      metaDataFilter.push(
+        `DeliveryPeriod = '${req.query.filter_by_delivery_period}'`
+      );
 
-    if(req.query.filter_by_category)  metaDataFilter.push(`Category = '${req.query.filter_by_category}'`)
+    if (req.query.filter_by_category)
+      metaDataFilter.push(`Category = '${req.query.filter_by_category}'`);
 
-    if(req.query.filter_by_in_success === 'true')  statusFilter.push(`'Success'`);
+    if (req.query.filter_by_in_success === "true")
+      statusFilter.push(`'Success'`);
 
-    if(req.query.filter_by_in_failure === 'true') statusFilter.push(`'Failure'`);
+    if (req.query.filter_by_in_failure === "true")
+      statusFilter.push(`'Failure'`);
 
-    if(req.query.filter_by_in_progress === 'true') statusFilter.push(`'In Progress'`);
+    if (req.query.filter_by_in_progress === "true")
+      statusFilter.push(`'In Progress'`);
 
-    if(metaDataFilter.length || statusFilter.length) {
-      query = 'WHERE ';
+    if (metaDataFilter.length || statusFilter.length) {
+      query = "WHERE ";
 
-      if(metaDataFilter.length) {
-        query += metaDataFilter.join(' AND ')
+      if (metaDataFilter.length) {
+        query += metaDataFilter.join(" AND ");
       }
 
-      if(statusFilter.length) {
-        if(metaDataFilter.length) {
-          query += ' AND ';
+      if (statusFilter.length) {
+        if (metaDataFilter.length) {
+          query += " AND ";
         }
-        query += `Overall_Status IN (${statusFilter.join(',')})`
-      } 
+        query += `Overall_Status IN (${statusFilter.join(",")})`;
+      }
     }
 
-    const data = await sequelize.query(`SELECT Country, Category,concat(Country, '  ', Category) as CellDatabase,zipFile,DeliveryPeriod,Overall_Status, 
+    const data =
+      await sequelize.query(`SELECT Country, Category,concat(Country, '  ', Category) as CellDatabase,zipFile,DeliveryPeriod,Overall_Status, 
     Checks_Passed, Checks_Failed, LogMessage as Remarks FROM (select *, CASE when x.Checks_Failed=0 then 'Success' else 'Failure' END as Overall_Status
     from ( select base.Country as Country, base.Category as Category,base.Filename as zipFile,DATENAME(m,LoadStartTime)+'-'+CAST(YEAR(LoadStartTime) 
     AS varchar(10)) AS DeliveryPeriod, LogDate,MessageType,A.LogId,LogMessage,TaskName,(LEN(MessageType) - LEN(REPLACE(MessageType, 'Success', '')))  / 7
@@ -155,8 +164,8 @@ const fetchDQChecksData = async (req, res, next) => {
     join info.LoadLog base on base.LogId=A.LogId where A.TaskName in ('NumberoFilesCheck','FileSizeCheck','FileNameCheck','FileDelimiterCheck',
     'FileEncodingCheck','ConstraintCheck','LastPeriodDeliveredCheck','DimvsTransTagsCheck','SchemaCheck'))x)A PIVOT (COUNT(A.TaskName) FOR
     TaskName in ( NumberoFilesCheck,FileSizeCheck,FileNameCheck,FileDelimiterCheck,
-    FileEncodingCheck,ConstraintCheck,LastPeriodDeliveredCheck,DimvsTransTagsCheck,SchemaCheck) ) AS PivotTable ${query} order by Category offset ${offset} rows fetch next ${limit} rows only;`)
-    
+    FileEncodingCheck,ConstraintCheck,LastPeriodDeliveredCheck,DimvsTransTagsCheck,SchemaCheck) ) AS PivotTable ${query} order by Category offset ${offset} rows fetch next ${limit} rows only;`);
+
     const responseObj = {
       result: data[0],
     };
@@ -232,10 +241,55 @@ const fetchDQCategoryMeta = async (req, res, next) => {
 };
 
 const downloadDQCheckReport = async (req, res, next) => {
-  const whereClause = getFiltersForDQChecks(req);
-  const data = await DQCheckModel.findAll({
-    where: whereClause,
-  });
+  const { limit, offset, page, pageSize } = getPaginationDetails(req);
+
+  let query = "";
+  let metaDataFilter = [];
+  let statusFilter = [];
+
+  if (req.query.filter_by_country)
+    metaDataFilter.push(`Country = '${req.query.filter_by_country}'`);
+
+  if (req.query.filter_by_delivery_period)
+    metaDataFilter.push(
+      `DeliveryPeriod = '${req.query.filter_by_delivery_period}'`
+    );
+
+  if (req.query.filter_by_category)
+    metaDataFilter.push(`Category = '${req.query.filter_by_category}'`);
+
+  if (req.query.filter_by_in_success === "true") statusFilter.push(`'Success'`);
+
+  if (req.query.filter_by_in_failure === "true") statusFilter.push(`'Failure'`);
+
+  if (req.query.filter_by_in_progress === "true")
+    statusFilter.push(`'In Progress'`);
+
+  if (metaDataFilter.length || statusFilter.length) {
+    query = "WHERE ";
+
+    if (metaDataFilter.length) {
+      query += metaDataFilter.join(" AND ");
+    }
+
+    if (statusFilter.length) {
+      if (metaDataFilter.length) {
+        query += " AND ";
+      }
+      query += `Overall_Status IN (${statusFilter.join(",")})`;
+    }
+  }
+
+  const data =
+    await sequelize.query(`SELECT Country, Category,concat(Country, '  ', Category) as CellDatabase,zipFile,DeliveryPeriod,Overall_Status, 
+  Checks_Passed, Checks_Failed, LogMessage as Remarks FROM (select *, CASE when x.Checks_Failed=0 then 'Success' else 'Failure' END as Overall_Status
+  from ( select base.Country as Country, base.Category as Category,base.Filename as zipFile,DATENAME(m,LoadStartTime)+'-'+CAST(YEAR(LoadStartTime) 
+  AS varchar(10)) AS DeliveryPeriod, LogDate,MessageType,A.LogId,LogMessage,TaskName,(LEN(MessageType) - LEN(REPLACE(MessageType, 'Success', '')))  / 7
+  AS Checks_Passed,(LEN(MessageType) - LEN(REPLACE(MessageType, 'Error', '')))  / 5 AS Checks_Failed from [info].[LoadDetailLog] A
+  join info.LoadLog base on base.LogId=A.LogId where A.TaskName in ('NumberoFilesCheck','FileSizeCheck','FileNameCheck','FileDelimiterCheck',
+  'FileEncodingCheck','ConstraintCheck','LastPeriodDeliveredCheck','DimvsTransTagsCheck','SchemaCheck'))x)A PIVOT (COUNT(A.TaskName) FOR
+  TaskName in ( NumberoFilesCheck,FileSizeCheck,FileNameCheck,FileDelimiterCheck,
+  FileEncodingCheck,ConstraintCheck,LastPeriodDeliveredCheck,DimvsTransTagsCheck,SchemaCheck) ) AS PivotTable ${query} order by Category offset ${offset} rows fetch next ${limit} rows only;`);
 
   const columns = [
     { header: "Country", key: "Country", width: 20 },
@@ -262,8 +316,8 @@ const downloadDQCheckReport = async (req, res, next) => {
 
   worksheet.columns = columns;
 
-  data.forEach((item) => {
-    worksheet.addRow(item.toJSON());
+  data[0].forEach((item) => {
+    worksheet.addRow(item);
   });
 
   res.setHeader(
@@ -288,5 +342,5 @@ module.exports = {
   fetchDQCountryMeta,
   downloadDQCheckReport,
   fetchDQChecksDataCount,
-  fetchDQCardStats
+  fetchDQCardStats,
 };
