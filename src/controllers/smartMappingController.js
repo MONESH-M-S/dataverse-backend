@@ -79,7 +79,7 @@ const fetchSmartMappingList = async (req, res, next) => {
       whereClause["Dimension"] = dimensionEnum.product;
     }
 
-    console.log(new Date());
+    console.log("query start time",new Date());
 
     const mappingDataList = await SmartMappingListModel.findAll({
       limit,
@@ -88,7 +88,7 @@ const fetchSmartMappingList = async (req, res, next) => {
       order: orderClause,
     });
 
-    console.log(new Date());
+    console.log("query end time",new Date());
 
     const responseObj = {
       result: mappingDataList,
