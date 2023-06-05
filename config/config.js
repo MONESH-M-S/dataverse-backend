@@ -47,4 +47,6 @@ const configMap = {
   }
 }
 
-module.exports = configMap[env]
+const config = {...configMap[env], benchmark: true}
+
+module.exports = config
