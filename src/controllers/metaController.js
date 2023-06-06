@@ -1,5 +1,6 @@
 const LoadLogModel = require("../models/loadLog.model");
 const { Sequelize } = require("../../models");
+const { Op } = require("sequelize");
 
 const fetchCountryMeta = async (req, res, next) => {
   const { category } = req.query;
