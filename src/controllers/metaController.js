@@ -5,7 +5,9 @@ const fetchCountryMeta = async (req, res, next) => {
   const { category } = req.query;
 
   const whereClause = {
-    SOURCE: "Nielsen",
+    SOURCE: {
+      [Op.in]: ["Nielsen", "POS"],
+    },
   };
 
   if (category) whereClause["CATEGORY"] = category;
@@ -28,7 +30,9 @@ const fetchProviderMeta = async (req, res, next) => {
     const providerList = await LoadLogModel.findAll({
       attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("SOURCE")), "name"]],
       where: {
-        SOURCE: "Nielsen",
+        SOURCE: {
+          [Op.in]: ["Nielsen", "POS"],
+        },
       },
     });
     res.json(providerList);
@@ -41,7 +45,9 @@ const fetchCategoryMeta = async (req, res, next) => {
   const { country } = req.query;
 
   const whereClause = {
-    SOURCE: "Nielsen",
+    SOURCE: {
+      [Op.in]: ["Nielsen", "POS"],
+    },
   };
 
   if (country) whereClause["COUNTRY"] = country;

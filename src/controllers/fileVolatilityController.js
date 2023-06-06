@@ -31,7 +31,7 @@ const fetchVolatilityList = async (req, res, next) => {
     if (filterByProvider) {
       whereClause["SOURCE"] = filterByProvider;
     } else {
-      whereClause["SOURCE"] = "Nielsen";
+      whereClause["SOURCE"] = { [Op.in]: ["Nielsen", "POS"] };
     }
 
     if (startDate && endDate) {
@@ -125,7 +125,7 @@ const fetchVolatilityListPagination = async (req, res, next) => {
     if (filterByProvider) {
       whereClause["SOURCE"] = filterByProvider;
     } else {
-      whereClause["SOURCE"] = "Nielsen";
+      whereClause["SOURCE"] = { [Op.in]: ["Nielsen", "POS"] };
     }
 
     if (startDate && endDate) {
