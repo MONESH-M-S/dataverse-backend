@@ -1,11 +1,15 @@
 const LoadLogModel = require("../models/loadLog.model");
 const { Sequelize } = require("../../models");
+const { Op } = require("sequelize");
 
 const fetchCountryMeta = async (req, res, next) => {
   const { category } = req.query;
 
-  const whereClause = {
-    SOURCE: "Nielsen",
+  let whereClause = {
+    Country: {
+      [Op.not]: null,
+      [Op.not]: 'CzechRepublic_BACKUP20230316'
+    }
   };
 
   if (category) whereClause["CATEGORY"] = category;
