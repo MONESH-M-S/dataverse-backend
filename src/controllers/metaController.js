@@ -5,10 +5,14 @@ const { Op } = require("sequelize");
 const fetchCountryMeta = async (req, res, next) => {
   const { category } = req.query;
 
-  const whereClause = {
+  let whereClause = {
     SOURCE: {
       [Op.in]: ["Nielsen", "POS"],
     },
+    Country: {
+      [Op.not]: null,
+      [Op.not]: 'CzechRepublic_BACKUP20230316'
+    }
   };
 
   if (category) whereClause["CATEGORY"] = category;
