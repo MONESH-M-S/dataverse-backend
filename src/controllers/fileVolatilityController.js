@@ -45,9 +45,11 @@ const fetchVolatilityList = async (req, res, next) => {
     }
 
     if (search) {
-      whereClause["FILENAME"] = {
-        [Op.like]: "%" + search + "%",
-      };
+      whereClause[Op.or] = [
+        { FILENAME: { [Op.like]: `%${search.trim()}%` } },
+        { COUNTRY: { [Op.like]: `%${search.trim()}%` } },
+        { CATEGORY: { [Op.like]: `%${search.trim()}%` } },
+      ];
     }
 
     const statusFilterList = [];
@@ -137,9 +139,11 @@ const fetchVolatilityListPagination = async (req, res, next) => {
     }
 
     if (search) {
-      whereClause["FILENAME"] = {
-        [Op.like]: "%" + search + "%",
-      };
+      whereClause[Op.or] = [
+        { FILENAME: { [Op.like]: `%${search.trim()}%` } },
+        { COUNTRY: { [Op.like]: `%${search.trim()}%` } },
+        { CATEGORY: { [Op.like]: `%${search.trim()}%` } },
+      ];
     }
 
     const statusFilterList = [];
@@ -375,5 +379,5 @@ module.exports = {
   updateColumnMapping,
   fetchDashboardDetails,
   fetchLeadLogDetails,
-  addTargetColumn
+  addTargetColumn,
 };
