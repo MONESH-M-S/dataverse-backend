@@ -3,6 +3,7 @@ const getPaginationDetails = require("../utils/response/getPaginationDetails");
 const { Op } = require("sequelize");
 const statusTypeEnum = require("../enums/statusType.enum");
 const SmartMappingDetailsModel = require("../models/smartMappingDetails.model");
+const LoadLogModel = require("../models/loadLog.model");
 const MappingPeriodOutput = require("../models/mappingPeriodOutput.model");
 const { Sequelize, sequelize } = require("../../models");
 const MultipleMapProduct = require("../models/multipleMapProduct.model");
@@ -79,12 +80,16 @@ const fetchSmartMappingList = async (req, res, next) => {
       whereClause["Dimension"] = dimensionEnum.product;
     }
 
+    console.log("query start time",new Date());
+
     const mappingDataList = await SmartMappingListModel.findAll({
       limit,
       offset,
       where: whereClause,
       order: orderClause,
     });
+
+    console.log("query end time",new Date());
 
     const responseObj = {
       result: mappingDataList,
@@ -367,21 +372,32 @@ const fetchCountryMeta = async (req, res, next) => {
     const { filter_by_dimension: filterByDimension, category } = req.query;
 
     let whereClause = {};
+    let modal = SmartMappingListModel
 
     if (filterByDimension) {
       whereClause["Dimension"] = filterByDimension;
     } else {
-      whereClause["Dimension"] = dimensionEnum.product;
+      modal = LoadLogModel;
+
+      whereClause['Country'] = {
+        [Op.not]: null
+      }
+  
+      whereClause['Country'] = {
+        [Op.not]: 'CzechRepublic_BACKUP20230316'
+      }  
     }
 
+  
     if (category) whereClause["Category"] = category;
 
-    const countryList = await SmartMappingListModel.findAll({
+    const countryList = await modal.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col("Country")), "name"],
       ],
       where: whereClause,
     });
+
     res.json(countryList);
   } catch (error) {
     next(error);
