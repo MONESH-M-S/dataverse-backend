@@ -70,6 +70,7 @@ const fetchSmartMappingList = async (req, res, next) => {
       whereClause[Op.or] = [
         { Filename: { [Op.like]: `%${search.trim()}%` } },
         { Category: { [Op.like]: `%${search.trim()}%` } },
+        { Country: { [Op.like]: `%${search.trim()}%` } },
       ];
     }
 
@@ -142,6 +143,7 @@ const fetchSmartMappingListPagination = async (req, res, next) => {
       whereClause[Op.or] = [
         { Filename: { [Op.like]: `%${search.trim()}%` } },
         { Category: { [Op.like]: `%${search.trim()}%` } },
+        { Country: { [Op.like]: `%${search.trim()}%` } },
       ];
     }
 
@@ -598,7 +600,7 @@ const fetchMappedRecordsForMarketDimensionPagination = async (
 
 const fetchUnproccessedMarket = async (req, res, next) => {
   try {
-    const {Filename} = req.query;
+    const { Filename } = req.query;
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
     let whereClause = {
@@ -611,15 +613,15 @@ const fetchUnproccessedMarket = async (req, res, next) => {
       where: whereClause,
     });
 
-    res.json({result});
-  } catch(err) {
-    next(err)
+    res.json({ result });
+  } catch (err) {
+    next(err);
   }
-}
+};
 
 const fetchUnproccessedMarketCount = async (req, res, next) => {
   try {
-    const {Filename} = req.query;
+    const { Filename } = req.query;
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
     let whereClause = {
@@ -632,11 +634,11 @@ const fetchUnproccessedMarketCount = async (req, res, next) => {
       where: whereClause,
     });
 
-    res.json({page, page_size: pageSize, total_count: result});
-  } catch(err) {
-    next(err)
+    res.json({ page, page_size: pageSize, total_count: result });
+  } catch (err) {
+    next(err);
   }
-}
+};
 
 const fetchUnprocessedProductRecords = async (req, res, next) => {
   try {
@@ -851,7 +853,7 @@ const downloadProductExcelFile = async (req, res, next) => {
       case LOW:
         whereClause.Confidencelevel = confidenceLevel.toUpperCase();
         table.model = SmartMappingDetailsModel;
-        table.dimension = 'Product';
+        table.dimension = "Product";
         table.columns = productMappedColumns;
         table.data =
           await sequelize.query(`select Externaldesc, Short, Tag, Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
@@ -861,7 +863,7 @@ const downloadProductExcelFile = async (req, res, next) => {
         break;
       case UNPROCESSED:
         table.model = UnprocessedRecordProductModel;
-        table.dimension = 'Product';
+        table.dimension = "Product";
         table.columns = productUnprocessedColumns;
         table.data =
           await sequelize.query(`select Id, u.filename as Filename, Tag, Externaldesc, Createdon, Remark from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
@@ -884,17 +886,18 @@ const downloadFactExcelFile = async (req, res, next) => {
 
     if (!id || !confidenceLevel || !fileName) res.end();
 
-    let table = {}, whereClause = {};
-    
-    if(confidenceLevel === 'unprocessed') {
-      table['model'] = FactUnprocessed,
-      table['columns'] = factUnprocessedColumn
-      whereClause['Filename'] = fileName
-    } else if(confidenceLevel) {
-      table['model'] = SmartMappingFactDetailsModel
-      table['columns'] = factMappedColumns
-      whereClause['Filename'] = fileName
-      whereClause['Confidencelevel'] = confidenceLevel.toUpperCase()
+    let table = {},
+      whereClause = {};
+
+    if (confidenceLevel === "unprocessed") {
+      (table["model"] = FactUnprocessed),
+        (table["columns"] = factUnprocessedColumn);
+      whereClause["Filename"] = fileName;
+    } else if (confidenceLevel) {
+      table["model"] = SmartMappingFactDetailsModel;
+      table["columns"] = factMappedColumns;
+      whereClause["Filename"] = fileName;
+      whereClause["Confidencelevel"] = confidenceLevel.toUpperCase();
     }
 
     const data = await table.model.findAll({

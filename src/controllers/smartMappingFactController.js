@@ -52,9 +52,11 @@ const fetchSmartMappingFactList = async (req, res, next) => {
     }
 
     if (search) {
-      whereClause["Filename"] = {
-        [Op.like]: "%" + search + "%",
-      };
+      whereClause[Op.or] = [
+        { Filename: { [Op.like]: `%${search.trim()}%` } },
+        { Category: { [Op.like]: `%${search.trim()}%` } },
+        { Country: { [Op.like]: `%${search.trim()}%` } },
+      ];
     }
 
     const mappingDataList = await SmartMappingFactListModel.findAll({
@@ -118,9 +120,11 @@ const fetchSmartMappingFactListPagination = async (req, res, next) => {
     }
 
     if (search) {
-      whereClause["Filename"] = {
-        [Op.like]: "%" + search + "%",
-      };
+      whereClause[Op.or] = [
+        { Filename: { [Op.like]: `%${search.trim()}%` } },
+        { Category: { [Op.like]: `%${search.trim()}%` } },
+        { Country: { [Op.like]: `%${search.trim()}%` } },
+      ];
     }
 
     const count = await SmartMappingFactListModel.count({
@@ -307,9 +311,9 @@ const fetchFactUnprocessed = async (req, res, next) => {
     const { limit, offset } = getPaginationDetails(req);
 
     let whereClause = {};
-    whereClause['Filename'] = Filename;
+    whereClause["Filename"] = Filename;
 
-    if(search) {
+    if (search) {
       whereClause["Externaldesc"] = {
         [Op.like]: "%" + search + "%",
       };
@@ -318,16 +322,14 @@ const fetchFactUnprocessed = async (req, res, next) => {
     const result = await FactUnprocessed.findAll({
       where: whereClause,
       limit,
-      offset
+      offset,
     });
 
-    res.json({result: result}).status(200)
-
-  } catch(err) {
-    next(err)
+    res.json({ result: result }).status(200);
+  } catch (err) {
+    next(err);
   }
-}
- 
+};
 
 const fetchFactUnprocessedCount = async (req, res, next) => {
   try {
@@ -335,9 +337,9 @@ const fetchFactUnprocessedCount = async (req, res, next) => {
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
     let whereClause = {};
-    whereClause['Filename'] = Filename;
+    whereClause["Filename"] = Filename;
 
-    if(search) {
+    if (search) {
       whereClause["Externaldesc"] = {
         [Op.like]: "%" + search + "%",
       };
@@ -346,15 +348,14 @@ const fetchFactUnprocessedCount = async (req, res, next) => {
     const result = await FactUnprocessed.count({
       where: whereClause,
       limit,
-      offset
+      offset,
     });
 
-    res.json({page, page_size: pageSize, total_count: result}).status(200);
-
-  } catch(err) {
-    next(err)
+    res.json({ page, page_size: pageSize, total_count: result }).status(200);
+  } catch (err) {
+    next(err);
   }
-}
+};
 
 const fetchFactCountryMeta = async (req, res, next) => {
   const { category } = req.query;
@@ -432,5 +433,5 @@ module.exports = {
   fetchSmartMappingFactListPagination,
   fetchSmartMappingFactDetailPagination,
   fetchFactUnprocessed,
-  fetchFactUnprocessedCount
+  fetchFactUnprocessedCount,
 };
