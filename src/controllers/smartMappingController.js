@@ -890,7 +890,7 @@ const downloadProductExcelFile = async (req, res, next) => {
         table.dimension = "Product";
         table.columns = productMappedColumns;
         table.data =
-          await sequelize.query(`select Externaldesc, Short, Tag, Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
+          await sequelize.query(`select Externaldesc, Short, Tag, Filename, Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
           Productformname, Spfvname, Divisionname, Sectorname, Segmentname, Formname, Subformname, Productpackformname, Productpacksizename, Productvariantname, Productcodename
           from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) 
           up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel and u.filename = '${whereClause.Filename}' and u.Confidencelevel = '${whereClause.Confidencelevel}'`);
