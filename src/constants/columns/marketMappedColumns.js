@@ -9,6 +9,7 @@ module.exports = [
     key: "Short",
     width: 30,
   },
+  { header: "File Name", key: "FileName", width: 40 },
   {
     header: "External Tag",
     key: "Tag",

@@ -4,6 +4,7 @@ module.exports = [
     key: "Tag",
     width: 30,
   },
+  { header: "File Name", key: "FileName", width: 40 },
   {
     header: "External Short Desc",
     key: "Short",
