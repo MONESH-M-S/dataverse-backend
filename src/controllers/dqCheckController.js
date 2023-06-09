@@ -241,7 +241,6 @@ const fetchDQCategoryMeta = async (req, res, next) => {
 };
 
 const downloadDQCheckReport = async (req, res, next) => {
-  const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
   let query = "";
   let metaDataFilter = [];
@@ -289,7 +288,7 @@ const downloadDQCheckReport = async (req, res, next) => {
   join info.LoadLog base on base.LogId=A.LogId where A.TaskName in ('NumberoFilesCheck','FileSizeCheck','FileNameCheck','FileDelimiterCheck',
   'FileEncodingCheck','ConstraintCheck','LastPeriodDeliveredCheck','DimvsTransTagsCheck','SchemaCheck'))x)A PIVOT (COUNT(A.TaskName) FOR
   TaskName in ( NumberoFilesCheck,FileSizeCheck,FileNameCheck,FileDelimiterCheck,
-  FileEncodingCheck,ConstraintCheck,LastPeriodDeliveredCheck,DimvsTransTagsCheck,SchemaCheck) ) AS PivotTable ${query} order by Category offset ${offset} rows fetch next ${limit} rows only;`);
+  FileEncodingCheck,ConstraintCheck,LastPeriodDeliveredCheck,DimvsTransTagsCheck,SchemaCheck) ) AS PivotTable ${query} order by Category;`);
 
   const columns = [
     { header: "Country", key: "Country", width: 20 },
