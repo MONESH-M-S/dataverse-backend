@@ -14,6 +14,7 @@ module.exports = [
     key: "Tag",
     width: 30,
   },
+  { header: "File Name", key: "Filename", width: 40 },
   {
     header: "External Hierarchy Number",
     key: "Hiernum",

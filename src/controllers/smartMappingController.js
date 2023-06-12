@@ -370,22 +370,22 @@ const fetchCountryMeta = async (req, res, next) => {
     const { filter_by_dimension: filterByDimension, category } = req.query;
 
     let whereClause = {};
-    let modal = SmartMappingListModel
+    let modal = SmartMappingListModel;
 
     if (filterByDimension) {
       whereClause["Dimension"] = filterByDimension;
     } else {
       modal = LoadLogModel;
 
-      whereClause['Country'] = {
-        [Op.not]: null
-      }
-  
-      whereClause['Country'] = {
-        [Op.not]: 'CzechRepublic_BACKUP20230316'
-      }  
+      whereClause["Country"] = {
+        [Op.not]: null,
+      };
+
+      whereClause["Country"] = {
+        [Op.not]: "CzechRepublic_BACKUP20230316",
+      };
     }
-  
+
     if (category) whereClause["Category"] = category;
 
     const countryList = await modal.findAll({
@@ -484,12 +484,23 @@ const fetchUnmappedRecordsSuggestions = async (req, res, next) => {
 const fetchMappedRecordsForPeriodDimension = async (req, res, next) => {
   try {
     const id = req.params.id;
+
+    const { search } = req.query;
+
     const smartMapping = await SmartMappingListModel.findByPk(id);
     const { limit, offset } = getPaginationDetails(req);
 
     let whereClause = {
       Filename: smartMapping.Filename,
     };
+
+    if (search) {
+      whereClause[Op.or] = [
+        { Short: { [Op.like]: `%${search.trim()}%` } },
+        { Long: { [Op.like]: `%${search.trim()}%` } },
+        { Periodicity: { [Op.like]: `%${search.trim()}%` } },
+      ];
+    }
 
     const result = await MappingPeriodOutput.findAll({
       limit,
@@ -513,12 +524,24 @@ const fetchMappedRecordsForPeriodDimensionPagination = async (
 ) => {
   try {
     const id = req.params.id;
+
+    const { search } = req.query;
+
     const smartMapping = await SmartMappingListModel.findByPk(id);
+
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
     let whereClause = {
       Filename: smartMapping.Filename,
     };
+
+    if (search) {
+      whereClause[Op.or] = [
+        { Short: { [Op.like]: `%${search.trim()}%` } },
+        { Long: { [Op.like]: `%${search.trim()}%` } },
+        { Periodicity: { [Op.like]: `%${search.trim()}%` } },
+      ];
+    }
 
     const result = await MappingPeriodOutput.count({
       limit,
@@ -867,7 +890,7 @@ const downloadProductExcelFile = async (req, res, next) => {
         table.dimension = "Product";
         table.columns = productMappedColumns;
         table.data =
-          await sequelize.query(`select Externaldesc, Short, Tag, Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
+          await sequelize.query(`select Externaldesc, Short, Tag, u.filename as Filename, Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
           Productformname, Spfvname, Divisionname, Sectorname, Segmentname, Formname, Subformname, Productpackformname, Productpacksizename, Productvariantname, Productcodename
           from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) 
           up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel and u.filename = '${whereClause.Filename}' and u.Confidencelevel = '${whereClause.Confidencelevel}'`);

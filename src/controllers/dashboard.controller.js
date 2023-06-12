@@ -10,6 +10,11 @@ const fetchVolatilityFileMetrics = async (req, res, next) => {
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col("Source")), "source"],
       ],
+      where: {
+        SOURCE: {
+          [Op.in]: ["Nielsen", "POS"],
+        },
+      },
     });
 
     let uniqueList = uniqueSourceList.map((item) => item.dataValues.source);
@@ -93,6 +98,11 @@ const fetchFileharmonizationStatus = async (req, res, next) => {
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col("Source")), "source"],
       ],
+      where: {
+        SOURCE: {
+          [Op.in]: ["Nielsen", "POS"],
+        },
+      },
     });
 
     const uniqueList = uniqueSourceList.map((item) => item.dataValues.source);
@@ -137,6 +147,11 @@ const fetchConfidenceLevel = async (req, res, next) => {
         [sequelize.fn("SUM", sequelize.col("Low")), "low_count"],
       ],
       group: ["ExternalDataProvider"],
+      where: {
+        ExternalDataProvider: {
+          [Op.in]: ["Nielsen", "POS"],
+        },
+      },
     });
 
     res.json(result);
@@ -149,6 +164,11 @@ const fetchProviderMeta = async (req, res, next) => {
   try {
     const providerList = await LoadLogModel.findAll({
       attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("Source")), "name"]],
+      where: {
+        SOURCE: {
+          [Op.in]: ["Nielsen", "POS"],
+        },
+      },
     });
 
     res.json(providerList);
