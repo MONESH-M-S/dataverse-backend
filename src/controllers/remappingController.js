@@ -3,7 +3,7 @@ const SmartMappingFactDetailsModel = require("../models/smartMappingFactDetails.
 const MappingPeriodOutput = require("../models/mappingPeriodOutput.model");
 const MappingMarketOutput = require("../models/mappingMarketOutput.model");
 const MarketMetaData = require("../models/marketMetaData.model");
-const { Sequelize } = require("../../models");
+const { Sequelize, sequelize } = require("../../models");
 const statusTypeEnum = require("../enums/statusType.enum");
 
 const Product_Dropdowns = {
@@ -22,7 +22,8 @@ const Product_Dropdowns = {
   "product-pack-size-name": "Productpacksizename",
   "product-variant-name": "Productvariantname",
   "product-code-name": "Productcodename",
-  "product-name": "Productname"
+  "product-name": "Productname",
+  "scenario-flag": "Scenarioflag"
 };
 
 const Fact_Dropdowns = {
@@ -68,15 +69,22 @@ const productRemappingOptions = async (req, res, next) => {
 
   try {
     const whereClause = getWhereObjectFromQuery(req.query);
-
     const columnName = req.params.columnName;
-    const dbColumnName = Product_Dropdowns[columnName];
-    const options = await SmartMappingDetailsModel.findAll({
-      attributes: [
-        [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
-      ],
-      where: whereClause
-    });
+    let options
+
+    if(columnName === 'scenario-flag') {
+      const result = await sequelize.query(`SELECT Identifier as name FROM [metadata].[MappingFlagDetails] WHERE FlagDesc = 'Mapped Already by IM Engine'`);
+      options = result[0]
+    } else {
+      const dbColumnName = Product_Dropdowns[columnName];
+      options = await SmartMappingDetailsModel.findAll({
+        attributes: [
+          [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
+        ],
+        where: whereClause
+      });
+    }
+
     res.json(options);
   } catch (error) {
     next(error);
