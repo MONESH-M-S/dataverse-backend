@@ -22,8 +22,7 @@ const Product_Dropdowns = {
   "product-pack-size-name": "Productpacksizename",
   "product-variant-name": "Productvariantname",
   "product-code-name": "Productcodename",
-  "product-name": "Productname",
-  "scenario-flag": "Scenarioflag"
+  "product-name": "Productname"
 };
 
 const Fact_Dropdowns = {
@@ -58,32 +57,25 @@ const Market_Dropdowns = {
 const getWhereObjectFromQuery = (query) => {
   let whereClause = {};
 
-  Object.keys(query).forEach((key)=> {
+  Object.keys(query).forEach((key) => {
     whereClause[key] = query[key];
   });
 
   return whereClause;
-}
+};
 
 const productRemappingOptions = async (req, res, next) => {
-
   try {
     const whereClause = getWhereObjectFromQuery(req.query);
+    
     const columnName = req.params.columnName;
-    let options
-
-    if(columnName === 'scenario-flag') {
-      const result = await sequelize.query(`SELECT Identifier as name FROM [metadata].[MappingFlagDetails] WHERE FlagDesc = 'Mapped Already by IM Engine'`);
-      options = result[0]
-    } else {
-      const dbColumnName = Product_Dropdowns[columnName];
-      options = await SmartMappingDetailsModel.findAll({
-        attributes: [
-          [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
-        ],
-        where: whereClause
-      });
-    }
+    const dbColumnName = Product_Dropdowns[columnName];
+    const options = await SmartMappingDetailsModel.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
+      ],
+      where: whereClause,
+    });
 
     res.json(options);
   } catch (error) {
@@ -101,7 +93,7 @@ const factRemappingOptions = async (req, res, next) => {
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
       ],
-      where: whereClause
+      where: whereClause,
     });
     res.json(options);
   } catch (error) {
@@ -119,7 +111,7 @@ const periodRemappingOptions = async (req, res, next) => {
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
       ],
-      where: whereClause
+      where: whereClause,
     });
     res.json(options);
   } catch (error) {
@@ -135,9 +127,9 @@ const marketRemappingOptions = async (req, res, next) => {
     let dbColumnName = Market_Dropdowns[columnName];
     let modal = MappingMarketOutput;
 
-    if(dbColumnName === 'Channel' || dbColumnName === 'TotalMarket') {
+    if (dbColumnName === "Channel" || dbColumnName === "TotalMarket") {
       modal = MarketMetaData;
-      dbColumnName = dbColumnName === 'TotalMarket' ? 'Total' : dbColumnName;
+      dbColumnName = dbColumnName === "TotalMarket" ? "Total" : dbColumnName;
     } else {
       modal = MappingMarketOutput;
     }
@@ -146,7 +138,7 @@ const marketRemappingOptions = async (req, res, next) => {
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
       ],
-      where: whereClause
+      where: whereClause,
     });
     res.json(options);
   } catch (error) {
@@ -158,7 +150,8 @@ const updateRemappingProductValues = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedValues = req.body;
-    updatedValues['Flag'] = 'MM';
+    updatedValues["Flag"] = "MM";
+    updatedValues["Scenarioflag"] = "SC 0";
 
     const updatedFile = await SmartMappingDetailsModel.update(updatedValues, {
       where: { id },
@@ -178,7 +171,7 @@ const updateRemappingFactValues = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedValues = req.body;
-    updatedValues['Flag'] = 'MM';
+    updatedValues["Flag"] = "MM";
 
     const updatedFile = await SmartMappingFactDetailsModel.update(
       updatedValues,
@@ -201,7 +194,7 @@ const updateRemappingPeriodValues = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedValues = req.body;
-    updatedValues['Flag'] = 'MM';
+    updatedValues["Flag"] = "MM";
 
     const updatedFile = await MappingPeriodOutput.update(updatedValues, {
       where: {
@@ -223,7 +216,7 @@ const updateRemappingMarketValues = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedValues = req.body;
-    updatedValues['Flag'] = 'MM';
+    updatedValues["Flag"] = "MM";
 
     const updatedFile = await MappingMarketOutput.update(updatedValues, {
       where: {
