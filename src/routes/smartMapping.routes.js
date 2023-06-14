@@ -29,6 +29,8 @@ const {
   downloadFactExcelFile,
   downloadMarketExcelFile,
   downloadPeriodExcelFile,
+  fetchMappingProductPOSDetails,
+  fetchMappingProductPOSDetailsPagination,
 } = require("../controllers/smartMappingController");
 const {
   fetchSmartMappingFactList,
@@ -43,7 +45,7 @@ const {
   fetchSmartMappingFactListPagination,
   fetchSmartMappingFactDetailPagination,
   fetchFactUnprocessed,
-  fetchFactUnprocessedCount
+  fetchFactUnprocessedCount,
 } = require("../controllers/smartMappingFactController");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
@@ -86,8 +88,8 @@ router.get(
   fetchMappedRecordsForPeriodDimensionPagination
 );
 
-router.get('/:id/market/unprocessed', auth, fetchUnproccessedMarket);
-router.get('/:id/market/unprocessed/count', auth, fetchUnproccessedMarketCount);
+router.get("/:id/market/unprocessed", auth, fetchUnproccessedMarket);
+router.get("/:id/market/unprocessed/count", auth, fetchUnproccessedMarketCount);
 
 router.get(
   "/:id/market/:confidenceLevel",
@@ -122,5 +124,13 @@ router.get("/:id/download/product", auth, downloadProductExcelFile);
 router.get("/:id/download/fact", auth, downloadFactExcelFile);
 router.get("/:id/download/market", auth, downloadMarketExcelFile);
 router.get("/:id/download/period", auth, downloadPeriodExcelFile);
+
+//POS details
+router.get("/product/pos/:id/:confidence", auth, fetchMappingProductPOSDetails);
+router.get(
+  "/product/pos/:id/:confidence/count",
+  auth,
+  fetchMappingProductPOSDetailsPagination
+);
 
 module.exports = router;

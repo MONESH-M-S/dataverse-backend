@@ -24,6 +24,7 @@ const productUnprocessedColumns = require("../constants/columns/productUnprocess
 const factUnprocessedColumn = require("../constants/columns/factUnprocessedColumn");
 const sendAsExcelFile = require("../utils/response/sendAsExcelFile");
 const FactUnprocessed = require("../models/factUnprocessed.model");
+const MappingProductDetailsPOS = require("./../models/mappingProductOutputPOS.model");
 
 const fetchSmartMappingList = async (req, res, next) => {
   try {
@@ -1014,6 +1015,63 @@ const downloadPeriodExcelFile = async (req, res, next) => {
   }
 };
 
+const fetchMappingProductPOSDetails = async (req, res, next) => {
+  try {
+    const { id, confidence } = req.params;
+
+    // const smartMapping = await SmartMappingListModel.findByPk(id);
+
+    const { limit, offset } = getPaginationDetails(req);
+
+    const whereClause = {};
+
+    whereClause.ConfidenceLevel = confidence.toUpperCase();
+
+    // whereClause.Filename = smartMapping.Filename;
+    whereClause.Filename = "UK_file";
+
+    const mappedData = await MappingProductDetailsPOS.findAll({
+      where: whereClause,
+    });
+
+    const responseObj = {
+      result: mappedData,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchMappingProductPOSDetailsPagination = async (req, res, next) => {
+  try {
+    const { id, confidence } = req.params;
+
+    // const smartMapping = await SmartMappingListModel.findByPk(id);
+
+    const { limit, offset } = getPaginationDetails(req);
+
+    const whereClause = {};
+
+    whereClause.ConfidenceLevel = confidence.toUpperCase();
+
+    // whereClause.Filename = smartMapping.Filename;
+    whereClause.Filename = "UK_file";
+
+    const mappedData = await MappingProductDetailsPOS.count({
+      where: whereClause,
+    });
+
+    const responseObj = {
+      result: mappedData,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   fetchSmartMappingList,
   fetchSmartMappingDashboardCount,
@@ -1043,4 +1101,6 @@ module.exports = {
   downloadFactExcelFile,
   downloadMarketExcelFile,
   downloadPeriodExcelFile,
+  fetchMappingProductPOSDetails,
+  fetchMappingProductPOSDetailsPagination,
 };
