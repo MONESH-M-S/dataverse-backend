@@ -4,6 +4,7 @@ const MappingPeriodOutput = require("../models/mappingPeriodOutput.model");
 const MappingMarketOutput = require("../models/mappingMarketOutput.model");
 const MarketMetaData = require("../models/marketMetaData.model");
 const { Sequelize, sequelize } = require("../../models");
+const { Op } = require("sequelize");
 const statusTypeEnum = require("../enums/statusType.enum");
 
 const Product_Dropdowns = {
@@ -22,7 +23,7 @@ const Product_Dropdowns = {
   "product-pack-size-name": "Productpacksizename",
   "product-variant-name": "Productvariantname",
   "product-code-name": "Productcodename",
-  "product-name": "Productname"
+  "product-name": "Productname",
 };
 
 const Fact_Dropdowns = {
@@ -58,7 +59,17 @@ const getWhereObjectFromQuery = (query) => {
   let whereClause = {};
 
   Object.keys(query).forEach((key) => {
-    whereClause[key] = query[key];
+    if (key === "PeriodStartDate") {
+      whereClause[key] = {
+        [Op.gte]: query[key],
+      };
+    } else if (key === "PeriodEndDate") {
+      whereClause[key] = {
+        [Op.lte]: query[key],
+      };
+    } else {
+      whereClause[key] = query[key];
+    }
   });
 
   return whereClause;
@@ -67,7 +78,7 @@ const getWhereObjectFromQuery = (query) => {
 const productRemappingOptions = async (req, res, next) => {
   try {
     const whereClause = getWhereObjectFromQuery(req.query);
-    
+
     const columnName = req.params.columnName;
     const dbColumnName = Product_Dropdowns[columnName];
     const options = await SmartMappingDetailsModel.findAll({
