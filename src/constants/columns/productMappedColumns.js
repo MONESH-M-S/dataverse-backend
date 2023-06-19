@@ -126,4 +126,9 @@ module.exports = [
     key: "Productcodename",
     width: 30,
   },
+  {
+    header: "Scenario Flag",
+    key: "Scenarioflag",
+    width: 20,
+  },
 ];

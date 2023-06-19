@@ -42,7 +42,8 @@ const SmartMappingDetailsModel = sequelize.define('MappingProductOutput', {
     Company: DataTypes.STRING,
     Brand: DataTypes.STRING,
     Productname: DataTypes.STRING,
-    Flag: DataTypes.STRING
+    Flag: DataTypes.STRING,
+    Scenarioflag: DataTypes.STRING
 
 }, {
     tableName: 'MappingProductOutput',
