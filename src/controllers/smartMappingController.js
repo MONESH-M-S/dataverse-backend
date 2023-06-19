@@ -1019,7 +1019,7 @@ const fetchMappingProductPOSDetails = async (req, res, next) => {
   try {
     const { id, confidence } = req.params;
 
-    // const smartMapping = await SmartMappingListModel.findByPk(id);
+    const smartMapping = await SmartMappingListModel.findByPk(id);
 
     const { limit, offset } = getPaginationDetails(req);
 
@@ -1027,11 +1027,12 @@ const fetchMappingProductPOSDetails = async (req, res, next) => {
 
     whereClause.ConfidenceLevel = confidence.toUpperCase();
 
-    // whereClause.Filename = smartMapping.Filename;
-    whereClause.Filename = "UK_file";
+    whereClause.Filename = smartMapping.Filename;
 
     const mappedData = await MappingProductDetailsPOS.findAll({
       where: whereClause,
+      limit,
+      offset,
     });
 
     const responseObj = {
@@ -1047,23 +1048,26 @@ const fetchMappingProductPOSDetailsPagination = async (req, res, next) => {
   try {
     const { id, confidence } = req.params;
 
-    // const smartMapping = await SmartMappingListModel.findByPk(id);
+    const smartMapping = await SmartMappingListModel.findByPk(id);
 
-    const { limit, offset } = getPaginationDetails(req);
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
     const whereClause = {};
 
     whereClause.ConfidenceLevel = confidence.toUpperCase();
 
-    // whereClause.Filename = smartMapping.Filename;
-    whereClause.Filename = "UK_file";
+    whereClause.Filename = smartMapping.Filename;
 
     const mappedData = await MappingProductDetailsPOS.count({
+      limit,
+      offset,
       where: whereClause,
     });
 
     const responseObj = {
-      result: mappedData,
+      page,
+      page_size: pageSize,
+      total_count: mappedData,
     };
 
     res.json(responseObj);
