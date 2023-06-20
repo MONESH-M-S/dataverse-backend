@@ -31,6 +31,8 @@ const {
   downloadPeriodExcelFile,
   fetchMappingProductPOSDetails,
   fetchMappingProductPOSDetailsPagination,
+  fetchMappingPeriodPOSDetails,
+  fetchMappingPeriodPOSDetailsPagination,
 } = require("../controllers/smartMappingController");
 const {
   fetchSmartMappingFactList,
@@ -125,12 +127,20 @@ router.get("/:id/download/fact", auth, downloadFactExcelFile);
 router.get("/:id/download/market", auth, downloadMarketExcelFile);
 router.get("/:id/download/period", auth, downloadPeriodExcelFile);
 
-//POS details
+//POS product details
 router.get("/product/pos/:id/:confidence", auth, fetchMappingProductPOSDetails);
 router.get(
   "/product/pos/:id/:confidence/count",
   auth,
   fetchMappingProductPOSDetailsPagination
+);
+
+//POS period details
+router.get("/period/pos/:id/:confidence", auth, fetchMappingPeriodPOSDetails);
+router.get(
+  "/period/pos/:id/:confidence/count",
+  auth,
+  fetchMappingPeriodPOSDetailsPagination
 );
 
 module.exports = router;

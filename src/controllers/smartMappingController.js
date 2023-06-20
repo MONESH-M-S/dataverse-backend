@@ -24,7 +24,9 @@ const productUnprocessedColumns = require("../constants/columns/productUnprocess
 const factUnprocessedColumn = require("../constants/columns/factUnprocessedColumn");
 const sendAsExcelFile = require("../utils/response/sendAsExcelFile");
 const FactUnprocessed = require("../models/factUnprocessed.model");
-const MappingProductDetailsPOS = require("./../models/mappingProductOutputPOS.model");
+const MappingProductDetailsPOSModel = require("./../models/mappingProductOutputPOS.model");
+const UnprocessedRecordProductPOSModel = require("./../models/unprocessedRecordProductPOS.model");
+const MappingPeriodDetailsPOSModel = require("./../models/mappingPeriodOutputPOS.model");
 
 const fetchSmartMappingList = async (req, res, next) => {
   try {
@@ -1025,18 +1027,32 @@ const fetchMappingProductPOSDetails = async (req, res, next) => {
 
     const whereClause = {};
 
-    whereClause.ConfidenceLevel = confidence.toUpperCase();
+    const table = {};
 
     whereClause.Filename = smartMapping.Filename;
 
-    const mappedData = await MappingProductDetailsPOS.findAll({
+    const { HIGH, MEDIUM, LOW, UNPROCESSED } = ConfidenceLevels;
+
+    switch (confidence) {
+      case HIGH:
+      case MEDIUM:
+        whereClause.ConfidenceLevel = confidence.toUpperCase();
+        table.model = MappingProductDetailsPOSModel;
+        break;
+      case LOW:
+        break;
+      case UNPROCESSED:
+        table.model = UnprocessedRecordProductPOSModel;
+    }
+
+    table.data = await table.model.findAll({
       where: whereClause,
       limit,
       offset,
     });
 
     const responseObj = {
-      result: mappedData,
+      result: table.data,
     };
 
     res.json(responseObj);
@@ -1054,11 +1070,25 @@ const fetchMappingProductPOSDetailsPagination = async (req, res, next) => {
 
     const whereClause = {};
 
-    whereClause.ConfidenceLevel = confidence.toUpperCase();
+    const table = {};
 
     whereClause.Filename = smartMapping.Filename;
 
-    const mappedData = await MappingProductDetailsPOS.count({
+    const { HIGH, MEDIUM, LOW, UNPROCESSED } = ConfidenceLevels;
+
+    switch (confidence) {
+      case HIGH:
+      case MEDIUM:
+        whereClause.ConfidenceLevel = confidence.toUpperCase();
+        table.model = MappingProductDetailsPOSModel;
+        break;
+      case LOW:
+        break;
+      case UNPROCESSED:
+        table.model = UnprocessedRecordProductPOSModel;
+    }
+
+    const count = await table.model.count({
       limit,
       offset,
       where: whereClause,
@@ -1067,8 +1097,71 @@ const fetchMappingProductPOSDetailsPagination = async (req, res, next) => {
     const responseObj = {
       page,
       page_size: pageSize,
-      total_count: mappedData,
+      total_count: count,
     };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const fetchMappingPeriodPOSDetails = async (req, res, next) => {
+  try {
+    const { id, confidence } = req.params;
+
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+
+    const { limit, offset } = getPaginationDetails(req);
+
+    const whereClause = {
+      Filename: smartMapping.Filename,
+    };
+
+    if (confidence === ConfidenceLevels.MAPPED) {
+      const mappedData = await MappingPeriodDetailsPOSModel.findAll({
+        where: whereClause,
+        limit,
+        offset,
+      });
+
+      const responseObj = {
+        result: mappedData,
+      };
+
+      res.json(responseObj);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchMappingPeriodPOSDetailsPagination = async (req, res, next) => {
+  try {
+    const { id, confidence } = req.params;
+
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+
+    const whereClause = {
+      Filename: smartMapping.Filename,
+    };
+
+    if (confidence === ConfidenceLevels.MAPPED) {
+      const count = await MappingPeriodDetailsPOSModel.count({
+        where: whereClause,
+        limit,
+        offset,
+      });
+
+      const responseObj = {
+        page,
+        page_size: pageSize,
+        total_count: count,
+      };
+
+      res.json(responseObj);
+    }
 
     res.json(responseObj);
   } catch (error) {
@@ -1107,4 +1200,6 @@ module.exports = {
   downloadPeriodExcelFile,
   fetchMappingProductPOSDetails,
   fetchMappingProductPOSDetailsPagination,
+  fetchMappingPeriodPOSDetails,
+  fetchMappingPeriodPOSDetailsPagination,
 };
