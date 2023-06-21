@@ -5,17 +5,16 @@ const { Op } = require("sequelize");
 const statusTypeEnum = require("../enums/statusType.enum");
 
 const Product_Dropdowns = {
-  "internal-product-description": "ProductName",
+  "division-name": "Divisionname",
   "category-name": "Categoryname",
   "market-name": "Marketname",
   "corporate-brand-name": "Corporatebrandname",
-  "product-form-name": "Productformname",
-  "sub-product-form-variant-name": "Spfvname",
-  "division-name": "Divisionname",
   "sector-name": "Sectorname",
   "segment-name": "Segmentname",
+  "product-form-name": "Productformname",
   "form-name": "Formname",
   "sub-form-name": "Subformname",
+  "sub-product-form-variant-name": "Spfvname",
   "product-pack-form-name": "Productpackformname",
   "product-pack-size-name": "Productpacksizename",
   "product-variant-name": "Productvariantname",
