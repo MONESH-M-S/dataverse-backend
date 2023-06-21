@@ -162,7 +162,6 @@ const updateRemappingProductValues = async (req, res, next) => {
     const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
-    updatedValues["Scenarioflag"] = "SC 0";
 
     const updatedFile = await SmartMappingDetailsModel.update(updatedValues, {
       where: { id },
