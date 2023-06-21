@@ -24,18 +24,23 @@ const {
   fetchUnproccessedMarket,
   fetchUnproccessedMarketCount,
   fetchMappedRecordsForPeriodDimensionPagination,
-  downloadExcelFile,
   downloadProductExcelFile,
   downloadFactExcelFile,
   downloadMarketExcelFile,
   downloadPeriodExcelFile,
+} = require("../controllers/smartMappingController");
+
+const {
   fetchMappingProductPOSDetails,
   fetchMappingProductPOSDetailsPagination,
   fetchMappingPeriodPOSDetails,
   fetchMappingPeriodPOSDetailsPagination,
   fetchUnmappedPOSRecordsSuggestions,
   updateSmartMappingPOSDetails,
-} = require("../controllers/smartMappingController");
+  downloadPosProductExcelFile,
+  downloadPosPeriodExcelFile,
+} = require("../controllers/smartMappingPosController");
+
 const {
   fetchSmartMappingFactList,
   fetchSmartMappingFactDetail,
@@ -51,6 +56,7 @@ const {
   fetchFactUnprocessed,
   fetchFactUnprocessedCount,
 } = require("../controllers/smartMappingFactController");
+
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
 const updateSmartMappingsSchema = require("../schema/updateSmartMappings.schema");
@@ -155,5 +161,9 @@ router.get(
   auth,
   fetchMappingPeriodPOSDetailsPagination
 );
+
+//Download POS
+router.get("/pos/:id/download/product", auth, downloadPosProductExcelFile);
+router.get("/pos/:id/download/period", auth, downloadPosPeriodExcelFile);
 
 module.exports = router;

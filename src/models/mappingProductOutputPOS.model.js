@@ -9,7 +9,7 @@ const MappingProductOutputPOS = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    FileName: {
+    Filename: {
       type: DataTypes.STRING,
       primaryKey: true,
     },
@@ -27,7 +27,7 @@ const MappingProductOutputPOS = sequelize.define(
     Productpacksizename: DataTypes.STRING,
     Productcodename: DataTypes.STRING,
     Productname: DataTypes.STRING,
-    Uniqueindentifier: DataTypes.STRING,
+    // Uniqueindentifier: DataTypes.STRING,
   },
   {
     tableName: "MappingProductOutput_POS",

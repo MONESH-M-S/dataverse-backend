@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
 const DQCheckModel = sequelize.define(
-  "temp_MappingReportSummary",
+  "vw_MappingReportSummary",
   {
     Country: {
       type: DataTypes.STRING,

@@ -3,7 +3,7 @@ const sequelize = require("../config/sequelize.config");
 const TempManualMappingModel = require("./tempManualMapping.model");
 
 const SmartMappingFactListModel = sequelize.define(
-  "temp_MappingReportSummary",
+  "vw_MappingReportSummary",
   {
     Id: {
       type: DataTypes.INTEGER,
@@ -25,7 +25,7 @@ const SmartMappingFactListModel = sequelize.define(
     Dimension: DataTypes.STRING,
   },
   {
-    tableName: "temp_MappingReportSummary",
+    tableName: "vw_MappingReportSummary",
     schema: "Mapping",
     timestamps: false,
   }
