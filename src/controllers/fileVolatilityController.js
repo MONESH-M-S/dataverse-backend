@@ -216,19 +216,21 @@ const fetchColumnMappings = async (req, res, next) => {
 
     const logDetails = await LoadLogModel.findByPk(id);
 
-    const fileData = await FactColumnMappingModel.findOne({
-      where: {
-        ZipFileName: logDetails.FILENAME,
-        Entity: entity ?? "Product",
-      },
-    });
+    let Entity = entity ?? 'Product';
+
+    const fileData = await sequelize.query(`select  A.ZipFileName, A.FileName, A.Country, A.Category, A.Entity, A.SourceColumnList, A.SourceColumn, A.TargetColumn, A.CriticalAttributes_Flag, 
+    B.SourceColumn as PreviousSource from (SELECT  [Id],[ZipFileName],[FileName],[Country],[Category],[MarketNameCode],[Entity],[SourceColumnList],[SourceColumn],[TargetColumn],[CriticalAttributes_Flag],
+    [DataProvider],[LoadDate],RANK() OVER (PARTITION BY Country, Category, Entity ORDER By LoadDate desc) as Previous from [metadata].[ColumnMapping]) A left join (SELECT  [Id],[ZipFileName],[FileName],[Country],
+    [Category],[MarketNameCode],[Entity],[SourceColumnList],[SourceColumn],[TargetColumn],[CriticalAttributes_Flag],[DataProvider],[LoadDate],RANK() OVER (PARTITION BY Country, Category, Entity ORDER By LoadDate desc)
+    as Previous from [metadata].[ColumnMapping]) B on A.COuntry = B.COuntry and A.Category = B.Category and A.Previous = B.Previous - 1 and A.Entity = B.Entity where A.ZipFileName = '${logDetails.FILENAME}'
+    and A.Entity = '${Entity}'`);
 
     if (fileData === null) {
       res.json({});
       return;
     }
 
-    res.json(fileData);
+    res.json(fileData[0][0]);
   } catch (error) {
     next(error);
   }
