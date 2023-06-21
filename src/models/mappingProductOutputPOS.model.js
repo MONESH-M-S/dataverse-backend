@@ -27,6 +27,7 @@ const MappingProductOutputPOS = sequelize.define(
     Productpacksizename: DataTypes.STRING,
     Productcodename: DataTypes.STRING,
     Productname: DataTypes.STRING,
+    Uniqueindentifier: DataTypes.STRING,
   },
   {
     tableName: "MappingProductOutput_POS",

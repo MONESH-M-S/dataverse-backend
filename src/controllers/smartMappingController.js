@@ -1112,7 +1112,7 @@ const fetchUnmappedPOSRecordsSuggestions = async (req, res, next) => {
     const { search } = req.query;
     let whereClause = {
       Externaldesc: smartMapping.Externaldesc,
-      Productidentifier: smartMapping.Productidentifier,
+      Uniqueindentifier: smartMapping.Uniqueindentifier,
     };
 
     if (search) {

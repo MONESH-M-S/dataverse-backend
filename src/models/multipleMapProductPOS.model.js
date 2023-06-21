@@ -18,6 +18,7 @@ const MultipleMapProductPOS = sequelize.define(
     Categoryname: DataTypes.STRING,
     Marketname: DataTypes.STRING,
     Corporatebrandname: DataTypes.STRING,
+    Uniqueindentifier: DataTypes.STRING,
   },
   {
     tableName: "MultipleMapProduct_POS",

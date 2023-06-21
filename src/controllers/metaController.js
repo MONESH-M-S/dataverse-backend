@@ -1,4 +1,4 @@
-const LoadLogModel = require("../models/loadLog.model");
+const MappingFlagDetailsModel = require("../models/MappingFlagDetails.model");
 const { Sequelize } = require("../../models");
 const { Op } = require("sequelize");
 
@@ -11,8 +11,8 @@ const fetchCountryMeta = async (req, res, next) => {
     },
     Country: {
       [Op.not]: null,
-      [Op.not]: 'CzechRepublic_BACKUP20230316'
-    }
+      [Op.not]: "CzechRepublic_BACKUP20230316",
+    },
   };
 
   if (category) whereClause["CATEGORY"] = category;
@@ -70,8 +70,22 @@ const fetchCategoryMeta = async (req, res, next) => {
   }
 };
 
+const fetchIMScenarioFlag = async (req, res, next) => {
+  try {
+    const scenarioFlag = await MappingFlagDetailsModel.findAll({
+      where: {
+        FlagDesc: "Mapped Already by IM Engine",
+      },
+    });
+    res.json(scenarioFlag);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   fetchCountryMeta,
   fetchProviderMeta,
   fetchCategoryMeta,
+  fetchIMScenarioFlag,
 };
