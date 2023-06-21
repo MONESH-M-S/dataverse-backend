@@ -33,6 +33,8 @@ const {
   fetchMappingProductPOSDetailsPagination,
   fetchMappingPeriodPOSDetails,
   fetchMappingPeriodPOSDetailsPagination,
+  fetchUnmappedPOSRecordsSuggestions,
+  updateSmartMappingPOSDetails,
 } = require("../controllers/smartMappingController");
 const {
   fetchSmartMappingFactList,
@@ -133,6 +135,17 @@ router.get(
   "/product/pos/:id/:confidence/count",
   auth,
   fetchMappingProductPOSDetailsPagination
+);
+router.get(
+  "/product/pos/low/:id/suggestion",
+  auth,
+  fetchUnmappedPOSRecordsSuggestions
+);
+router.put(
+  "/pos/:id",
+  auth,
+  validator.body(updateSmartMappingsSchema),
+  updateSmartMappingPOSDetails
 );
 
 //POS period details

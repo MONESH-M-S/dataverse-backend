@@ -27,6 +27,7 @@ const FactUnprocessed = require("../models/factUnprocessed.model");
 const MappingProductDetailsPOSModel = require("./../models/mappingProductOutputPOS.model");
 const UnprocessedRecordProductPOSModel = require("./../models/unprocessedRecordProductPOS.model");
 const MappingPeriodDetailsPOSModel = require("./../models/mappingPeriodOutputPOS.model");
+const MultipleMapProductPOS = require("../models/multipleMapProductPOS.model");
 
 const fetchSmartMappingList = async (req, res, next) => {
   try {
@@ -1036,10 +1037,9 @@ const fetchMappingProductPOSDetails = async (req, res, next) => {
     switch (confidence) {
       case HIGH:
       case MEDIUM:
+      case LOW:
         whereClause.ConfidenceLevel = confidence.toUpperCase();
         table.model = MappingProductDetailsPOSModel;
-        break;
-      case LOW:
         break;
       case UNPROCESSED:
         table.model = UnprocessedRecordProductPOSModel;
@@ -1079,10 +1079,9 @@ const fetchMappingProductPOSDetailsPagination = async (req, res, next) => {
     switch (confidence) {
       case HIGH:
       case MEDIUM:
+      case LOW:
         whereClause.ConfidenceLevel = confidence.toUpperCase();
         table.model = MappingProductDetailsPOSModel;
-        break;
-      case LOW:
         break;
       case UNPROCESSED:
         table.model = UnprocessedRecordProductPOSModel;
@@ -1101,6 +1100,32 @@ const fetchMappingProductPOSDetailsPagination = async (req, res, next) => {
     };
 
     res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const fetchUnmappedPOSRecordsSuggestions = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const smartMapping = await MappingProductDetailsPOSModel.findByPk(id);
+    const { search } = req.query;
+    let whereClause = {
+      Externaldesc: smartMapping.Externaldesc,
+      Productidentifier: smartMapping.Productidentifier,
+    };
+
+    if (search) {
+      whereClause["Internaldesc"] = {
+        [Op.like]: "%" + search + "%",
+      };
+    }
+
+    const suggestionList = await MultipleMapProductPOS.findAll({
+      where: whereClause,
+    });
+
+    res.json(suggestionList);
   } catch (error) {
     next(error);
   }
@@ -1169,6 +1194,36 @@ const fetchMappingPeriodPOSDetailsPagination = async (req, res, next) => {
   }
 };
 
+const updateSmartMappingPOSDetails = async (req, res, next) => {
+  try {
+    const data = req.body.mapping;
+
+    for (let i = 0; i < data.length; i++) {
+      const suggestedProduct = await MultipleMapProductPOS.findByPk(
+        data[i].target
+      );
+      await MappingProductDetailsPOSModel.update(
+        {
+          Confidencelevel: "HIGH",
+          Internaldesc: suggestedProduct.Internaldesc,
+          Confidencescore: "1",
+        },
+        {
+          where: {
+            Id: data[i].source,
+          },
+        }
+      );
+    }
+    res.json({
+      status: statusTypeEnum.success,
+      message: "Successfully updated ",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   fetchSmartMappingList,
   fetchSmartMappingDashboardCount,
@@ -1202,4 +1257,6 @@ module.exports = {
   fetchMappingProductPOSDetailsPagination,
   fetchMappingPeriodPOSDetails,
   fetchMappingPeriodPOSDetailsPagination,
+  fetchUnmappedPOSRecordsSuggestions,
+  updateSmartMappingPOSDetails,
 };
