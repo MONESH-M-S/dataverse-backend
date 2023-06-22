@@ -7,6 +7,8 @@ const { Sequelize } = require("../../models");
 const sequelize = require("../config/sequelize.config");
 const fileVolatilityFilterEnum = require("../enums/fileVolatilityFilter.enum");
 const FactColumnMappingModel = require("../models/ColumnMappingV3.model");
+const fileVolatilityColumns = require("./../constants/columns/fileVolatilityColumns");
+const ExcelJS = require("exceljs");
 
 const fetchVolatilityList = async (req, res, next) => {
   try {
@@ -216,9 +218,10 @@ const fetchColumnMappings = async (req, res, next) => {
 
     const logDetails = await LoadLogModel.findByPk(id);
 
-    let Entity = entity ?? 'Product';
+    let Entity = entity ?? "Product";
 
-    const fileData = await sequelize.query(`select  A.ZipFileName, A.FileName, A.Country, A.Category, A.Entity, A.SourceColumnList, A.SourceColumn, A.TargetColumn, A.CriticalAttributes_Flag, 
+    const fileData =
+      await sequelize.query(`select  A.ZipFileName, A.FileName, A.Country, A.Category, A.Entity, A.SourceColumnList, A.SourceColumn, A.TargetColumn, A.CriticalAttributes_Flag, 
     B.SourceColumn as PreviousSource from (SELECT  [Id],[ZipFileName],[FileName],[Country],[Category],[MarketNameCode],[Entity],[SourceColumnList],[SourceColumn],[TargetColumn],[CriticalAttributes_Flag],
     [DataProvider],[LoadDate],RANK() OVER (PARTITION BY Country, Category, Entity ORDER By LoadDate desc) as Previous from [metadata].[ColumnMapping]) A left join (SELECT  [Id],[ZipFileName],[FileName],[Country],
     [Category],[MarketNameCode],[Entity],[SourceColumnList],[SourceColumn],[TargetColumn],[CriticalAttributes_Flag],[DataProvider],[LoadDate],RANK() OVER (PARTITION BY Country, Category, Entity ORDER By LoadDate desc)
@@ -373,6 +376,45 @@ const addTargetColumn = async (req, res, next) => {
   }
 };
 
+const downloadVolatilityList = async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+
+    console.log(ids);
+    const data = await LoadLogModel.findAll({
+      where: {
+        LogId: {
+          [Op.in]: ids,
+        },
+      },
+    });
+    console.log(data);
+
+    const workbook = new ExcelJS.Workbook();
+
+    const worksheet = workbook.addWorksheet("");
+
+    worksheet.columns = fileVolatilityColumns;
+
+    data.forEach((item) => {
+      worksheet.addRow(item.toJSON());
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+    res.setHeader("Content-Disposition", "attachment; filename=report.xlsx");
+
+    await workbook.xlsx.write(res);
+
+    res.end();
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   fetchVolatilityList,
   fetchVolatilityListPagination,
@@ -382,4 +424,5 @@ module.exports = {
   fetchDashboardDetails,
   fetchLeadLogDetails,
   addTargetColumn,
+  downloadVolatilityList,
 };

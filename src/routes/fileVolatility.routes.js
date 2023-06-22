@@ -8,6 +8,7 @@ const {
   fetchLeadLogDetails,
   addTargetColumn,
   fetchVolatilityListPagination,
+  downloadVolatilityList,
 } = require("../controllers/fileVolatilityController");
 const {
   fetchFactColumnMappings,
@@ -46,5 +47,6 @@ router.post(
   validator.body(addTargetSchema),
   addTargetColumn
 );
+router.get("/download/records", auth, downloadVolatilityList);
 
 module.exports = router;
