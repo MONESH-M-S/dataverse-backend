@@ -299,12 +299,12 @@ const downloadDQCheckReport = async (req, res, next) => {
     { header: "Overall Status", key: "Overall_Status", width: 20 },
     {
       header: "Checks Passed",
-      key: "Number_of_files_that_passed_Check",
+      key: "Checks_Passed",
       width: 20,
     },
     {
       header: "Checks Failed",
-      key: "Number_of_files_that_failed_Check",
+      key: "Checks_Failed",
       width: 20,
     },
     { header: "Remarks", key: "Remarks", width: 40 },
