@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
 const FactColumnMappingModel = sequelize.define(
-  "ColumnMappingv5",
+  "ColumnMapping",
   {
     Id: {
       type: DataTypes.INTEGER,
@@ -20,7 +20,7 @@ const FactColumnMappingModel = sequelize.define(
     CriticalAttributes_Flag: DataTypes.STRING,
   },
   {
-    tableName: "ColumnMappingv5",
+    tableName: "ColumnMapping",
     schema: "metadata",
     timestamps: false,
   }
