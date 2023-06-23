@@ -38,6 +38,7 @@ const MappingProductOutputPOS = sequelize.define(
     Productvariantname: DataTypes.STRING,
     Flag: DataTypes.STRING,
     Scenarioflag: DataTypes.STRING,
+    Productformmediumname: DataTypes.STRING,
   },
   {
     tableName: "MappingProductOutput_POS",
