@@ -35,10 +35,11 @@ const MappingPeriodOutputPOS = sequelize.define(
     CreatedOn: DataTypes.STRING,
     ConfidenceScore: DataTypes.STRING,
     ConfidenceLevel: DataTypes.STRING,
+    Flag: DataTypes.STRING,
   },
   {
     tableName: "MappingPeriodOutput_POS",
-    schema: "mapping",
+    schema: "Mapping",
     timestamps: false,
   }
 );

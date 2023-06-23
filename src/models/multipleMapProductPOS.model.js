@@ -22,7 +22,7 @@ const MultipleMapProductPOS = sequelize.define(
   },
   {
     tableName: "MultipleMapProduct_POS",
-    schema: "mapping",
+    schema: "Mapping",
     timestamps: false,
   }
 );
