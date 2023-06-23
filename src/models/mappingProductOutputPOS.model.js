@@ -36,10 +36,12 @@ const MappingProductOutputPOS = sequelize.define(
     Formname: DataTypes.STRING,
     Subformname: DataTypes.STRING,
     Productvariantname: DataTypes.STRING,
+    Flag: DataTypes.STRING,
+    Scenarioflag: DataTypes.STRING,
   },
   {
     tableName: "MappingProductOutput_POS",
-    schema: "mapping",
+    schema: "Mapping",
     timestamps: false,
   }
 );
