@@ -29,11 +29,11 @@ const MappingMarketOutput = sequelize.define(
     Short: DataTypes.STRING,
     HierLevelNum: DataTypes.STRING,
     ChannelConfidence: DataTypes.STRING,
-    TotalConfidence: DataTypes.STRING
+    TotalConfidence: DataTypes.STRING,
   },
   {
     tableName: "MappingMarketOutput",
-    schema: "mapping",
+    schema: "Mapping",
     timestamps: false,
   }
 );
