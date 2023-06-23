@@ -1,4 +1,5 @@
 const MappingFlagDetailsModel = require("../models/MappingFlagDetails.model");
+const LoadLogModel = require("../models/loadLog.model");
 const { Sequelize } = require("../../models");
 const { Op } = require("sequelize");
 

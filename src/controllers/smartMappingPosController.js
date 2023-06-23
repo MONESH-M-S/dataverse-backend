@@ -182,8 +182,6 @@ const fetchMappingPeriodPOSDetailsPagination = async (req, res, next) => {
 
       res.json(responseObj);
     }
-
-    res.json(responseObj);
   } catch (error) {
     next(error);
   }
