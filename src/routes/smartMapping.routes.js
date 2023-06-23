@@ -24,12 +24,23 @@ const {
   fetchUnproccessedMarket,
   fetchUnproccessedMarketCount,
   fetchMappedRecordsForPeriodDimensionPagination,
-  downloadExcelFile,
   downloadProductExcelFile,
   downloadFactExcelFile,
   downloadMarketExcelFile,
   downloadPeriodExcelFile,
 } = require("../controllers/smartMappingController");
+
+const {
+  fetchMappingProductPOSDetails,
+  fetchMappingProductPOSDetailsPagination,
+  fetchMappingPeriodPOSDetails,
+  fetchMappingPeriodPOSDetailsPagination,
+  fetchUnmappedPOSRecordsSuggestions,
+  updateSmartMappingPOSDetails,
+  downloadPosProductExcelFile,
+  downloadPosPeriodExcelFile,
+} = require("../controllers/smartMappingPosController");
+
 const {
   fetchSmartMappingFactList,
   fetchSmartMappingFactDetail,
@@ -43,8 +54,9 @@ const {
   fetchSmartMappingFactListPagination,
   fetchSmartMappingFactDetailPagination,
   fetchFactUnprocessed,
-  fetchFactUnprocessedCount
+  fetchFactUnprocessedCount,
 } = require("../controllers/smartMappingFactController");
+
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
 const updateSmartMappingsSchema = require("../schema/updateSmartMappings.schema");
@@ -86,8 +98,8 @@ router.get(
   fetchMappedRecordsForPeriodDimensionPagination
 );
 
-router.get('/:id/market/unprocessed', auth, fetchUnproccessedMarket);
-router.get('/:id/market/unprocessed/count', auth, fetchUnproccessedMarketCount);
+router.get("/:id/market/unprocessed", auth, fetchUnproccessedMarket);
+router.get("/:id/market/unprocessed/count", auth, fetchUnproccessedMarketCount);
 
 router.get(
   "/:id/market/:confidenceLevel",
@@ -122,5 +134,36 @@ router.get("/:id/download/product", auth, downloadProductExcelFile);
 router.get("/:id/download/fact", auth, downloadFactExcelFile);
 router.get("/:id/download/market", auth, downloadMarketExcelFile);
 router.get("/:id/download/period", auth, downloadPeriodExcelFile);
+
+//POS product details
+router.get("/product/pos/:id/:confidence", auth, fetchMappingProductPOSDetails);
+router.get(
+  "/product/pos/:id/:confidence/count",
+  auth,
+  fetchMappingProductPOSDetailsPagination
+);
+router.get(
+  "/product/pos/low/:id/suggestion",
+  auth,
+  fetchUnmappedPOSRecordsSuggestions
+);
+router.put(
+  "/pos/:id",
+  auth,
+  validator.body(updateSmartMappingsSchema),
+  updateSmartMappingPOSDetails
+);
+
+//POS period details
+router.get("/period/pos/:id/:confidence", auth, fetchMappingPeriodPOSDetails);
+router.get(
+  "/period/pos/:id/:confidence/count",
+  auth,
+  fetchMappingPeriodPOSDetailsPagination
+);
+
+//Download POS
+router.get("/pos/:id/download/product", auth, downloadPosProductExcelFile);
+router.get("/pos/:id/download/period", auth, downloadPosPeriodExcelFile);
 
 module.exports = router;
