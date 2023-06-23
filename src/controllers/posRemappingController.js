@@ -19,7 +19,7 @@ const Product_Dropdowns = {
   "product-pack-size-name": "Productpacksizename",
   "product-variant-name": "Productvariantname",
   "product-code-name": "Productcodename",
-  "product-name": "Productname",
+  "product-name": "Internaldesc",
 };
 
 const Period_Dropdowns = {
