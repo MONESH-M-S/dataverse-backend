@@ -155,16 +155,26 @@ const fetchDQChecksData = async (req, res, next) => {
       }
     }
 
-    const data =
-      await sequelize.query(`SELECT Country, Category,concat(Country, '  ', Category) as CellDatabase,zipFile,DeliveryPeriod,Overall_Status, 
-    Checks_Passed, Checks_Failed, LogMessage as Remarks FROM (select *, CASE when x.Checks_Failed=0 then 'Success' else 'Failure' END as Overall_Status
-    from ( select base.Country as Country, base.Category as Category,base.Filename as zipFile,DATENAME(m,LoadStartTime)+'-'+CAST(YEAR(LoadStartTime) 
-    AS varchar(10)) AS DeliveryPeriod, LogDate,MessageType,A.LogId,LogMessage,TaskName,(LEN(MessageType) - LEN(REPLACE(MessageType, 'Success', '')))  / 7
-    AS Checks_Passed,(LEN(MessageType) - LEN(REPLACE(MessageType, 'Error', '')))  / 5 AS Checks_Failed from [info].[LoadDetailLog] A
-    join info.LoadLog base on base.LogId=A.LogId where A.TaskName in ('NumberoFilesCheck','FileSizeCheck','FileNameCheck','FileDelimiterCheck',
-    'FileEncodingCheck','ConstraintCheck','LastPeriodDeliveredCheck','DimvsTransTagsCheck','SchemaCheck'))x)A PIVOT (COUNT(A.TaskName) FOR
-    TaskName in ( NumberoFilesCheck,FileSizeCheck,FileNameCheck,FileDelimiterCheck,
-    FileEncodingCheck,ConstraintCheck,LastPeriodDeliveredCheck,DimvsTransTagsCheck,SchemaCheck) ) AS PivotTable ${query} order by Category offset ${offset} rows fetch next ${limit} rows only;`);
+    // const data =
+    //   await sequelize.query(`SELECT Country, Category,concat(Country, '  ', Category) as CellDatabase,zipFile,DeliveryPeriod,Overall_Status,
+    // Checks_Passed, Checks_Failed, LogMessage as Remarks FROM (select *, CASE when x.Checks_Failed=0 then 'Success' else 'Failure' END as Overall_Status
+    // from ( select base.Country as Country, base.Category as Category,base.Filename as zipFile,DATENAME(m,LoadStartTime)+'-'+CAST(YEAR(LoadStartTime)
+    // AS varchar(10)) AS DeliveryPeriod, LogDate,MessageType,A.LogId,LogMessage,TaskName,(LEN(MessageType) - LEN(REPLACE(MessageType, 'Success', '')))  / 7
+    // AS Checks_Passed,(LEN(MessageType) - LEN(REPLACE(MessageType, 'Error', '')))  / 5 AS Checks_Failed from [info].[LoadDetailLog] A
+    // join info.LoadLog base on base.LogId=A.LogId where A.TaskName in ('NumberoFilesCheck','FileSizeCheck','FileNameCheck','FileDelimiterCheck',
+    // 'FileEncodingCheck','ConstraintCheck','LastPeriodDeliveredCheck','DimvsTransTagsCheck','SchemaCheck'))x)A PIVOT (COUNT(A.TaskName) FOR
+    // TaskName in ( NumberoFilesCheck,FileSizeCheck,FileNameCheck,FileDelimiterCheck,
+    // FileEncodingCheck,ConstraintCheck,LastPeriodDeliveredCheck,DimvsTransTagsCheck,SchemaCheck) ) AS PivotTable ${query} order by Category offset ${offset} rows fetch next ${limit} rows only;`);
+
+    const data = await sequelize.query(`
+    SELECT Country, Category,concat(Country, ' ', Category) as CellDatabase,zipFile,DeliveryPeriod,Overall_Status, Checks_Passed, Checks_Failed, MessageType as Remarks FROM
+    (select *, CASE when x.Checks_Failed=0 then 'Success' else 'Failure' END as Overall_Status from (select base.Country as Country, base.Category as Category,base.Filename as zipFile,
+    DATENAME(m,LoadStartTime)+'-'+CAST(YEAR(LoadStartTime) AS varchar(10)) AS DeliveryPeriod, LogDate,MessageType,A.LogId,LogMessage,TaskName,(LEN(MessageType) - LEN(REPLACE(MessageType, 'Success', ''))) / 7
+    AS Checks_Passed, (LEN(MessageType) - LEN(REPLACE(MessageType, 'Error', ''))) / 5 AS Checks_Failed from [info].[LoadDetailLog] A join info.LoadLog base on base.LogId=A.LogId where A.TaskName in
+    ('NumberoFilesCheck','FileSizeCheck','FileNameCheck','FileDelimiterCheck', 'FileEncodingCheck','ConstraintCheck','LastPeriodDeliveredCheck','DimvsTransTagsCheck','SchemaCheck')
+    and base.PipelineRunId = '3c66457c-71ac-4b33-8458-e568e3eac001')x )A PIVOT ( COUNT(A.TaskName) FOR TaskName in ( NumberoFilesCheck,FileSizeCheck,FileNameCheck,FileDelimiterCheck,
+    FileEncodingCheck,ConstraintCheck,LastPeriodDeliveredCheck,DimvsTransTagsCheck,SchemaCheck) ) AS PivotTable
+    `);
 
     const responseObj = {
       result: data[0],
