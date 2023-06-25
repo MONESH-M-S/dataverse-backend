@@ -226,7 +226,7 @@ const fetchDQChecksData = async (req, res, next) => {
       LastPeriodDeliveredCheck, DimvsTransTagsCheck, 
       SchemaCheck
     )
-  ) AS PivotTable
+  ) AS PivotTable ${query} order by Category offset ${offset} rows fetch next ${limit} rows only;
     `);
 
     const responseObj = {
