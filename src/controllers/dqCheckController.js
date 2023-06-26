@@ -141,7 +141,7 @@ const fetchDQChecksData = async (req, res, next) => {
       statusFilter.push(`'In Progress'`);
 
     if (metaDataFilter.length || statusFilter.length) {
-      query = "WHERE ";
+      query = "AND ";
 
       if (metaDataFilter.length) {
         query += metaDataFilter.join(" AND ");
@@ -226,7 +226,8 @@ const fetchDQChecksData = async (req, res, next) => {
       LastPeriodDeliveredCheck, DimvsTransTagsCheck, 
       SchemaCheck
     )
-  ) AS PivotTable ${query} order by Category offset ${offset} rows fetch next ${limit} rows only;
+  ) AS PivotTable WHERE CONVERT(DATE, '01-' + DeliveryPeriod) > '2023-05-30' and MessageType LIKE '%:%:%:%:%' ${query}
+  order by Category offset ${offset} rows fetch next ${limit} rows only;
     `);
 
     const responseObj = {
