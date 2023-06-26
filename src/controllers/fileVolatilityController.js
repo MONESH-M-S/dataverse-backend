@@ -221,7 +221,7 @@ const fetchColumnMappings = async (req, res, next) => {
     let Entity = entity ?? "Product";
 
     const fileData =
-      await sequelize.query(`select  A.ZipFileName, A.FileName, A.Country, A.Category, A.Entity, A.SourceColumnList, A.SourceColumn, A.TargetColumn, A.CriticalAttributes_Flag, 
+      await sequelize.query(`select  A.Id, A.ZipFileName, A.FileName, A.Country, A.Category, A.Entity, A.SourceColumnList, A.SourceColumn, A.TargetColumn, A.CriticalAttributes_Flag, 
     B.SourceColumn as PreviousSource from (SELECT  [Id],[ZipFileName],[FileName],[Country],[Category],[MarketNameCode],[Entity],[SourceColumnList],[SourceColumn],[TargetColumn],[CriticalAttributes_Flag],
     [DataProvider],[LoadDate],RANK() OVER (PARTITION BY Country, Category, Entity ORDER By LoadDate desc) as Previous from [metadata].[ColumnMapping]) A left join (SELECT  [Id],[ZipFileName],[FileName],[Country],
     [Category],[MarketNameCode],[Entity],[SourceColumnList],[SourceColumn],[TargetColumn],[CriticalAttributes_Flag],[DataProvider],[LoadDate],RANK() OVER (PARTITION BY Country, Category, Entity ORDER By LoadDate desc)
