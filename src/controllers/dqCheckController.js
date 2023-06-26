@@ -380,10 +380,12 @@ group by
   order by Category offset ${offset} rows fetch next ${limit} rows only;
     `);
 
+    console.log(data);
+
     const responseObj = {
-      page: data[1],
+      page,
       page_size: pageSize,
-      total_count: count,
+      total_count: data[1],
     };
 
     res.json(responseObj);
