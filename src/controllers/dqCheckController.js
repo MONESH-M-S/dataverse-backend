@@ -167,66 +167,88 @@ const fetchDQChecksData = async (req, res, next) => {
     // FileEncodingCheck,ConstraintCheck,LastPeriodDeliveredCheck,DimvsTransTagsCheck,SchemaCheck) ) AS PivotTable ${query} order by Category offset ${offset} rows fetch next ${limit} rows only;`);
 
     const data = await sequelize.query(`
-    SELECT 
-    Country, 
-    Category, 
-    concat(Country, '  ', Category) as CellDatabase, 
-    zipFile, 
-    DeliveryPeriod, 
-    Overall_Status, 
-    Checks_Passed, 
-    Checks_Failed, 
-    MessageType as Remarks 
-  FROM 
-  (
     select 
-      *, 
-      CASE when x.Checks_Failed = 0 then 'Success' else 'Failure' END as Overall_Status 
-    from 
+  Country, 
+  Category, 
+  CellDatabase, 
+  zipFile, 
+  DeliveryPeriod, 
+  CASE when SUM(Checks_Failed)= 0 then 'Success' else 'Failure' END as Overall_Status, 
+  SUM(Checks_Passed) as Checks_Passed, 
+  SUM(Checks_Failed) as Checks_Failed, 
+  STRING_AGG(Remarks, '|') as Remarks 
+from 
+  (
+    SELECT 
+      Country, 
+      Category, 
+      concat(Country, '  ', Category) as CellDatabase, 
+      zipFile, 
+      DeliveryPeriod, 
+      Overall_Status, 
+      Checks_Passed, 
+      Checks_Failed, 
+      MessageType as Remarks 
+    FROM 
       (
         select 
-          base.Country as Country, 
-          base.Category as Category, 
-          base.Filename as zipFile, 
-          DATENAME(m, LoadStartTime)+ '-' + CAST(
-            YEAR(LoadStartTime) AS varchar(10)
-          ) AS DeliveryPeriod, 
-          LogDate, 
-          MessageType, 
-          A.LogId, 
-          LogMessage, 
-          TaskName, 
-          (
-            LEN(MessageType) - LEN(
-              REPLACE(MessageType, 'Success', '')
-            )
-          ) / 7 AS Checks_Passed, 
-          (
-            LEN(MessageType) - LEN(
-              REPLACE(MessageType, 'Error', '')
-            )
-          ) / 5 AS Checks_Failed 
+          *, 
+          CASE when x.Checks_Failed = 0 then 'Success' else 'Failure' END as Overall_Status 
         from 
-          [info].[LoadDetailLog] A 
-          join info.LoadLog base on base.LogId = A.LogId 
-        where 
-          A.TaskName in (
-            'NumberoFilesCheck', 'FileSizeCheck', 
-            'FileNameCheck', 'FileDelimiterCheck', 
-            'FileEncodingCheck', 'ConstraintCheck', 
-            'LastPeriodDeliveredCheck', 'DimvsTransTagsCheck', 
-            'SchemaCheck'
-          )
-      ) x
-  ) A PIVOT (
-    COUNT(A.TaskName) FOR TaskName in (
-      NumberoFilesCheck, FileSizeCheck, 
-      FileNameCheck, FileDelimiterCheck, 
-      FileEncodingCheck, ConstraintCheck, 
-      LastPeriodDeliveredCheck, DimvsTransTagsCheck, 
-      SchemaCheck
-    )
-  ) AS PivotTable WHERE CONVERT(DATE, '01-' + DeliveryPeriod) > '2023-05-30' and MessageType LIKE '%:%:%:%:%' ${query}
+          (
+            select 
+              base.Country as Country, 
+              base.Category as Category, 
+              base.Filename as zipFile, 
+              DATENAME(m, LoadStartTime)+ '-' + CAST(
+                YEAR(LoadStartTime) AS varchar(10)
+              ) AS DeliveryPeriod, 
+              LogDate, 
+              MessageType, 
+              A.LogId, 
+              LogMessage, 
+              TaskName, 
+              (
+                LEN(MessageType) - LEN(
+                  REPLACE(MessageType, 'Success', '')
+                )
+              ) / 7 AS Checks_Passed, 
+              (
+                LEN(MessageType) - LEN(
+                  REPLACE(MessageType, 'Error', '')
+                )
+              ) / 5 AS Checks_Failed 
+            from 
+              [info].[LoadDetailLog] A 
+              join info.LoadLog base on base.LogId = A.LogId 
+            where 
+              A.TaskName in (
+                'NumberoFilesCheck', 'FileSizeCheck', 
+                'FileNameCheck', 'FileDelimiterCheck', 
+                'FileEncodingCheck', 'ConstraintCheck', 
+                'LastPeriodDeliveredCheck', 'DimvsTransTagsCheck', 
+                'SchemaCheck'
+              )
+          ) x
+      ) A PIVOT (
+        COUNT(A.TaskName) FOR TaskName in (
+          NumberoFilesCheck, FileSizeCheck, 
+          FileNameCheck, FileDelimiterCheck, 
+          FileEncodingCheck, ConstraintCheck, 
+          LastPeriodDeliveredCheck, DimvsTransTagsCheck, 
+          SchemaCheck
+        )
+      ) AS PivotTable 
+    where 
+      CONVERT (DATE, '01-' + DeliveryPeriod) > '2023-05-30' 
+      and MessageType like '%:%:%:%:%'  ${query}
+  ) as big_query 
+group by 
+  country, 
+  Category, 
+  CellDatabase, 
+  zipFile, 
+  DeliveryPeriod
   order by Category offset ${offset} rows fetch next ${limit} rows only;
     `);
 
