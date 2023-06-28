@@ -1,5 +1,6 @@
 const MappingProductOutputPos = require("../models/mappingProductOutputPOS.model");
 const MappingPeriodOutputPos = require("../models/mappingPeriodOutputPOS.model");
+const MappingMarketOutputPos = require("../models/mappingMarketOutputPOS.model");
 const { Sequelize, sequelize } = require("../../models");
 const { Op } = require("sequelize");
 const statusTypeEnum = require("../enums/statusType.enum");
@@ -37,6 +38,18 @@ const Period_Dropdowns = {
   "periodicity-identifer": "PeriodicityIdentifer",
   "month-number": "MonthNumber",
   "period-number": "PeriodNumberBr",
+};
+
+const Market_Dropdowns = {
+  "direct-indirect": "Direct_Indirect",
+  country: "Country",
+  "iso-country": "ISOCountry",
+  "unique-tag": "UniqueTag",
+  "market-name": "Market_name",
+  "store-name": "StoreName",
+  "market-short": "MarketShort",
+  "market-long": "MarketLong",
+  dimension: "Dimension",
 };
 
 const getWhereObjectFromQuery = (query) => {
@@ -96,6 +109,24 @@ const posPeriodRemappingOptions = async (req, res, next) => {
   }
 };
 
+const posMarketRemappingOptions = async (req, res, next) => {
+  try {
+    const whereClause = getWhereObjectFromQuery(req.query);
+
+    const columnName = req.params.columnName;
+    const dbColumnName = Market_Dropdowns[columnName];
+    const options = await MappingMarketOutputPos.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
+      ],
+      where: whereClause,
+    });
+    res.json(options);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const updatePosRemappingProductValues = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -138,9 +169,33 @@ const updatePosRemappingPeriodValues = async (req, res, next) => {
   }
 };
 
+const updatePosRemappingMarketValues = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updatedValues = req.body;
+    updatedValues["Flag"] = "MM";
+
+    const updatedFile = await MappingMarketOutputPos.update(updatedValues, {
+      where: {
+        id,
+      },
+    });
+
+    res.json({
+      status: statusTypeEnum.success,
+      message: `Successfully updated ${updatedFile[0]} record!`,
+    });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
 module.exports = {
   posProductRemappingOptions,
   posPeriodRemappingOptions,
+  posMarketRemappingOptions,
   updatePosRemappingProductValues,
   updatePosRemappingPeriodValues,
+  updatePosRemappingMarketValues,
 };
