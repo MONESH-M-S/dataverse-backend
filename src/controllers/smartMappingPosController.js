@@ -14,6 +14,8 @@ const periodMappedColumns = require("../constants/columns/posPeriodMappedColumns
 const productUnprocessedColumns = require("../constants/columns/posProductUnprocessedColumns");
 const MappingMarketDetailsPOSModel = require("../models/mappingMarketOutputPOS.model");
 const marketMappedColumns = require("../constants/columns/posMarketMappedColumns");
+const MappingFactDetailsPOSModel = require("../models/mappingFactOutputPOS.model");
+const factMappedColumns = require("../constants/columns/posFactMappedColumns");
 
 const fetchMappingProductPOSDetails = async (req, res, next) => {
   try {
@@ -418,6 +420,122 @@ const downloadPosMarketExcelFile = async (req, res, next) => {
   }
 };
 
+const fetchMappingFactPOSDetails = async (req, res, next) => {
+  try {
+    const { id, confidence } = req.params;
+
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+
+    const { limit, offset } = getPaginationDetails(req);
+
+    const whereClause = {};
+
+    const table = {};
+
+    whereClause.Filename = smartMapping.Filename;
+
+    const { HIGH, MEDIUM, LOW } = ConfidenceLevels;
+
+    switch (confidence) {
+      case HIGH:
+      case MEDIUM:
+      case LOW:
+        whereClause.ConfidenceLevel = confidence.toUpperCase();
+        table.model = MappingFactDetailsPOSModel;
+        break;
+    }
+
+    table.data = await table.model.findAll({
+      where: whereClause,
+      limit,
+      offset,
+    });
+
+    const responseObj = {
+      result: table.data,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchMappingFactPOSDetailsPagination = async (req, res, next) => {
+  try {
+    const { id, confidence } = req.params;
+
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+
+    const whereClause = {};
+
+    const table = {};
+
+    whereClause.Filename = smartMapping.Filename;
+
+    const { HIGH, MEDIUM, LOW } = ConfidenceLevels;
+
+    switch (confidence) {
+      case HIGH:
+      case MEDIUM:
+      case LOW:
+        whereClause.ConfidenceLevel = confidence.toUpperCase();
+        table.model = MappingFactDetailsPOSModel;
+        break;
+    }
+
+    const count = await table.model.count({
+      limit,
+      offset,
+      where: whereClause,
+    });
+
+    const responseObj = {
+      page,
+      page_size: pageSize,
+      total_count: count,
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const downloadPosFactExcelFile = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const { confidenceLevel, fileName } = req.query;
+
+    if (!id || !confidenceLevel || !fileName) res.end();
+
+    const { HIGH } = ConfidenceLevels;
+
+    const table = {};
+
+    const whereClause = {
+      Filename: fileName,
+    };
+
+    switch (confidenceLevel) {
+      case HIGH:
+        table.model = MappingFactDetailsPOSModel;
+        table.columns = factMappedColumns;
+        break;
+    }
+
+    const data = await table.model.findAll({
+      where: whereClause,
+    });
+
+    sendAsExcelFile(res, table, whereClause, data);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   fetchMappingProductPOSDetails,
   fetchMappingProductPOSDetailsPagination,
@@ -427,7 +545,10 @@ module.exports = {
   updateSmartMappingPOSDetails,
   fetchMappingMarketPOSDetails,
   fetchMappingMarketPOSDetailsPagination,
+  fetchMappingFactPOSDetails,
+  fetchMappingFactPOSDetailsPagination,
   downloadPosProductExcelFile,
   downloadPosPeriodExcelFile,
   downloadPosMarketExcelFile,
+  downloadPosFactExcelFile,
 };

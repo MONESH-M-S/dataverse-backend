@@ -1,6 +1,7 @@
 const MappingProductOutputPos = require("../models/mappingProductOutputPOS.model");
 const MappingPeriodOutputPos = require("../models/mappingPeriodOutputPOS.model");
 const MappingMarketOutputPos = require("../models/mappingMarketOutputPOS.model");
+const MappingFactOutputPos = require("../models/mappingFactOutputPOS.model");
 const { Sequelize, sequelize } = require("../../models");
 const { Op } = require("sequelize");
 const statusTypeEnum = require("../enums/statusType.enum");
@@ -50,6 +51,10 @@ const Market_Dropdowns = {
   "market-short": "MarketShort",
   "market-long": "MarketLong",
   dimension: "Dimension",
+};
+const Fact_Dropdowns = {
+  "fact-type": "Facttype",
+  "harmonized-name": "Harmonizedname",
 };
 
 const getWhereObjectFromQuery = (query) => {
@@ -127,6 +132,24 @@ const posMarketRemappingOptions = async (req, res, next) => {
   }
 };
 
+const posFactRemappingOptions = async (req, res, next) => {
+  try {
+    const whereClause = getWhereObjectFromQuery(req.query);
+
+    const columnName = req.params.columnName;
+    const dbColumnName = Fact_Dropdowns[columnName];
+    const options = await MappingFactOutputPos.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
+      ],
+      where: whereClause,
+    });
+    res.json(options);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const updatePosRemappingProductValues = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -191,11 +214,35 @@ const updatePosRemappingMarketValues = async (req, res, next) => {
   }
 };
 
+const updatePosRemappingFactValues = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updatedValues = req.body;
+    updatedValues["Flag"] = "MM";
+
+    const updatedFile = await MappingFactOutputPos.update(updatedValues, {
+      where: {
+        id,
+      },
+    });
+
+    res.json({
+      status: statusTypeEnum.success,
+      message: `Successfully updated ${updatedFile[0]} record!`,
+    });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
 module.exports = {
   posProductRemappingOptions,
   posPeriodRemappingOptions,
   posMarketRemappingOptions,
+  posFactRemappingOptions,
   updatePosRemappingProductValues,
   updatePosRemappingPeriodValues,
   updatePosRemappingMarketValues,
+  updatePosRemappingFactValues,
 };
