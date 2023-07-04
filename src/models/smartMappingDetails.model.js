@@ -1,11 +1,13 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
-const SmartMappingDetailsModel = sequelize.define('MappingProductOutput', {
+const SmartMappingDetailsModel = sequelize.define(
+  "MappingProductOutput",
+  {
     Id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
     Tag: DataTypes.STRING,
     Filename: DataTypes.STRING,
@@ -43,12 +45,26 @@ const SmartMappingDetailsModel = sequelize.define('MappingProductOutput', {
     Brand: DataTypes.STRING,
     Productname: DataTypes.STRING,
     Flag: DataTypes.STRING,
-    Scenarioflag: DataTypes.STRING
-
-}, {
-    tableName: 'MappingProductOutput',
-    schema: 'Mapping',
+    Scenarioflag: DataTypes.STRING,
+    Maxattrilifestage: DataTypes.STRING,
+    Maxattrigender: DataTypes.STRING,
+    Maxattrilaundryvariants: DataTypes.STRING,
+    Maxattripacktype: DataTypes.STRING,
+    Maxattriformat: DataTypes.STRING,
+    Maxattrifatcontent: DataTypes.STRING,
+    Maxattribenefitclaim: DataTypes.STRING,
+    Maxattritargetuse: DataTypes.STRING,
+    Maxattriformation: DataTypes.STRING,
+    Maxattriifantiperspirant: DataTypes.STRING,
+    Maxattriifconcentrate: DataTypes.STRING,
+    Maxattriifrinseoff: DataTypes.STRING,
+    Maxattriifhighsuds: DataTypes.STRING,
+  },
+  {
+    tableName: "MappingProductOutput",
+    schema: "Mapping",
     timestamps: false,
-});
+  }
+);
 
-module.exports = SmartMappingDetailsModel
+module.exports = SmartMappingDetailsModel;

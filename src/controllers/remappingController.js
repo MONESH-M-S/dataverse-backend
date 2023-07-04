@@ -24,6 +24,19 @@ const Product_Dropdowns = {
   "product-variant-name": "Productvariantname",
   "product-code-name": "Productcodename",
   "product-name": "Productname",
+  "max-attri-format": "Maxattriformat",
+  "max-attri-if-rinse-off": "Maxattriifrinseoff",
+  "max-attri-pack-type": "Maxattripacktype",
+  "max-attri-benefit-claim": "Maxattribenefitclaim",
+  "max-attri-target-use": "Maxattritargetuse",
+  "max-attri-laundry-variants": "Maxattrilaundryvariants",
+  "max-attri-if-concentrate": "Maxattriifconcentrate",
+  "max-attri-gender": "Maxattrigender",
+  "max-attri-if-high-suds": "Maxattriifhighsuds",
+  "max-attri-if-antiperspirant": "Maxattriifantiperspirant",
+  "max-attri-formation": "Maxattriformation",
+  "max-attri-lifestage": "Maxattrilifestage",
+  "max-attri-fat-content": "Maxattrifatcontent",
 };
 
 const Fact_Dropdowns = {
