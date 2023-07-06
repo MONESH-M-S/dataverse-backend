@@ -220,12 +220,67 @@ const fetchColumnMappings = async (req, res, next) => {
 
     let Entity = entity ?? "Product";
 
-    const fileData =
-      await sequelize.query(`select  A.Id, A.ZipFileName, A.FileName, A.Country, A.Category, A.Entity, A.SourceColumnList, A.SourceColumn, A.TargetColumn, A.CriticalAttributes_Flag, 
-    B.SourceColumn as PreviousSource from (SELECT  [Id],[ZipFileName],[FileName],[Country],[Category],[MarketNameCode],[Entity],[SourceColumnList],[SourceColumn],[TargetColumn],[CriticalAttributes_Flag],
-    [DataProvider],[LoadDate],RANK() OVER (PARTITION BY Country, Category, Entity ORDER By LoadDate desc) as Previous from [metadata].[ColumnMapping]) A left join (SELECT  [Id],[ZipFileName],[FileName],[Country],
-    [Category],[MarketNameCode],[Entity],[SourceColumnList],[SourceColumn],[TargetColumn],[CriticalAttributes_Flag],[DataProvider],[LoadDate],RANK() OVER (PARTITION BY Country, Category, Entity ORDER By LoadDate desc)
-    as Previous from [metadata].[ColumnMapping]) B on A.COuntry = B.COuntry and A.Category = B.Category and A.Previous = B.Previous - 1 and A.Entity = B.Entity where A.ZipFileName = '${logDetails.FILENAME}'
+    const fileData = await sequelize.query(`SELECT
+      A.ZipFileName,
+      A.FileName,
+      A.Country,
+      A.Category,
+      A.Entity,
+      A.SourceColumnList,
+      A.SourceColumn,
+      A.TargetColumn,
+      A.CriticalAttributes_Flag,
+      B.SourceColumn AS PreviousSource
+    FROM
+      (
+        SELECT
+          [Id],
+          [ZipFileName],
+          [FileName],
+          [Country],
+          [Category],
+          [MarketNameCode],
+          [Entity],
+          [SourceColumnList],
+          [SourceColumn],
+          [TargetColumn],
+          [CriticalAttributes_Flag],
+          [DataProvider],
+          [LoadDate],
+          RANK() OVER (
+            PARTITION BY [ZipFileName], [Country], [Category], [Entity]
+            ORDER BY [LoadDate] DESC
+          ) AS rn
+        FROM
+          [metadata].[ColumnMapping]
+      ) A
+    LEFT JOIN (
+      SELECT
+        [Id],
+        [ZipFileName],
+        [FileName],
+        [Country],
+        [Category],
+        [MarketNameCode],
+        [Entity],
+        [SourceColumnList],
+        [SourceColumn],
+        [TargetColumn],
+        [CriticalAttributes_Flag],
+        [DataProvider],
+        [LoadDate],
+        RANK() OVER (
+          PARTITION BY [ZipFileName], [Country], [Category], [Entity]
+          ORDER BY [LoadDate] DESC
+        ) AS rn
+      FROM
+        [metadata].[ColumnMapping]
+    ) B ON A.ZipFileName = B.ZipFileName
+      AND A.Country = B.Country
+      AND A.Category = B.Category
+      AND A.Entity = B.Entity
+      AND A.rn = B.rn
+    WHERE A.ZipFileName = '${logDetails.FILENAME}'
     and A.Entity = '${Entity}'`);
 
     if (fileData === null) {
