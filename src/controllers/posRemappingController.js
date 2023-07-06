@@ -42,17 +42,14 @@ const Period_Dropdowns = {
 };
 
 const Market_Dropdowns = {
-  "direct-indirect": "Direct_Indirect",
-  country: "Country",
-  "iso-country": "ISOCountry",
   "unique-tag": "UniqueTag",
   "market-name": "Provider/MarketName",
   customer: "Customer",
   "store-name": "StoreName",
   "market-short": "MarketShort",
   "market-long": "MarketLong",
-  dimension: "Dimension",
 };
+
 const Fact_Dropdowns = {
   "fact-type": "Facttype",
   "harmonized-name": "Harmonizedname",

@@ -36,11 +36,6 @@ module.exports = [
     width: 30,
   },
   {
-    header: "Internal Provider / Market name",
-    key: "Provider/MarketName",
-    width: 30,
-  },
-  {
     header: "Internal Store Name",
     key: "StoreName",
     width: 30,
@@ -53,11 +48,6 @@ module.exports = [
   {
     header: "Internal Market Long",
     key: "MarketLong",
-    width: 30,
-  },
-  {
-    header: "Internal Dimension",
-    key: "Dimension",
     width: 30,
   },
 ];

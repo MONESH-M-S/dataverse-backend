@@ -10,18 +10,13 @@ module.exports = [
     width: 30,
   },
   {
-    header: "External Data Provider",
-    key: "DataProvider",
-    width: 30,
-  },
-  {
     header: "External Direct Indirect",
     key: "Direct_Indirect",
     width: 30,
   },
-  { header: "External Short", key: "Short", width: 40 },
+  { header: "External Short Description", key: "Short", width: 40 },
   {
-    header: "External Description",
+    header: "Extrenal Long Description",
     key: "Externaldesc",
     width: 30,
   },
@@ -32,7 +27,7 @@ module.exports = [
     width: 30,
   },
   {
-    header: "Internal Uniqueidentifier",
+    header: "Internal Unique Tag",
     key: "Uniqueidentifier",
     width: 30,
   },
@@ -47,7 +42,7 @@ module.exports = [
     width: 30,
   },
   {
-    header: "Internal Harmonized name",
+    header: "Internal Fact Description",
     key: "Harmonizedname",
     width: 30,
   },
