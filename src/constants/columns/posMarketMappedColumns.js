@@ -11,8 +11,8 @@ module.exports = [
   },
   { header: "Date", key: "Date", width: 40 },
   {
-    header: "External Data Provider",
-    key: "DataProvider",
+    header: "External Retailer ID",
+    key: "RetailerID",
     width: 30,
   },
   {
@@ -36,8 +36,8 @@ module.exports = [
     width: 30,
   },
   {
-    header: "Internal Market name",
-    key: "Market_name",
+    header: "Internal Provider / Market name",
+    key: "Provider/MarketName",
     width: 30,
   },
   {
