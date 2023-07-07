@@ -141,7 +141,7 @@ const fetchDQChecksData = async (req, res, next) => {
       statusFilter.push(`'In Progress'`);
 
     if (metaDataFilter.length || statusFilter.length) {
-      query = "AND ";
+      query = "WHERE ";
 
       if (metaDataFilter.length) {
         query += metaDataFilter.join(" AND ");
@@ -157,89 +157,99 @@ const fetchDQChecksData = async (req, res, next) => {
 
     const data = await sequelize.query(`
     select 
-  Country, 
-  Category, 
-  CellDatabase, 
-  zipFile, 
-  DeliveryPeriod, 
-  CASE when SUM(Checks_Failed)= 0 then 'Success' else 'Failure' END as Overall_Status, 
-  SUM(Checks_Passed) as Checks_Passed, 
-  SUM(Checks_Failed) as Checks_Failed, 
-  STRING_AGG(Remarks, '|') as Remarks 
-from 
-  (
-    SELECT 
-      Country, 
-      Category, 
-      concat(Country, '  ', Category) as CellDatabase, 
-      zipFile, 
-      DeliveryPeriod, 
-      Overall_Status, 
-      Checks_Passed, 
-      Checks_Failed, 
-      MessageType as Remarks 
-    FROM 
-      (
-        select 
-          *, 
-          CASE when x.Checks_Failed = 0 then 'Success' else 'Failure' END as Overall_Status 
-        from 
-          (
-            select 
-              base.Country as Country, 
-              base.Category as Category, 
-              base.Filename as zipFile, 
-              DATENAME(m, LoadStartTime)+ '-' + CAST(
-                YEAR(LoadStartTime) AS varchar(10)
-              ) AS DeliveryPeriod, 
-              LogDate, 
-              MessageType, 
-              A.LogId, 
-              LogMessage, 
-              TaskName, 
-              (
-                LEN(MessageType) - LEN(
-                  REPLACE(MessageType, 'Success', '')
-                )
-              ) / 7 AS Checks_Passed, 
-              (
-                LEN(MessageType) - LEN(
-                  REPLACE(MessageType, 'Error', '')
-                )
-              ) / 5 AS Checks_Failed 
-            from 
-              [info].[LoadDetailLog] A 
-              join info.LoadLog base on base.LogId = A.LogId 
-            where 
-              A.TaskName in (
-                'NumberoFilesCheck', 'FileSizeCheck', 
-                'FileNameCheck', 'FileDelimiterCheck', 
-                'FileEncodingCheck', 'ConstraintCheck', 
-                'LastPeriodDeliveredCheck', 'DimvsTransTagsCheck', 
-                'SchemaCheck'
-              )
-          ) x
-      ) A PIVOT (
-        COUNT(A.TaskName) FOR TaskName in (
-          NumberoFilesCheck, FileSizeCheck, 
-          FileNameCheck, FileDelimiterCheck, 
-          FileEncodingCheck, ConstraintCheck, 
-          LastPeriodDeliveredCheck, DimvsTransTagsCheck, 
-          SchemaCheck
-        )
-      ) AS PivotTable 
-    where 
-      CONVERT (DATE, '01-' + DeliveryPeriod) > '2023-05-30' 
-      and MessageType like '%:%:%:%:%'  ${query}
-  ) as big_query 
-group by 
-  country, 
-  Category, 
-  CellDatabase, 
-  zipFile, 
-  DeliveryPeriod
-  order by Category offset ${offset} rows fetch next ${limit} rows only;
-    `);
+    Country, 
+    Category, 
+    CellDatabase, 
+    zipFile, 
+    DeliveryPeriod, 
+    Overall_Status, 
+    Checks_Passed, 
+    Checks_Failed, 
+    Remarks 
+  FROM 
+    (
+      SELECT 
+        Country, 
+        Category, 
+        CellDatabase, 
+        zipFile, 
+        DeliveryPeriod, 
+        CASE WHEN SUM(Checks_Failed) = 0 THEN 'Success' ELSE 'Failure' END AS Overall_Status, 
+        SUM(Checks_Passed) AS Checks_Passed, 
+        SUM(Checks_Failed) AS Checks_Failed, 
+        STRING_AGG(Remarks, '|') AS Remarks 
+      FROM 
+        (
+          SELECT 
+            Country, 
+            Category, 
+            CONCAT(Country, ' ', Category) AS CellDatabase, 
+            zipFile, 
+            DeliveryPeriod, 
+            Checks_Passed, 
+            Checks_Failed, 
+            MessageType AS Remarks 
+          FROM 
+            (
+              SELECT 
+                base.Country AS Country, 
+                base.Category AS Category, 
+                base.Filename AS zipFile, 
+                DATENAME(m, LoadStartTime) + '-' + CAST(
+                  YEAR(LoadStartTime) AS varchar(10)
+                ) AS DeliveryPeriod, 
+                MessageType, 
+                A.LogId, 
+                (
+                  LEN(MessageType) - LEN(
+                    REPLACE(MessageType, 'Success', '')
+                  )
+                ) / 7 AS Checks_Passed, 
+                (
+                  LEN(MessageType) - LEN(
+                    REPLACE(MessageType, 'Error', '')
+                  )
+                ) / 5 AS Checks_Failed 
+              FROM 
+                [info].[LoadDetailLog] A 
+                JOIN info.LoadLog base ON base.LogId = A.LogId 
+              WHERE 
+                A.TaskName IN (
+                  'NumberoFilesCheck', 'FileSizeCheck', 
+                  'FileNameCheck', 'FileDelimiterCheck', 
+                  'FileEncodingCheck', 'ConstraintCheck', 
+                  'LastPeriodDeliveredCheck', 'DimvsTransTagsCheck', 
+                  'SchemaCheck'
+                ) 
+                AND CONVERT(
+                  DATE, 
+                  '01-' + DATENAME(m, LoadStartTime) + '-' + CAST(
+                    YEAR(LoadStartTime) AS varchar(10)
+                  )
+                ) > '2023-05-30' 
+                AND MessageType LIKE '%:%:%:%:%'
+            ) x
+        ) AS big_query 
+      GROUP BY 
+        Country, 
+        Category, 
+        CellDatabase, 
+        zipFile, 
+        DeliveryPeriod
+    ) a 
+  ${query} 
+  GROUP BY 
+    Country, 
+    Category, 
+    CellDatabase, 
+    zipFile, 
+    DeliveryPeriod, 
+    Overall_Status, 
+    Checks_Passed, 
+    Checks_Failed, 
+    Remarks
+    order by Category offset ${offset} rows fetch next ${limit} rows only;
+  `);
 
     const responseObj = {
       result: data[0],
