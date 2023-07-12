@@ -42,6 +42,7 @@ const authRoutes = require("./src/routes/auth.routes");
 const dashboardRoutes = require("./src/routes/dashboard.routes");
 const remappingRoutes = require("./src/routes/remapping.routes");
 const dqCheckRoutes = require("./src/routes/dqChecks.routes");
+const adminRoutes = require("./src/routes/admin.routes");
 
 const cookieParser = require("cookie-parser");
 
@@ -61,6 +62,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/remapping", remappingRoutes);
 app.use("/api/dq-checks", dqCheckRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/secret", async (req, res) => {
   try {
@@ -82,17 +84,13 @@ app.use(express.static(path.join(__dirname, "ui")));
 app.get("/*", (req, res) => {
   let file = "";
 
-  if (req.url === "/") 
-    file = "/index.html";
-  else 
-    file = req.url;
+  if (req.url === "/") file = "/index.html";
+  else file = req.url;
 
   const filePath = path.join(__dirname, "ui", file);
 
-  if (fs.existsSync(filePath)) 
-    res.sendFile(filePath);
-  else 
-    res.sendFile(path.join(__dirname, "ui/index.html"));
+  if (fs.existsSync(filePath)) res.sendFile(filePath);
+  else res.sendFile(path.join(__dirname, "ui/index.html"));
 });
 
 // Handling Errors message
