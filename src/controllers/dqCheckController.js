@@ -158,10 +158,12 @@ const fetchDQChecksData = async (req, res, next) => {
       }
     }
 
-    const data = await sequelize.query(`select 
+    const data = await sequelize.query(`
+    select 
     Country, 
     Category, 
-    DataProvider CellDatabase, 
+    DataProvider,
+     CellDatabase, 
     zipFile, 
     DeliveryPeriod, 
     Overall_Status, 
@@ -264,7 +266,7 @@ const fetchDQChecksData = async (req, res, next) => {
   GROUP BY 
     Country, 
     Category, 
-    DataProvider
+    DataProvider,
     CellDatabase, 
     zipFile, 
     DeliveryPeriod, 
@@ -334,6 +336,16 @@ const fetchDQChecksDataCount = async (req, res, next) => {
     count(*) as count
   from 
     (
+      select 
+    Country, 
+    Category, 
+    DataProvider CellDatabase, 
+    zipFile, 
+    DeliveryPeriod, 
+    Overall_Status, 
+    Checks_Passed, 
+    Checks_Failed, 
+    Remarks FROM (
       Select 
         Country, 
         Category, 
@@ -428,7 +440,7 @@ const fetchDQChecksDataCount = async (req, res, next) => {
   GROUP BY 
     Country, 
     Category, 
-    DataProvider
+    DataProvider,
     CellDatabase, 
     zipFile, 
     DeliveryPeriod, 
@@ -464,6 +476,22 @@ const fetchDQCountryMeta = async (req, res, next) => {
         [Sequelize.fn("DISTINCT", Sequelize.col("Country")), "name"],
       ],
       where: whereClause,
+    });
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const fetchDQProviderMeta = async (req, res, next) => {
+  try {
+    const data = await DQCheckModel.findAll({
+      attributes: [
+        [
+          Sequelize.fn("DISTINCT", Sequelize.col("ExternalDataProvider")),
+          "name",
+        ],
+      ],
     });
     res.json(data);
   } catch (error) {
@@ -664,6 +692,7 @@ module.exports = {
   fetchDQChecksData,
   fetchDQCategoryMeta,
   fetchDQCountryMeta,
+  fetchDQProviderMeta,
   downloadDQCheckReport,
   fetchDQChecksDataCount,
   fetchDQCardStats,
