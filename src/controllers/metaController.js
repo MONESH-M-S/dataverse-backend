@@ -1,5 +1,6 @@
 const MappingFlagDetailsModel = require("../models/MappingFlagDetails.model");
 const LoadLogModel = require("../models/loadLog.model");
+const FactColumnMappingModel = require("../models/factColumnMapping.model");
 const { Sequelize, sequelize } = require("../../models");
 const { Op } = require("sequelize");
 
@@ -51,17 +52,11 @@ const fetchProviderMeta = async (req, res, next) => {
 
 const fetchCategoryMeta = async (req, res, next) => {
   const { country } = req.query;
-
-  const whereClause = {
-    SOURCE: {
-      [Op.in]: ["Nielsen", "POS"],
-    },
-  };
-
+  let whereClause = {};
   if (country) whereClause["COUNTRY"] = country;
 
   try {
-    const providerList = await LoadLogModel.findAll({
+    const providerList = await FactColumnMappingModel.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col("CATEGORY")), "name"],
       ],
