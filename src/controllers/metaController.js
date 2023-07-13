@@ -1,6 +1,6 @@
 const MappingFlagDetailsModel = require("../models/MappingFlagDetails.model");
 const LoadLogModel = require("../models/loadLog.model");
-const { Sequelize } = require("../../models");
+const { Sequelize, sequelize } = require("../../models");
 const { Op } = require("sequelize");
 
 const fetchCountryMeta = async (req, res, next) => {
@@ -33,15 +33,17 @@ const fetchCountryMeta = async (req, res, next) => {
 
 const fetchProviderMeta = async (req, res, next) => {
   try {
-    const providerList = await LoadLogModel.findAll({
-      attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("SOURCE")), "name"]],
-      where: {
-        SOURCE: {
-          [Op.in]: ["Nielsen", "POS"],
-        },
-      },
-    });
-    res.json(providerList);
+    const data = await sequelize.query(`SELECT
+    distinct
+      CASE
+        WHEN source = 'Nielsen' THEN 'Nielsen'
+       WHEN source = 'POS' THEN 'POS'
+           WHEN source = 'RMS' THEN category
+      END AS name
+    FROM info.LoadLog
+    WHERE source NOT IN ('Nielsen-operations', 'POSOperations', 'POS_Operations', 'NielsenOperations')`)
+
+    res.json(data[0]);
   } catch (error) {
     next(error);
   }
