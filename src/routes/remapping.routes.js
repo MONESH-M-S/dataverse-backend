@@ -17,6 +17,10 @@ const {
   posProductRemappingOptions,
   updatePosRemappingPeriodValues,
   updatePosRemappingProductValues,
+  posMarketRemappingOptions,
+  updatePosRemappingMarketValues,
+  posFactRemappingOptions,
+  updatePosRemappingFactValues,
 } = require("../controllers/posRemappingController");
 
 //Remapping Dropdown Options
@@ -31,12 +35,16 @@ router.put("/fact/:id", auth, updateRemappingFactValues);
 router.put("/period/:id", auth, updateRemappingPeriodValues);
 router.put("/market/:id", auth, updateRemappingMarketValues);
 
-//Remapping Dropdown Options
+//POS Remapping Dropdown Options
 router.get("/pos/product/:columnName", auth, posProductRemappingOptions);
 router.get("/pos/period/:columnName", auth, posPeriodRemappingOptions);
+router.get("/pos/market/:columnName", auth, posMarketRemappingOptions);
+router.get("/pos/fact/:columnName", auth, posFactRemappingOptions);
 
-//Remapping Update
+//POS Remapping Update
 router.put("/pos/product/:id", auth, updatePosRemappingProductValues);
 router.put("/pos/period/:id", auth, updatePosRemappingPeriodValues);
+router.put("/pos/market/:id", auth, updatePosRemappingMarketValues);
+router.put("/pos/fact/:id", auth, updatePosRemappingFactValues);
 
 module.exports = router;
