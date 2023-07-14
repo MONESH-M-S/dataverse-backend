@@ -527,44 +527,49 @@ const fetchDQCategoryMeta = async (req, res, next) => {
 };
 
 const downloadDQCheckReport = async (req, res, next) => {
-  let query = "";
-  let metaDataFilter = [];
-  let statusFilter = [];
+  try {
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
-  if (req.query.filter_by_country)
-    metaDataFilter.push(`Country = '${req.query.filter_by_country}'`);
+    let query = "";
+    let metaDataFilter = [];
+    let statusFilter = [];
 
-  if (req.query.filter_by_delivery_period)
-    metaDataFilter.push(
-      `DeliveryPeriod = '${req.query.filter_by_delivery_period}'`
-    );
+    if (req.query.filter_by_country)
+      metaDataFilter.push(`Country = '${req.query.filter_by_country}'`);
 
-  if (req.query.filter_by_category)
-    metaDataFilter.push(`Category = '${req.query.filter_by_category}'`);
+    if (req.query.filter_by_delivery_period)
+      metaDataFilter.push(
+        `DeliveryPeriod = '${req.query.filter_by_delivery_period}'`
+      );
 
-  if (req.query.filter_by_in_success === "true") statusFilter.push(`'Success'`);
+    if (req.query.filter_by_category)
+      metaDataFilter.push(`Category = '${req.query.filter_by_category}'`);
 
-  if (req.query.filter_by_in_failure === "true") statusFilter.push(`'Failure'`);
+    if (req.query.filter_by_in_success === "true")
+      statusFilter.push(`'Success'`);
 
-  if (req.query.filter_by_in_progress === "true")
-    statusFilter.push(`'In Progress'`);
+    if (req.query.filter_by_in_failure === "true")
+      statusFilter.push(`'Failure'`);
 
-  if (metaDataFilter.length || statusFilter.length) {
-    query = "WHERE ";
+    if (req.query.filter_by_in_progress === "true")
+      statusFilter.push(`'In Progress'`);
 
-    if (metaDataFilter.length) {
-      query += metaDataFilter.join(" AND ");
-    }
+    if (metaDataFilter.length || statusFilter.length) {
+      query = "WHERE ";
 
-    if (statusFilter.length) {
       if (metaDataFilter.length) {
-        query += " AND ";
+        query += metaDataFilter.join(" AND ");
       }
-      query += `Overall_Status IN (${statusFilter.join(",")})`;
-    }
-  }
 
-  const data = await sequelize.query(`
+      if (statusFilter.length) {
+        if (metaDataFilter.length) {
+          query += " AND ";
+        }
+        query += `Overall_Status IN (${statusFilter.join(",")})`;
+      }
+    }
+
+    const data = await sequelize.query(`
     select 
   Country, 
   Category, 
@@ -650,48 +655,51 @@ group by
   order by Category offset ${offset} rows fetch next ${limit} rows only;
     `);
 
-  const columns = [
-    { header: "Country", key: "Country", width: 20 },
-    { header: "Category", key: "Category", width: 20 },
-    { header: "Cell Database", key: "CellDatabase", width: 20 },
-    { header: "Delivery Period", key: "DeliveryPeriod", width: 20 },
-    { header: "File Name", key: "zipFile", width: 40 },
-    { header: "Overall Status", key: "Overall_Status", width: 20 },
-    {
-      header: "Checks Passed",
-      key: "Checks_Passed",
-      width: 20,
-    },
-    {
-      header: "Checks Failed",
-      key: "Checks_Failed",
-      width: 20,
-    },
-    { header: "Remarks", key: "Remarks", width: 40 },
-  ];
+    const columns = [
+      { header: "Country", key: "Country", width: 20 },
+      { header: "Category", key: "Category", width: 20 },
+      { header: "Cell Database", key: "CellDatabase", width: 20 },
+      { header: "Delivery Period", key: "DeliveryPeriod", width: 20 },
+      { header: "File Name", key: "zipFile", width: 40 },
+      { header: "Overall Status", key: "Overall_Status", width: 20 },
+      {
+        header: "Checks Passed",
+        key: "Checks_Passed",
+        width: 20,
+      },
+      {
+        header: "Checks Failed",
+        key: "Checks_Failed",
+        width: 20,
+      },
+      { header: "Remarks", key: "Remarks", width: 40 },
+    ];
 
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet("");
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("");
 
-  worksheet.columns = columns;
+    worksheet.columns = columns;
 
-  data[0].forEach((item) => {
-    worksheet.addRow(item);
-  });
+    data[0].forEach((item) => {
+      worksheet.addRow(item);
+    });
 
-  res.setHeader(
-    "Content-Type",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  );
-  res.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
-  res.setHeader(
-    "Content-Disposition",
-    "attachment; filename=File Volatility Checks.xlsx"
-  );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=File Volatility Checks.xlsx"
+    );
 
-  await workbook.xlsx.write(res);
+    await workbook.xlsx.write(res);
 
-  res.end();
+    res.end();
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = {
