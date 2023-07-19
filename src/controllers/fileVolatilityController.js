@@ -221,7 +221,7 @@ const fetchColumnMappings = async (req, res, next) => {
     let Entity = entity ?? "Product";
     
     const fileData = await sequelize.query(`
-    SELECT 
+    select * from (SELECT 
   A.Id, 
   A.ZipFileName, 
   A.FileName, 
@@ -357,9 +357,10 @@ FROM
                   [ZipFileName], 
                   [Entity]
                   ) AS D ON A.ZipFileName = D.ZipFileName 
-                  AND A.Entity = D.Entity;
+                  AND A.Entity = D.Entity) q1
                   WHERE A.ZipFileName = '${logDetails.FILENAME}'
-              and A.Entity = '${Entity}'`);
+                  and A.Entity = '${Entity}';
+                  `);
     
     if (fileData === null) {
       res.json({});
