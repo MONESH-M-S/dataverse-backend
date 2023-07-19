@@ -358,8 +358,8 @@ FROM
                   [Entity]
                   ) AS D ON A.ZipFileName = D.ZipFileName 
                   AND A.Entity = D.Entity) q1
-                  WHERE A.ZipFileName = '${logDetails.FILENAME}'
-                  and A.Entity = '${Entity}';
+                  WHERE ZipFileName = '${logDetails.FILENAME}'
+                  and Entity = '${Entity}';
                   `);
     
     if (fileData === null) {
