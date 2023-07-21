@@ -1,6 +1,7 @@
 const MappingFlagDetailsModel = require("../models/MappingFlagDetails.model");
 const LoadLogModel = require("../models/loadLog.model");
 const FactColumnMappingModel = require("../models/factColumnMapping.model");
+const SmlPcatModel = require("../models/smlPcat.model");
 const { Sequelize, sequelize } = require("../../models");
 const { Op } = require("sequelize");
 
@@ -42,7 +43,7 @@ const fetchProviderMeta = async (req, res, next) => {
            WHEN source = 'RMS' THEN category
       END AS name
     FROM info.LoadLog
-    WHERE source NOT IN ('Nielsen-operations', 'POSOperations', 'POS_Operations', 'NielsenOperations')`)
+    WHERE source NOT IN ('Nielsen-operations', 'POSOperations', 'POS_Operations', 'NielsenOperations')`);
 
     res.json(data[0]);
   } catch (error) {
@@ -81,9 +82,64 @@ const fetchIMScenarioFlag = async (req, res, next) => {
   }
 };
 
+const fetchSmlPcatCategoryMeta = async (req, res, next) => {
+  try {
+    const { market, segment } = req.query;
+    const whereClause = {};
+    if (market) whereClause["DP_MARKET"] = market;
+    if (segment) whereClause["DP_SEGMENT"] = segment;
+    const list = await SmlPcatModel.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col("DP_CATEGORY")), "name"],
+      ],
+      where: whereClause,
+    });
+    res.json(list);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchSmlPcatMarketMeta = async (req, res, next) => {
+  try {
+    const { category, segment } = req.query;
+    const whereClause = {};
+    if (category) whereClause["DP_CATEGORY"] = category;
+    if (segment) whereClause["DP_SEGMENT"] = segment;
+    const list = await SmlPcatModel.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col("DP_MARKET")), "name"],
+      ],
+      where: whereClause,
+    });
+    res.json(list);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchSmlPcatSegmentMeta = async (req, res, next) => {
+  try {
+    const { category, market } = req.query;
+    const whereClause = {};
+    if (category) whereClause["DP_CATEGORY"] = category;
+    if (market) whereClause["DP_MARKET"] = market;
+    const list = await SmlPcatModel.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col("DP_SEGMENT")), "name"],
+      ],
+      where: whereClause,
+    });
+    res.json(list);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   fetchCountryMeta,
   fetchProviderMeta,
   fetchCategoryMeta,
   fetchIMScenarioFlag,
+  fetchSmlPcatCategoryMeta,
+  fetchSmlPcatMarketMeta,
+  fetchSmlPcatSegmentMeta,
 };
