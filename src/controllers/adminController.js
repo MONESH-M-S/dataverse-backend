@@ -5,9 +5,15 @@ const statusTypeEnum = require("../enums/statusType.enum");
 const fetchSmlPcatRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
+    const { category, market, segment } = req.query;
+    const whereClause = {};
+    if (category) whereClause["DP_CATEGORY"] = category;
+    if (market) whereClause["DP_MARKET"] = market;
+    if (segment) whereClause["DP_SEGMENT"] = segment;
     const smlPcatlist = await SmlPcatModel.findAll({
       limit,
       offset,
+      where: whereClause,
     });
 
     const responseObj = {
@@ -23,10 +29,16 @@ const fetchSmlPcatRecords = async (req, res, next) => {
 const fetchSmlPcatRecordsPagination = async (req, res, next) => {
   try {
     const { limit, offset, page } = getPaginationDetails(req);
+    const { category, market, segment } = req.query;
+    const whereClause = {};
+    if (category) whereClause["DP_CATEGORY"] = category;
+    if (market) whereClause["DP_MARKET"] = market;
+    if (segment) whereClause["DP_SEGMENT"] = segment;
 
     const smlPcatCount = await SmlPcatModel.count({
       limit,
       offset,
+      where: whereClause,
     });
 
     const responseObj = {
