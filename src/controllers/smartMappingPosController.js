@@ -109,15 +109,13 @@ const fetchUnmappedPOSRecordsSuggestions = async (req, res, next) => {
     const id = req.params.id;
     const smartMapping = await MappingProductDetailsPOSModel.findByPk(id);
     const { search } = req.query;
-    let whereClause = {
-      Externaldesc: smartMapping.Externaldesc,
-      // Uniqueindentifier: smartMapping.Uniqueindentifier,
-    };
+    let whereClause = {};
 
     if (search) {
-      whereClause["Internaldesc"] = {
-        [Op.like]: "%" + search + "%",
-      };
+      whereClause[Op.or] = [
+        { Productidentifier: { [Op.like]: `%${search.trim()}%` } },
+        { Externaldesc: { [Op.like]: `%${search}%` } },
+      ];
     }
 
     const suggestionList = await MultipleMapProductPOS.findAll({
@@ -141,6 +139,12 @@ const fetchMappingPeriodPOSDetails = async (req, res, next) => {
     const whereClause = {
       Filename: smartMapping.Filename,
     };
+
+    const { search } = req.query;
+
+    if (search) {
+      whereClause[Op.or] = [{ Tag: { [Op.like]: `%${search.trim()}%` } }];
+    }
 
     if (confidence === ConfidenceLevels.MAPPED) {
       const mappedData = await MappingPeriodDetailsPOSModel.findAll({
@@ -170,6 +174,12 @@ const fetchMappingPeriodPOSDetailsPagination = async (req, res, next) => {
     const whereClause = {
       Filename: smartMapping.Filename,
     };
+
+    const { search } = req.query;
+
+    if (search) {
+      whereClause[Op.or] = [{ Tag: { [Op.like]: `%${search.trim()}%` } }];
+    }
 
     if (confidence === ConfidenceLevels.MAPPED) {
       const count = await MappingPeriodDetailsPOSModel.count({
@@ -309,9 +319,10 @@ const fetchMappingMarketPOSDetails = async (req, res, next) => {
     const table = {};
 
     if (search) {
-      whereClause["MarketLong"] = {
-        [Op.like]: "%" + search + "%",
-      };
+      whereClause[Op.or] = [
+        { MarketLong: { [Op.like]: `%${search.trim()}%` } },
+        { UniqueTag: { [Op.like]: `%${search.trim()}%` } },
+      ];
     }
 
     whereClause.FileName = smartMapping.Filename;
@@ -354,9 +365,10 @@ const fetchMappingMarketPOSDetailsPagination = async (req, res, next) => {
     const table = {};
 
     if (search) {
-      whereClause["MarketLong"] = {
-        [Op.like]: "%" + search + "%",
-      };
+      whereClause[Op.or] = [
+        { MarketLong: { [Op.like]: `%${search.trim()}%` } },
+        { UniqueTag: { [Op.like]: `%${search.trim()}%` } },
+      ];
     }
 
     whereClause.FileName = smartMapping.Filename;
@@ -424,6 +436,8 @@ const fetchMappingFactPOSDetails = async (req, res, next) => {
   try {
     const { id, confidence } = req.params;
 
+    const { search } = req.query;
+
     const smartMapping = await SmartMappingListModel.findByPk(id);
 
     const { limit, offset } = getPaginationDetails(req);
@@ -433,6 +447,14 @@ const fetchMappingFactPOSDetails = async (req, res, next) => {
     const table = {};
 
     whereClause.Filename = smartMapping.Filename;
+
+    if (search) {
+      whereClause[Op.or] = [
+        { Short: { [Op.like]: `%${search.trim()}%` } },
+        { Externaldesc: { [Op.like]: `%${search.trim()}%` } },
+        { Uniqueidentifier: { [Op.like]: `%${search.trim()}%` } },
+      ];
+    }
 
     const { HIGH, MEDIUM, LOW } = ConfidenceLevels;
 
@@ -464,6 +486,8 @@ const fetchMappingFactPOSDetailsPagination = async (req, res, next) => {
   try {
     const { id, confidence } = req.params;
 
+    const { search } = req.query;
+
     const smartMapping = await SmartMappingListModel.findByPk(id);
 
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
@@ -473,6 +497,14 @@ const fetchMappingFactPOSDetailsPagination = async (req, res, next) => {
     const table = {};
 
     whereClause.Filename = smartMapping.Filename;
+
+    if (search) {
+      whereClause[Op.or] = [
+        { Short: { [Op.like]: `%${search.trim()}%` } },
+        { Externaldesc: { [Op.like]: `%${search.trim()}%` } },
+        { Uniqueidentifier: { [Op.like]: `%${search.trim()}%` } },
+      ];
+    }
 
     const { HIGH, MEDIUM, LOW } = ConfidenceLevels;
 

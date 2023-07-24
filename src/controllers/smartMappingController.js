@@ -499,6 +499,7 @@ const fetchMappedRecordsForPeriodDimension = async (req, res, next) => {
         { Short: { [Op.like]: `%${search.trim()}%` } },
         { Long: { [Op.like]: `%${search.trim()}%` } },
         { Periodicity: { [Op.like]: `%${search.trim()}%` } },
+        { Tag: { [Op.like]: `%${search}%` } },
       ];
     }
 
@@ -540,6 +541,7 @@ const fetchMappedRecordsForPeriodDimensionPagination = async (
         { Short: { [Op.like]: `%${search.trim()}%` } },
         { Long: { [Op.like]: `%${search.trim()}%` } },
         { Periodicity: { [Op.like]: `%${search.trim()}%` } },
+        { Tag: { [Op.like]: `%${search}%` } },
       ];
     }
 
@@ -573,19 +575,20 @@ const fetchMappedRecordsForMarketDimension = async (req, res, next) => {
     };
 
     if (search) {
-      whereClause["Long"] = {
-        [Op.like]: "%" + search + "%",
-      };
+      whereClause[Op.or] = [
+        { Long: { [Op.like]: `%${search}%` } },
+        { Tag: { [Op.like]: `%${search}%` } },
+      ];
     }
 
-    const result = await MappingMarketOutput.findAndCountAll({
+    const result = await MappingMarketOutput.findAll({
       limit,
       offset,
       where: whereClause,
     });
 
     const responseObj = {
-      result: result.rows,
+      result: result,
     };
 
     res.json(responseObj);
@@ -609,9 +612,10 @@ const fetchMappedRecordsForMarketDimensionPagination = async (
     };
 
     if (search) {
-      whereClause["Long"] = {
-        [Op.like]: "%" + search + "%",
-      };
+      whereClause[Op.or] = [
+        { Long: { [Op.like]: `%${search}%` } },
+        { Tag: { [Op.like]: `%${search}%` } },
+      ];
     }
 
     const count = await MappingMarketOutput.count({
