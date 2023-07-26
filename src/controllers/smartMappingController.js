@@ -271,13 +271,13 @@ const fetchSmartMappingMappedDetailsPagination = async (req, res, next) => {
 const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
   try {
     const id = req.params.id;
-
+    const { limit, offset } = getPaginationDetails(req);
     const smartMapping = await SmartMappingListModel.findByPk(id);
 
     const mappedList =
       await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
     from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-    and u.filename = '${smartMapping.Filename}' and u.Confidencelevel = 'LOW' order by u.Id desc`);
+    and u.filename = '${smartMapping.Filename}' and u.Confidencelevel = 'LOW' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
 
     const responseObj = {
       result: mappedList[0],
@@ -288,6 +288,30 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
     next(error);
   }
 };
+
+const fetchSmartMappingLowResultsPagination = async (req,res,next) => {
+  try {
+    const id = req.params.id;
+
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const smartMapping = await SmartMappingListModel.findByPk(id);
+
+    const count =
+      await sequelize.query(`select count(*) from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+    from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
+    and u.filename = '${smartMapping.Filename}' and u.Confidencelevel = 'LOW'`);
+
+    const responseObj = {
+      page,
+      page_size: pageSize,
+      total_count: count[0][0][""],
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+}
 
 const fetchSmartMappingMediumResults = async (req, res, next) => {
   try {
@@ -1024,6 +1048,7 @@ module.exports = {
   fetchSmartMappingMappedDetails,
   fetchIndividualSmartMapping,
   fetchSmartMappingUnMappedDetails,
+  fetchSmartMappingLowResultsPagination,
   fetchSmartMappingMediumResults,
   updateSmartMappingDetails,
   fetchCountryMeta,
