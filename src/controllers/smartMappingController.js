@@ -959,7 +959,7 @@ const downloadFactExcelFile = async (req, res, next) => {
       table["model"] = SmartMappingFactDetailsModel;
       table["columns"] = factMappedColumns;
       whereClause["Filename"] = fileName;
-      whereClause["Confidencelevel"] = confidenceLevel.toUpperCase();
+      // whereClause["Confidencelevel"] = confidenceLevel.toUpperCase();
     }
 
     const data = await table.model.findAll({
