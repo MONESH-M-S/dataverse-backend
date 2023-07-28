@@ -160,124 +160,125 @@ const fetchDQChecksData = async (req, res, next) => {
 
     const data = await sequelize.query(`
     select 
-    Country, 
-    Category, 
-    DataProvider, 
-    CellDatabase, 
-    zipFile, 
-    DeliveryPeriod, 
-    Overall_Status, 
-    Checks_Passed, 
-    Checks_Failed, 
-    Remarks 
-  FROM 
-    (
-      Select 
-        Country, 
-        Category, 
-        DataProvider, 
-        CellDatabase, 
-        zipFile, 
-        DeliveryPeriod, 
-        CASE when SUM(Checks_Failed)= 0 then 'Success' else 'Failure' END as Overall_Status, 
-        SUM(Checks_Passed) as Checks_Passed, 
-        SUM(Checks_Failed) as Checks_Failed, 
-        STRING_AGG(Remarks, '|') as Remarks 
-      from 
-        (
-          SELECT 
-            Country, 
-            Category, 
-            DataProvider, 
-            concat(Country, '  ', Category) as CellDatabase, 
-            zipFile, 
-            DeliveryPeriod, 
-            Overall_Status, 
-            Checks_Passed, 
-            Checks_Failed, 
-            MessageType as Remarks 
-          FROM 
-            (
-              select 
-                *, 
-                CASE when x.Checks_Failed = 0 then 'Success' else 'Failure' END as Overall_Status 
-              from 
-                (
-                  select 
-                    base.Country as Country, 
-                    base.Category as Category, 
-                    CASE WHEN source = 'Nielsen' THEN 'Nielsen' WHEN source = 'POS' THEN 'POS' WHEN source = 'RMS' THEN category END AS DataProvider, 
-                    base.Filename as zipFile, 
-                    DATENAME(m, LoadStartTime)+ '-' + CAST(
-                      YEAR(LoadStartTime) AS varchar(10)
-                    ) AS DeliveryPeriod, 
-                    LogDate, 
-                    MessageType, 
-                    A.LogId, 
-                    LogMessage, 
-                    TaskName, 
-                    (
-                      LEN(MessageType) - LEN(
-                        REPLACE(MessageType, 'Success', '')
-                      )
-                    ) / 7 AS Checks_Passed, 
-                    (
-                      LEN(MessageType) - LEN(
-                        REPLACE(MessageType, 'Error', '')
-                      )
-                    ) / 5 AS Checks_Failed 
-                  from 
-                    [info].[LoadDetailLog] A 
-                    join info.LoadLog base on base.LogId = A.LogId 
-                  where 
-                    A.TaskName in (
-                      'NumberoFilesCheck', 'FileSizeCheck', 
-                      'FileNameCheck', 'FileDelimiterCheck', 
-                      'FileEncodingCheck', 'ConstraintCheck', 
-                      'LastPeriodDeliveredCheck', 'DimvsTransTagsCheck', 
-                      'SchemaCheck', 'POS_check_null_values', 
-                      'POS_check_duplicate_values', 'POS_check_data_type'
+  Country, 
+  Category, 
+  DataProvider, 
+  CellDatabase, 
+  zipFile, 
+  DeliveryPeriod, 
+  Overall_Status, 
+  Checks_Passed, 
+  Checks_Failed, 
+  Remarks 
+FROM 
+  (
+    Select 
+      Country, 
+      Category, 
+      DataProvider, 
+      CellDatabase, 
+      zipFile, 
+      DeliveryPeriod, 
+      CASE when SUM(Checks_Failed)= 0 then 'Success' else 'Failure' END as Overall_Status, 
+      SUM(Checks_Passed) as Checks_Passed, 
+      SUM(Checks_Failed) as Checks_Failed, 
+      STRING_AGG(Remarks, '|') as Remarks 
+    from 
+      (
+        SELECT 
+          Country, 
+          Category, 
+          DataProvider, 
+          concat(Country, '  ', Category) as CellDatabase, 
+          zipFile, 
+          DeliveryPeriod, 
+          Overall_Status, 
+          Checks_Passed, 
+          Checks_Failed, 
+          MessageType as Remarks 
+        FROM 
+          (
+            select 
+              *, 
+              CASE when x.Checks_Failed = 0 then 'Success' else 'Failure' END as Overall_Status 
+            from 
+              (
+                select 
+                  base.Country as Country, 
+                  base.Category as Category, 
+                  CASE WHEN source = 'Nielsen' THEN 'Nielsen' WHEN source = 'EPOS' THEN 'EPOS' WHEN source = 'RMS' THEN category END AS DataProvider, 
+                  base.Filename as zipFile, 
+                  DATENAME(m, LoadStartTime)+ '-' + CAST(
+                    YEAR(LoadStartTime) AS varchar(10)
+                  ) AS DeliveryPeriod, 
+                  LogDate, 
+                  MessageType, 
+                  A.LogId, 
+                  LogMessage, 
+                  TaskName, 
+                  (
+                    LEN(MessageType) - LEN(
+                      REPLACE(MessageType, 'Success', '')
                     )
-                ) x
-            ) A PIVOT (
-              COUNT(A.TaskName) FOR TaskName in (
-                NumberoFilesCheck, FileSizeCheck, 
-                FileNameCheck, FileDelimiterCheck, 
-                FileEncodingCheck, ConstraintCheck, 
-                LastPeriodDeliveredCheck, DimvsTransTagsCheck, 
-                SchemaCheck, POS_check_null_values, 
-                POS_check_duplicate_values, POS_check_data_type
-              )
-            ) AS PivotTable 
-          where 
-            CONVERT (DATE, '01-' + DeliveryPeriod) > '2023-05-30' 
-            and MessageType like '%:%:%:%:%' 
-            and DataProvider NOT IN (
-              'Nielsen-operations', 'POSOperations', 
-              'POS_Operations', 'NielsenOperations'
+                  ) / 7 AS Checks_Passed, 
+                  (
+                    LEN(MessageType) - LEN(
+                      REPLACE(MessageType, 'Error', '')
+                    )
+                  ) / 5 AS Checks_Failed 
+                from 
+                  [info].[LoadDetailLog] A 
+                  join info.LoadLog base on base.LogId = A.LogId 
+                where 
+                  A.TaskName in (
+                    'NumberoFilesCheck', 'FileSizeCheck', 
+                    'FileNameCheck', 'FileDelimiterCheck', 
+                    'FileEncodingCheck', 'ConstraintCheck', 
+                    'LastPeriodDeliveredCheck', 'DimvsTransTagsCheck', 
+                    'SchemaCheck', 'POS_check_null_values', 
+                    'POS_check_duplicate_values', 'POS_check_data_type'
+                  )
+              ) x
+          ) A PIVOT (
+            COUNT(A.TaskName) FOR TaskName in (
+              NumberoFilesCheck, FileSizeCheck, 
+              FileNameCheck, FileDelimiterCheck, 
+              FileEncodingCheck, ConstraintCheck, 
+              LastPeriodDeliveredCheck, DimvsTransTagsCheck, 
+              SchemaCheck, POS_check_null_values, 
+              POS_check_duplicate_values, POS_check_data_type
             )
-        ) as big_query 
-      group by 
-        country, 
-        Category, 
-        DataProvider, 
-        CellDatabase, 
-        zipFile, 
-        DeliveryPeriod
-    ) a ${query} 
-  GROUP BY 
-    Country, 
-    Category, 
-    DataProvider, 
-    CellDatabase, 
-    zipFile, 
-    DeliveryPeriod, 
-    Overall_Status, 
-    Checks_Passed, 
-    Checks_Failed, 
-    Remarks 
-  order by 
-    Category offset ${offset} rows fetch next ${limit} rows only
+          ) AS PivotTable 
+        where 
+          CONVERT (DATE, '01-' + DeliveryPeriod) > '2023-05-30' 
+          and MessageType like '%:%:%:%:%' 
+          and DataProvider NOT IN (
+            'Nielsen-operations', 'POSOperations', 
+            'POS_Operations', 'NielsenOperations', 
+            'POS'
+          )
+          ) as big_query 
+          group by 
+      country, 
+      Category, 
+      DataProvider, 
+      CellDatabase, 
+      zipFile, 
+      DeliveryPeriod
+      ) a ${query} 
+      GROUP BY 
+      Country, 
+      Category, 
+      DataProvider, 
+      CellDatabase, 
+      zipFile, 
+      DeliveryPeriod, 
+      Overall_Status, 
+      Checks_Passed, 
+      Checks_Failed, 
+      Remarks 
+      order by 
+      Category offset ${offset} rows fetch next ${limit} rows only
   `);
 
     const responseObj = {
@@ -385,7 +386,7 @@ FROM
                 select 
                   base.Country as Country, 
                   base.Category as Category, 
-                  CASE WHEN source = 'Nielsen' THEN 'Nielsen' WHEN source = 'POS' THEN 'POS' WHEN source = 'RMS' THEN category END AS DataProvider, 
+                  CASE WHEN source = 'Nielsen' THEN 'Nielsen' WHEN source = 'EPOS' THEN 'EPOS' WHEN source = 'RMS' THEN category END AS DataProvider, 
                   base.Filename as zipFile, 
                   DATENAME(m, LoadStartTime)+ '-' + CAST(
                     YEAR(LoadStartTime) AS varchar(10)
@@ -433,28 +434,29 @@ FROM
           and MessageType like '%:%:%:%:%' 
           and DataProvider NOT IN (
             'Nielsen-operations', 'POSOperations', 
-            'POS_Operations', 'NielsenOperations'
+            'POS_Operations', 'NielsenOperations', 
+            'POS'
           )
-      ) as big_query 
-    group by 
+          ) as big_query 
+          group by 
       country, 
       Category, 
       DataProvider, 
       CellDatabase, 
       zipFile, 
       DeliveryPeriod
-  ) a ${query} 
-GROUP BY 
-  Country, 
-  Category, 
-  DataProvider, 
-  CellDatabase, 
-  zipFile, 
-  DeliveryPeriod, 
-  Overall_Status, 
-  Checks_Passed, 
-  Checks_Failed, 
-  Remarks 
+      ) a ${query} 
+      GROUP BY 
+      Country, 
+      Category, 
+      DataProvider, 
+      CellDatabase, 
+      zipFile, 
+      DeliveryPeriod, 
+      Overall_Status, 
+      Checks_Passed, 
+      Checks_Failed, 
+      Remarks 
     ) y
   `);
 
