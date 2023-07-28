@@ -206,7 +206,7 @@ FROM
                 select 
                   base.Country as Country, 
                   base.Category as Category, 
-                  CASE WHEN source = 'Nielsen' THEN 'Nielsen' WHEN source = 'EPOS' THEN 'EPOS' WHEN source = 'RMS' THEN category END AS DataProvider, 
+                  CASE WHEN source = 'Nielsen' THEN 'Nielsen' WHEN source = 'EPOS' THEN 'POS' WHEN source = 'RMS' THEN category END AS DataProvider, 
                   base.Filename as zipFile, 
                   DATENAME(m, LoadStartTime)+ '-' + CAST(
                     YEAR(LoadStartTime) AS varchar(10)
@@ -254,8 +254,7 @@ FROM
           and MessageType like '%:%:%:%:%' 
           and DataProvider NOT IN (
             'Nielsen-operations', 'POSOperations', 
-            'POS_Operations', 'NielsenOperations', 
-            'POS'
+            'POS_Operations', 'NielsenOperations'
           )
           ) as big_query 
           group by 
@@ -386,7 +385,7 @@ FROM
                 select 
                   base.Country as Country, 
                   base.Category as Category, 
-                  CASE WHEN source = 'Nielsen' THEN 'Nielsen' WHEN source = 'EPOS' THEN 'EPOS' WHEN source = 'RMS' THEN category END AS DataProvider, 
+                  CASE WHEN source = 'Nielsen' THEN 'Nielsen' WHEN source = 'EPOS' THEN 'POS' WHEN source = 'RMS' THEN category END AS DataProvider, 
                   base.Filename as zipFile, 
                   DATENAME(m, LoadStartTime)+ '-' + CAST(
                     YEAR(LoadStartTime) AS varchar(10)
@@ -434,8 +433,7 @@ FROM
           and MessageType like '%:%:%:%:%' 
           and DataProvider NOT IN (
             'Nielsen-operations', 'POSOperations', 
-            'POS_Operations', 'NielsenOperations', 
-            'POS'
+            'POS_Operations', 'NielsenOperations'
           )
           ) as big_query 
           group by 
