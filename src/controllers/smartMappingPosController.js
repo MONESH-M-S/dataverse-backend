@@ -458,14 +458,16 @@ const fetchMappingFactPOSDetails = async (req, res, next) => {
 
     const { HIGH, MEDIUM, LOW } = ConfidenceLevels;
 
-    switch (confidence) {
-      case HIGH:
-      case MEDIUM:
-      case LOW:
-        whereClause.ConfidenceLevel = confidence.toUpperCase();
-        table.model = MappingFactDetailsPOSModel;
-        break;
-    }
+    table.model = MappingFactDetailsPOSModel;
+
+    // switch (confidence) {
+    //   case HIGH:
+    //   case MEDIUM:
+    //   case LOW:
+    //     whereClause.ConfidenceLevel = confidence.toUpperCase();
+    //     table.model = MappingFactDetailsPOSModel;
+    //     break;
+    // }
 
     table.data = await table.model.findAll({
       where: whereClause,
@@ -508,14 +510,16 @@ const fetchMappingFactPOSDetailsPagination = async (req, res, next) => {
 
     const { HIGH, MEDIUM, LOW } = ConfidenceLevels;
 
-    switch (confidence) {
-      case HIGH:
-      case MEDIUM:
-      case LOW:
-        whereClause.ConfidenceLevel = confidence.toUpperCase();
-        table.model = MappingFactDetailsPOSModel;
-        break;
-    }
+    table.model = MappingFactDetailsPOSModel;
+
+    // switch (confidence) {
+    //   case HIGH:
+    //   case MEDIUM:
+    //   case LOW:
+    //     whereClause.ConfidenceLevel = confidence.toUpperCase();
+    //     table.model = MappingFactDetailsPOSModel;
+    //     break;
+    // }
 
     const count = await table.model.count({
       limit,

@@ -5,6 +5,7 @@ const {
   fetchIndividualSmartMapping,
   fetchSmartMappingMappedDetails,
   fetchSmartMappingUnMappedDetails,
+  fetchSmartMappingLowResultsPagination,
   updateSmartMappingDetails,
   fetchCategoryMeta,
   fetchProviderMeta,
@@ -82,6 +83,7 @@ router.get("/:id/high/count", auth, fetchSmartMappingMappedDetailsPagination);
 router.get("/:id/medium", auth, fetchSmartMappingMediumResults);
 router.get("/:id/medium/count", auth, fetchSmartMappingMediumResultsPagination);
 router.get("/:id/low", auth, fetchSmartMappingUnMappedDetails);
+router.get("/:id/low/count", auth, fetchSmartMappingLowResultsPagination);
 router.get("/:id/unprocessed", auth, fetchUnprocessedRecords);
 router.get("/:id/product/unprocessed", auth, fetchUnprocessedProductRecords); // updated query for product unprocessed
 router.get(
