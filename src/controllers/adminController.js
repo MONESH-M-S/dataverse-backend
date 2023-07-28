@@ -86,8 +86,42 @@ const updateSmlPcatRecords = async (req, res, next) => {
   }
 };
 
+const createSmlPcatRecord = async (req, res, next) => {
+  try {
+    const { record } = req.body;
+    const createdRecord = await SmlPcatModel.create(record);
+    res.json({
+      status: statusTypeEnum.success,
+      message: "Entry for New Metadata was successful. Team has been notified.",
+      result: createdRecord,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteSmlPcatRecords = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    const deletedRecords = await SmlPcatModel.destroy({
+      where: {
+        SML_ID: ids,
+      },
+    });
+    res.json({
+      status: statusTypeEnum.success,
+      message: "Delete submission successful",
+      result: deletedRecords,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   fetchSmlPcatRecords,
   fetchSmlPcatRecordsPagination,
   updateSmlPcatRecords,
+  createSmlPcatRecord,
+  deleteSmlPcatRecords,
 };
