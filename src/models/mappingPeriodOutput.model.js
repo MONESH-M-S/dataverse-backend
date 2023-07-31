@@ -37,7 +37,7 @@ const MappingPeriodOutput = sequelize.define(
   },
   {
     tableName: "MappingPeriodOutput_RMS",
-    schema: "mapping",
+    schema: "Mapping",
     timestamps: false,
   }
 );
