@@ -1,11 +1,13 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
-const SmartMappingFactDetailsModel = sequelize.define('MappingFactOutput', {
+const SmartMappingFactDetailsModel = sequelize.define(
+  "MappingFactOutput_RMS",
+  {
     Id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
     Filename: DataTypes.STRING,
     Uniqueidentifier: DataTypes.STRING,
@@ -18,15 +20,17 @@ const SmartMappingFactDetailsModel = sequelize.define('MappingFactOutput', {
     Precision: DataTypes.NUMBER,
     Denominator: DataTypes.NUMBER,
     Externaldesc: DataTypes.STRING,
-    Facttype: DataTypes.ENUM('Non Additive', 'Additive'),
+    Facttype: DataTypes.ENUM("Non Additive", "Additive"),
     Harmonizedname: DataTypes.STRING,
     Confidencescore: DataTypes.DECIMAL,
     Confidencelevel: DataTypes.STRING,
-    Flag: DataTypes.STRING
-}, {
-    tableName: 'MappingFactOutput',
-    schema: 'Mapping',
+    Flag: DataTypes.STRING,
+  },
+  {
+    tableName: "MappingFactOutput_RMS",
+    schema: "Mapping",
     timestamps: false,
-});
+  }
+);
 
-module.exports = SmartMappingFactDetailsModel
+module.exports = SmartMappingFactDetailsModel;
