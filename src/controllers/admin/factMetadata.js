@@ -73,8 +73,42 @@ const updateFactMetadataRecords = async (req, res, next) => {
   }
 };
 
+const createFactMetadataRecord = async (req, res, next) => {
+  try {
+    const { record } = req.body;
+    const createdRecord = await FactMetadata.create(record);
+    res.json({
+      status: statusTypeEnum.success,
+      message: "Entry for New Metadata was successful. Team has been notified.",
+      result: createdRecord,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteFactMetadataRecords = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    const deletedRecords = await FactMetadata.destroy({
+      where: {
+        Fact_ID: ids,
+      },
+    });
+    res.json({
+      status: statusTypeEnum.success,
+      message: "Delete submission successful",
+      result: deletedRecords,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   fetchFactMetadataRecords,
   fetchFactMetadataRecordsPagination,
   updateFactMetadataRecords,
+  createFactMetadataRecord,
+  deleteFactMetadataRecords
 };

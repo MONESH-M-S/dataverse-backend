@@ -10,6 +10,8 @@ const {
   fetchFactMetadataRecords,
   fetchFactMetadataRecordsPagination,
   updateFactMetadataRecords,
+  createFactMetadataRecord,
+  deleteFactMetadataRecords
 } = require("../controllers/admin/factMetadata");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
@@ -23,6 +25,8 @@ router.delete("/sml-pcat", auth, deleteSmlPcatRecords);
 // Fact Metadata
 router.get("/fact", auth, fetchFactMetadataRecords);
 router.get("/fact/count", auth, fetchFactMetadataRecordsPagination);
+router.post("/fact", auth, createFactMetadataRecord);
 router.put("/fact", auth, updateFactMetadataRecords);
+router.delete("/fact", auth, deleteFactMetadataRecords);
 
 module.exports = router;
