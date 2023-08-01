@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
 const MappingMarketOutput = sequelize.define(
-  "MappingMarketOutput",
+  "MappingMarketOutput_RMS",
   {
     Id: {
       type: DataTypes.INTEGER,
@@ -32,7 +32,7 @@ const MappingMarketOutput = sequelize.define(
     TotalConfidence: DataTypes.STRING,
   },
   {
-    tableName: "MappingMarketOutput",
+    tableName: "MappingMarketOutput_RMS",
     schema: "Mapping",
     timestamps: false,
   }
