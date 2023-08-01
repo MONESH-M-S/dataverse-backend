@@ -1,4 +1,4 @@
-const CriticalAttributesModel = require("../../models/Admin/criticalAttributes.model");
+const CriticalAttributesModel = require("../../models/admin/criticalAttributes.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const statusTypeEnum = require("../../enums/statusType.enum");
 
@@ -43,25 +43,25 @@ const criticalAttributesPagination = async (req, res, next) => {
   }
 };
 
-const updateSmlPcatRecords = async (req, res, next) => {
+const updateCriticalAttributesRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
     const data = req.body.records;
 
     if (data.length) {
       for (const record of data) {
-        const { SML_ID, ...rest } = record;
+        const { GlobalDatabaseName, ...rest } = record;
 
-        await SmlPcatModel.update(rest, {
+        await CriticalAttributesModel.update(rest, {
           where: {
-            SML_ID,
+            GlobalDatabaseName,
           },
           returning: true,
         });
       }
     }
 
-    const smlPcatlist = await SmlPcatModel.findAll({
+    const criticalAttributeslist = await CriticalAttributesModel.findAll({
       limit,
       offset,
     });
@@ -69,17 +69,17 @@ const updateSmlPcatRecords = async (req, res, next) => {
     res.json({
       status: statusTypeEnum.success,
       message: "Your entry has been updated.",
-      result: smlPcatlist,
+      result: criticalAttributeslist,
     });
   } catch (error) {
     next(error);
   }
 };
 
-const createSmlPcatRecord = async (req, res, next) => {
+const createCriticalAttributesRecord = async (req, res, next) => {
   try {
     const { record } = req.body;
-    const createdRecord = await SmlPcatModel.create(record);
+    const createdRecord = await CriticalAttributesModel.create(record);
     res.json({
       status: statusTypeEnum.success,
       message: "Entry for New Metadata was successful. Team has been notified.",
@@ -90,12 +90,12 @@ const createSmlPcatRecord = async (req, res, next) => {
   }
 };
 
-const deleteSmlPcatRecords = async (req, res, next) => {
+const deleteCriticalAttributesRecords = async (req, res, next) => {
   try {
     const { ids } = req.body;
-    const deletedRecords = await SmlPcatModel.destroy({
+    const deletedRecords = await CriticalAttributesModel.destroy({
       where: {
-        SML_ID: ids,
+        GlobalDatabaseName: ids,
       },
     });
     res.json({
@@ -111,7 +111,7 @@ const deleteSmlPcatRecords = async (req, res, next) => {
 module.exports = {
   criticalAttributesRecords,
   criticalAttributesPagination,
-  updateSmlPcatRecords,
-  createSmlPcatRecord,
-  deleteSmlPcatRecords,
+  updateCriticalAttributesRecords,
+  createCriticalAttributesRecord,
+  deleteCriticalAttributesRecords,
 };

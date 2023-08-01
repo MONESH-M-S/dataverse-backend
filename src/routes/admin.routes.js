@@ -8,8 +8,11 @@ const {
 } = require("../controllers/adminController");
 const {
   criticalAttributesRecords,
-  criticalAttributesPagination
-} = require("../controllers/Admin/criticalAttributesMetadata");
+  criticalAttributesPagination,
+  updateCriticalAttributesRecords,
+  createCriticalAttributesRecord,
+  deleteCriticalAttributesRecords,
+} = require("../controllers/admin/criticalAttributesMetadata");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
 
@@ -22,5 +25,8 @@ router.delete("/sml-pcat", auth, deleteSmlPcatRecords);
 // Critical Attributes Metadata
 router.get("/critical-attributes", auth, criticalAttributesRecords);
 router.get("/critical-attributes/count", auth, criticalAttributesPagination);
+router.post("/sml-pcat", auth, createCriticalAttributesRecord);
+router.put("/sml-pcat", auth, updateCriticalAttributesRecords);
+router.delete("/sml-pcat", auth, deleteCriticalAttributesRecords);
 
 module.exports = router;
