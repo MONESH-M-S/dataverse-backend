@@ -1,4 +1,4 @@
-const FactMetadata = require("../../models/FactMetadata.model");
+const FactMetadata = require("../../models/admin/FactMetadata.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const statusTypeEnum = require("../../enums/statusType.enum");
 
@@ -47,18 +47,18 @@ const updateFactMetadataRecords = async (req, res, next) => {
 
     if (data.length) {
       for (const record of data) {
-        const { SML_ID, ...rest } = record;
+        const { Fact_ID, ...rest } = record;
 
-        await SmlPcatModel.update(rest, {
+        await FactMetadata.update(rest, {
           where: {
-            SML_ID,
+            Fact_ID,
           },
           returning: true,
         });
       }
     }
 
-    const smlPcatlist = await SmlPcatModel.findAll({
+    const factMetadataList = await FactMetadata.findAll({
       limit,
       offset,
     });
@@ -66,7 +66,7 @@ const updateFactMetadataRecords = async (req, res, next) => {
     res.json({
       status: statusTypeEnum.success,
       message: "Your entry has been updated.",
-      result: smlPcatlist,
+      result: factMetadataList,
     });
   } catch (error) {
     next(error);
