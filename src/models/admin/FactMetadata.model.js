@@ -4,7 +4,7 @@ const sequelize = require("../../config/sequelize.config");
 const FactMetadata = sequelize.define(
   "NielsenFactMetadata",
   {
-    Fact_ID: { type: DataTypes.NUMBER, primaryKey: true, autoIncrement: true },
+    Id: { type: DataTypes.NUMBER, primaryKey: true, autoIncrement: true },
     UniqueTag: DataTypes.STRING,
     TagLong: DataTypes.STRING,
     TAG_Internal: DataTypes.STRING,

@@ -47,11 +47,11 @@ const updateFactMetadataRecords = async (req, res, next) => {
 
     if (data.length) {
       for (const record of data) {
-        const { Fact_ID, ...rest } = record;
+        const { Id, ...rest } = record;
 
         await FactMetadata.update(rest, {
           where: {
-            Fact_ID,
+            Id,
           },
           returning: true,
         });
@@ -92,7 +92,7 @@ const deleteFactMetadataRecords = async (req, res, next) => {
     const { ids } = req.body;
     const deletedRecords = await FactMetadata.destroy({
       where: {
-        Fact_ID: ids,
+        Id: ids,
       },
     });
     res.json({
