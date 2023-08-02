@@ -25,8 +25,8 @@ router.delete("/sml-pcat", auth, deleteSmlPcatRecords);
 // Critical Attributes Metadata
 router.get("/critical-attributes", auth, criticalAttributesRecords);
 router.get("/critical-attributes/count", auth, criticalAttributesPagination);
-router.post("/sml-pcat", auth, createCriticalAttributesRecord);
-router.put("/sml-pcat", auth, updateCriticalAttributesRecords);
-router.delete("/sml-pcat", auth, deleteCriticalAttributesRecords);
+router.post("/critical-attributes", auth, createCriticalAttributesRecord);
+router.put("/critical-attributes", auth, updateCriticalAttributesRecords);
+router.delete("/critical-attributes", auth, deleteCriticalAttributesRecords);
 
 module.exports = router;
