@@ -23,6 +23,7 @@ const FactUnprocessed = sequelize.define('UnProcessedRecordsFact', {
     Confidencelevel: DataTypes.STRING,
     Createdon: DataTypes.STRING,
     Flag: DataTypes.STRING,
+    Metadataflag: DataTypes.STRING,
 }, {
     tableName: 'UnProcessedRecordsFact',
     schema: 'Mapping',
