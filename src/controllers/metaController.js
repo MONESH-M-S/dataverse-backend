@@ -2,6 +2,7 @@ const MappingFlagDetailsModel = require("../models/MappingFlagDetails.model");
 const LoadLogModel = require("../models/loadLog.model");
 const FactColumnMappingModel = require("../models/factColumnMapping.model");
 const SmlPcatModel = require("../models/smlPcat.model");
+const CellControlModel = require("../models/sourceDetails.model");
 const { Sequelize, sequelize } = require("../../models");
 const { Op } = require("sequelize");
 
@@ -134,6 +135,58 @@ const fetchSmlPcatSegmentMeta = async (req, res, next) => {
   }
 };
 
+const fetchCellControlProviderMeta = async (req, res, next) => {
+  try {
+    const { country, category } = req.query;
+    const whereClause = {};
+    if (country) whereClause["Country"] = country;
+    if (category) whereClause["Category"] = category;
+    const list = await CellControlModel.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col("DataProvider")), "name"],
+      ],
+      where: whereClause,
+    });
+    res.json(list);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchCellControlCountryMeta = async (req, res, next) => {
+  try {
+    const { provider, category } = req.query;
+    const whereClause = {};
+    if (provider) whereClause["DataProvider"] = provider;
+    if (category) whereClause["Category"] = category;
+
+    const list = await CellControlModel.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col("Country")), "name"],
+      ],
+      where: whereClause,
+    });
+    res.json(list);
+  } catch (error) {
+    next(error);
+  }
+};
+const fetchCellControlCategoryMeta = async (req, res, next) => {
+  try {
+    const { provider, country } = req.query;
+    const whereClause = {};
+    if (provider) whereClause["DataProvider"] = provider;
+    if (country) whereClause["Country"] = country;
+    const list = await CellControlModel.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col("Category")), "name"],
+      ],
+      where: whereClause,
+    });
+    res.json(list);
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = {
   fetchCountryMeta,
   fetchProviderMeta,
@@ -142,4 +195,7 @@ module.exports = {
   fetchSmlPcatCategoryMeta,
   fetchSmlPcatMarketMeta,
   fetchSmlPcatSegmentMeta,
+  fetchCellControlProviderMeta,
+  fetchCellControlCountryMeta,
+  fetchCellControlCategoryMeta,
 };
