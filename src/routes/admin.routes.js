@@ -13,6 +13,13 @@ const {
   createCriticalAttributesRecord,
   deleteCriticalAttributesRecords,
 } = require("../controllers/admin/criticalAttributesMetadata");
+const {
+  fetchFactMetadataRecords,
+  fetchFactMetadataRecordsPagination,
+  updateFactMetadataRecords,
+  createFactMetadataRecord,
+  deleteFactMetadataRecords
+} = require("../controllers/admin/factMetadata");
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
 
@@ -28,5 +35,12 @@ router.get("/critical-attributes/count", auth, criticalAttributesPagination);
 router.post("/critical-attributes", auth, createCriticalAttributesRecord);
 router.put("/critical-attributes", auth, updateCriticalAttributesRecords);
 router.delete("/critical-attributes", auth, deleteCriticalAttributesRecords);
+
+// Fact Metadata
+router.get("/fact", auth, fetchFactMetadataRecords);
+router.get("/fact/count", auth, fetchFactMetadataRecordsPagination);
+router.post("/fact", auth, createFactMetadataRecord);
+router.put("/fact", auth, updateFactMetadataRecords);
+router.delete("/fact", auth, deleteFactMetadataRecords);
 
 module.exports = router;
