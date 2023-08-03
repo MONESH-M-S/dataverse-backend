@@ -289,7 +289,7 @@ const fetchSmartMappingUnMappedDetails = async (req, res, next) => {
   }
 };
 
-const fetchSmartMappingLowResultsPagination = async (req,res,next) => {
+const fetchSmartMappingLowResultsPagination = async (req, res, next) => {
   try {
     const id = req.params.id;
 
@@ -311,7 +311,7 @@ const fetchSmartMappingLowResultsPagination = async (req,res,next) => {
   } catch (error) {
     next(error);
   }
-}
+};
 
 const fetchSmartMappingMediumResults = async (req, res, next) => {
   try {
@@ -918,10 +918,10 @@ const downloadProductExcelFile = async (req, res, next) => {
         table.dimension = "Product";
         table.columns = productMappedColumns;
         table.data =
-          await sequelize.query(`select Externaldesc, Short, Tag, u.filename as Filename, Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
+          await sequelize.query(`select Externaldesc, Short, Tag, u.filename as Filename,Confidencelevel,Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
           Productformname, Spfvname, Divisionname, Sectorname, Segmentname, Formname, Subformname, Productpackformname, Productpacksizename, Productvariantname, Productcodename, Scenarioflag
           from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) 
-          up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel and u.filename = '${whereClause.Filename}' and u.Confidencelevel = '${whereClause.Confidencelevel}'`);
+          up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel and u.filename = '${whereClause.Filename}'`);
         break;
       case UNPROCESSED:
         table.model = UnprocessedRecordProductModel;

@@ -65,4 +65,9 @@ module.exports = [
     key: "Productname",
     width: 30,
   },
+  {
+    header: "Confidence Level",
+    key: "Confidencelevel",
+    width: 30,
+  },
 ];

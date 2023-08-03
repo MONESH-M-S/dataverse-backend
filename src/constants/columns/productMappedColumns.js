@@ -131,4 +131,9 @@ module.exports = [
     key: "Scenarioflag",
     width: 20,
   },
+  {
+    header: "Confidence Level",
+    key: "Confidencelevel",
+    width: 30,
+  },
 ];

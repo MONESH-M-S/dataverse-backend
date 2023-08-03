@@ -251,7 +251,6 @@ const downloadPosProductExcelFile = async (req, res, next) => {
       case HIGH:
       case MEDIUM:
       case LOW:
-        whereClause.Confidencelevel = confidenceLevel.toUpperCase();
         table.model = MappingProductDetailsPOSModel;
         table.columns = productMappedColumns;
         break;
