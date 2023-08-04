@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize.config");
 
 const SmartMappingFactDetailsModel = sequelize.define(
-  "MappingFactOutput_RMS",
+  "MappingFactOutput",
   {
     Id: {
       type: DataTypes.INTEGER,
@@ -27,7 +27,7 @@ const SmartMappingFactDetailsModel = sequelize.define(
     Flag: DataTypes.STRING,
   },
   {
-    tableName: "MappingFactOutput_RMS",
+    tableName: "MappingFactOutput",
     schema: "Mapping",
     timestamps: false,
   }
