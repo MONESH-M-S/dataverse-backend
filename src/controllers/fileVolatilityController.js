@@ -342,8 +342,8 @@ FROM
       [Entity]
   ) p ON q1.ZipFileName = p.ZipFileName 
   AND q1.Entity = p.Entity and
-    ZipFileName = '${logDetails.FILENAME}'
-    and Entity = '${Entity}`);
+    q1.ZipFileName = '${logDetails.FILENAME}'
+    and q1.Entity = '${Entity}`);
     
     if (fileData === null) {
       res.json({});
