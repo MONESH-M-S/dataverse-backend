@@ -43,6 +43,7 @@ const dashboardRoutes = require("./src/routes/dashboard.routes");
 const remappingRoutes = require("./src/routes/remapping.routes");
 const dqCheckRoutes = require("./src/routes/dqChecks.routes");
 const adminRoutes = require("./src/routes/admin.routes");
+const otherRMSRoutes = require("./src/routes/SmartMapping/otherRMS.routes");
 
 const cookieParser = require("cookie-parser");
 
@@ -55,6 +56,7 @@ app.use(
 
 app.use(cors());
 app.use(cookieParser());
+app.use("/api/smart-mapping/other-rms", otherRMSRoutes);
 app.use("/api/smart-mapping", smartMappingRoutes);
 app.use("/api/meta", metaRoutes);
 app.use("/api/file-volatility", fileVolatilityRoutes);
