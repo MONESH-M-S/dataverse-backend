@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../../../config/sequelize.config");
+const sequelize = require("../../config/sequelize.config");
 
-const SmartMappingFactOtherRMSModel = sequelize.define(
+const FactOtherRMSModel = sequelize.define(
   "MappingFactOutput_RMS",
   {
     Id: {
@@ -34,4 +34,4 @@ const SmartMappingFactOtherRMSModel = sequelize.define(
   }
 );
 
-module.exports = SmartMappingFactOtherRMSModel;
+module.exports = FactOtherRMSModel;
