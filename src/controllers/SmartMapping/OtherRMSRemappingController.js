@@ -115,6 +115,8 @@ const updateOtherRMSRemappingPeriodValues = async (req, res, next) => {
     const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
+    updatedValues["ConfidenceLevel"] = "HIGH";
+    updatedValues["ConfidenceScore"] = "1";
 
     const updatedFile = await PeriodOtherRMSModel.update(updatedValues, {
       where: {
@@ -137,6 +139,7 @@ const updateOtherRMSRemappingMarketValues = async (req, res, next) => {
     const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
+    updatedValues["Confidencelevel"] = "HIGH";
 
     const updatedFile = await MarketOtherRMSModel.update(updatedValues, {
       where: {
@@ -159,6 +162,8 @@ const updateOtherRMSRemappingFactValues = async (req, res, next) => {
     const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
+    updatedValues["Confidencelevel"] = "HIGH";
+    updatedValues["Confidencescore"] = "1";
 
     const updatedFile = await FactOtherRMSModel.update(updatedValues, {
       where: {

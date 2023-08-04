@@ -153,6 +153,8 @@ const updatePosRemappingProductValues = async (req, res, next) => {
     const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
+    updatedValues["ConfidenceLevel"] = "HIGH";
+    updatedValues["ConfidenceScore"] = "1";
 
     const updatedFile = await MappingProductOutputPos.update(updatedValues, {
       where: { id },
@@ -173,6 +175,8 @@ const updatePosRemappingPeriodValues = async (req, res, next) => {
     const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
+    updatedValues["ConfidenceLevel"] = "HIGH";
+    updatedValues["ConfidenceScore"] = "1";
 
     const updatedFile = await MappingPeriodOutputPos.update(updatedValues, {
       where: {
@@ -195,6 +199,8 @@ const updatePosRemappingMarketValues = async (req, res, next) => {
     const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
+    updatedValues["ConfidenceLevel"] = "HIGH";
+    updatedValues["ConfidenceScore"] = "1";
 
     const updatedFile = await MappingMarketOutputPos.update(updatedValues, {
       where: {
@@ -217,6 +223,8 @@ const updatePosRemappingFactValues = async (req, res, next) => {
     const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
+    updatedValues["Confidencelevel"] = "HIGH";
+    updatedValues["Confidencescore"] = "1";
 
     const updatedFile = await MappingFactOutputPos.update(updatedValues, {
       where: {
