@@ -66,28 +66,15 @@ app.use("/api/remapping", remappingRoutes);
 app.use("/api/dq-checks", dqCheckRoutes);
 app.use("/api/admin", adminRoutes);
 
-app.get("/secret", async (req, res) => {
-  try {
-    const keyVaultName = process.env.KEY_VAULT_NAME;
-    const secretName = process.env.KEY_VAULT_SECRET_NAME;
-    const url = `https://${keyVaultName}.vault.azure.net`;
-
-    const credential = new DefaultAzureCredential();
-    const client = new SecretClient(url, credential);
-    const secret = await client.getSecret(secretName);
-    res.send(secret).status(200);
-  } catch (error) {
-    res.send(error).status(400);
-  }
-});
-
 app.use(express.static(path.join(__dirname, "ui")));
 
 app.get("/*", (req, res) => {
   let file = "";
+  
+  const sanitizedUrl = req.path
 
-  if (req.url === "/") file = "/index.html";
-  else file = req.url;
+  if (sanitizedUrl === "/") file = "/index.html";
+  else file = sanitizedUrl;
 
   const filePath = path.join(__dirname, "ui", file);
 

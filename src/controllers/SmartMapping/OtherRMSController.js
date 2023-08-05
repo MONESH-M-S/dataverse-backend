@@ -2,7 +2,12 @@ const FactOtherRMSModel = require("../../models/SmartMapping/FactOtherRMS.model"
 const MarketOtherRMSModel = require("../../models/SmartMapping/MarketOtherRMS.model");
 const PeriodOtherRMSModel = require("../../models/SmartMapping/PeriodOtherRMS.model");
 
+const FactColumns = require("../../constants/Excel-Columns/SmartMapping/OtherRMS/FactMapped");
+const MarketColumns = require("../../constants/Excel-Columns/SmartMapping/OtherRMS/MarketMapped");
+const PeriodColumns = require("../../constants/Excel-Columns/SmartMapping/OtherRMS/PeriodMapped");
+
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
+const ExcelJS = require("exceljs");
 const { Sequelize } = require("../../../models");
 
 const { Op } = require("sequelize");
@@ -11,6 +16,12 @@ const TABEL_MODEL = {
   Fact: FactOtherRMSModel,
   Market: MarketOtherRMSModel,
   Period: PeriodOtherRMSModel,
+};
+
+const COLUMN_DOWNLOAD_MODEL = {
+  Fact: FactColumns,
+  Market: MarketColumns,
+  Period: PeriodColumns,
 };
 
 const fetchTableRecords = async (req, res, next) => {
@@ -151,7 +162,47 @@ const fetchTableRecordsCount = async (req, res, next) => {
   }
 };
 
+const downloadOtherRMSExcel = async (req, res, next) => {
+  try {
+    const type = req.params.type;
+    const columns = COLUMN_DOWNLOAD_MODEL[type];
+    const table = TABEL_MODEL[type];
+    const { Filename } = req.query;
+
+    console.log(table, columns);
+
+    const data = await table.findAll({
+      where: {
+        Filename,
+      },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("");
+
+    worksheet.columns = columns;
+
+    data.forEach((item) => {
+      worksheet.addRow(item.toJSON());
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+    res.setHeader("Content-Disposition", "attachment; filename=" + Filename);
+
+    await workbook.xlsx.write(res);
+
+    res.end();
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   fetchTableRecords,
   fetchTableRecordsCount,
+  downloadOtherRMSExcel,
 };
