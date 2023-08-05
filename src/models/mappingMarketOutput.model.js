@@ -30,6 +30,7 @@ const MappingMarketOutput = sequelize.define(
     HierLevelNum: DataTypes.STRING,
     ChannelConfidence: DataTypes.STRING,
     TotalConfidence: DataTypes.STRING,
+    Confidencelevel: DataTypes.STRING,
   },
   {
     tableName: "MappingMarketOutput",

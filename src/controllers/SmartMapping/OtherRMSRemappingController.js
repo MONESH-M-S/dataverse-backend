@@ -5,6 +5,11 @@ const { Sequelize, sequelize } = require("../../../models");
 const { Op } = require("sequelize");
 const statusTypeEnum = require("../../enums/statusType.enum");
 
+const Fact_Dropdowns = {
+  "internal-fact-description": "Harmonizedname",
+  "internal-fact-type": "Facttype",
+};
+
 const Period_Dropdowns = {
   periodicity: "Periodicity",
   year: "YearBr",
@@ -13,27 +18,20 @@ const Period_Dropdowns = {
   week: "WeekBr",
   "start-date": "PeriodStartDate",
   "end-date": "PeriodEndDate",
-  tag: "Tag",
-  "min-period": "MinPeriod",
-  "max-period": "MaxPeriod",
+  "min-period-number": "MinPeriodNumBr",
+  "max-period-number": "MaxPeriodNumBr",
   "country-week-start-day": "WeekStartDayCountry",
   "periodicity-identifer": "PeriodicityIdentifer",
-  "month-number": "MonthNumber",
+  convention: "Convention",
   "period-number": "PeriodNumberBr",
 };
 
 const Market_Dropdowns = {
-  "unique-tag": "UniqueTag",
-  "market-name": "Provider/MarketName",
-  customer: "Customer",
-  "store-name": "StoreName",
-  "market-short": "MarketShort",
-  "market-long": "MarketLong",
-};
-
-const Fact_Dropdowns = {
-  "fact-type": "Facttype",
-  "harmonized-name": "Harmonizedname",
+  cell: "Cell",
+  country: "Country",
+  category: "Category",
+  channel: "Channel",
+  "total-market": "TotalMarket",
 };
 
 const getWhereObjectFromQuery = (query) => {
@@ -115,6 +113,8 @@ const updateOtherRMSRemappingPeriodValues = async (req, res, next) => {
     const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
+    updatedValues["ConfidenceLevel"] = "HIGH";
+    updatedValues["ConfidenceScore"] = "1";
 
     const updatedFile = await PeriodOtherRMSModel.update(updatedValues, {
       where: {
@@ -137,6 +137,7 @@ const updateOtherRMSRemappingMarketValues = async (req, res, next) => {
     const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
+    updatedValues["Confidencelevel"] = "HIGH";
 
     const updatedFile = await MarketOtherRMSModel.update(updatedValues, {
       where: {
@@ -159,6 +160,8 @@ const updateOtherRMSRemappingFactValues = async (req, res, next) => {
     const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
+    updatedValues["Confidencelevel"] = "HIGH";
+    updatedValues["Confidencescore"] = "1";
 
     const updatedFile = await FactOtherRMSModel.update(updatedValues, {
       where: {
