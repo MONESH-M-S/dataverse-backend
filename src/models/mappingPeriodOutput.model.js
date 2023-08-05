@@ -34,6 +34,8 @@ const MappingPeriodOutput = sequelize.define(
     Short: DataTypes.STRING,
     LastPeriodTagFormat: DataTypes.STRING,
     Flag: DataTypes.STRING,
+    Confidencelevel: DataTypes.STRING,
+    Confidencescore: DataTypes.STRING,
   },
   {
     tableName: "MappingPeriodOutput",
