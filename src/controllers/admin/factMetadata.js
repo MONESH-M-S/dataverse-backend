@@ -1,14 +1,24 @@
 const FactMetadata = require("../../models/admin/FactMetadata.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const statusTypeEnum = require("../../enums/statusType.enum");
+const { Sequelize } = require("../../../models");
 
 const fetchFactMetadataRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
 
+    const { cell, country, market } = req.query
+
+    const whereClause = {};
+
+    if (cell) whereClause["Cell"] = cell;
+    if (country) whereClause["CountryName"] = country;
+    if (market) whereClause["NielsenMarketName"] = market;
+
     const factMetadataList = await FactMetadata.findAll({
       limit,
-      offset
+      offset,
+      where: whereClause
     });
 
     const responseObj = { result: factMetadataList };
@@ -23,15 +33,23 @@ const fetchFactMetadataRecordsPagination = async (req, res, next) => {
   try {
     const { limit, offset, page } = getPaginationDetails(req);
 
-    const smlPcatCount = await FactMetadata.count({
+    const { cell, country, market } = req.query
+    const whereClause = {};
+
+    if (cell) whereClause["Cell"] = cell;
+    if (country) whereClause["CountryName"] = country;
+    if (market) whereClause["NielsenMarketName"] = market;
+
+    const factCount = await FactMetadata.count({
       limit,
-      offset
+      offset,
+      where: whereClause
     });
 
     const responseObj = {
       page,
       page_size: limit,
-      total_count: smlPcatCount,
+      total_count: factCount,
     };
 
     res.json(responseObj);
@@ -105,10 +123,80 @@ const deleteFactMetadataRecords = async (req, res, next) => {
   }
 };
 
+//META CONTROLLER FOR FACT
+
+const fetchFactCellMeta = async (req, res, next) => {
+
+  try {
+    const { country, market } = req.query;
+    
+    const whereClause = {};
+
+    if (country) whereClause["CountryName"] = country;
+    if (market) whereClause["NielsenMarketName"] = market;
+
+    const list = await FactMetadata.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col("Cell")), "name"],
+      ],
+      where: whereClause,
+    });
+    res.json(list);
+
+  } catch (error) {
+    next(error)
+  }
+}
+
+const fetchFactCountryMeta = async (req, res, next) => {
+  try {
+    const { cell, market } = req.query;
+    const whereClause = {};
+
+    if (cell) whereClause["Cell"] = cell;
+    if (market) whereClause["NielsenMarketName"] = market;
+
+    const list = await FactMetadata.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col("CountryName")), "name"],
+      ],
+      where: whereClause,
+    });
+    res.json(list);
+
+  } catch (error) {
+    next(error)
+  }
+}
+
+const fetchFactNielsenMarketMeta = async (req, res, next) => {
+  try {
+    const { cell, country } = req.query;
+    const whereClause = {};
+
+    if (cell) whereClause["Cell"] = cell;
+    if (country) whereClause["CountryName"] = country;
+
+    const list = await FactMetadata.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col("NielsenMarketName")), "name"],
+      ],
+      where: whereClause,
+    });
+    res.json(list);
+
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   fetchFactMetadataRecords,
   fetchFactMetadataRecordsPagination,
   updateFactMetadataRecords,
   createFactMetadataRecord,
-  deleteFactMetadataRecords
+  deleteFactMetadataRecords,
+  fetchFactCellMeta,
+  fetchFactCountryMeta,
+  fetchFactNielsenMarketMeta
 };
