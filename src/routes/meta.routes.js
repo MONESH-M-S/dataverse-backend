@@ -20,12 +20,12 @@ router.get("/category", auth, fetchCategoryMeta);
 router.get("/im-scenario-flag", auth, fetchIMScenarioFlag);
 
 //sml-pcat
-router.get("/sml-pcat/category", fetchSmlPcatCategoryMeta);
-router.get("/sml-pcat/market", fetchSmlPcatMarketMeta);
-router.get("/sml-pcat/segment", fetchSmlPcatSegmentMeta);
+router.get("/sml-pcat/category",auth, fetchSmlPcatCategoryMeta);
+router.get("/sml-pcat/market",auth, fetchSmlPcatMarketMeta);
+router.get("/sml-pcat/segment",auth, fetchSmlPcatSegmentMeta);
 
 //cell-control
-router.get("/cell-control/provider", fetchCellControlProviderMeta);
-router.get("/cell-control/country", fetchCellControlCountryMeta);
-router.get("/cell-control/category", fetchCellControlCategoryMeta);
+router.get("/cell-control/provider",auth, fetchCellControlProviderMeta);
+router.get("/cell-control/country",auth, fetchCellControlCountryMeta);
+router.get("/cell-control/category",auth, fetchCellControlCategoryMeta);
 module.exports = router;
