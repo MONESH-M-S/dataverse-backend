@@ -27,76 +27,76 @@ const fetchVolatilityList = async (req, res, next) => {
       order_by_provider: orderByProvider,
     } = req.query;
 
-    let whereClause = {};
-    let orderClause = [["LogId", "DESC"]];
+    let query = "";
+    let orderClause = "[LOADSTARTTIME] DESC";
+    let metaDataFilter = [];
+    let statusFilter = [];
 
-    if (filterByProvider) {
-      whereClause["SOURCE"] = filterByProvider;
-    } else {
-      whereClause["SOURCE"] = { [Op.in]: ["Nielsen", "POS"] };
-    }
+    if (filterByProvider) metaDataFilter.push(`SOURCE = '${filterByProvider}'`);
 
-    if (startDate && endDate) {
-      whereClause["LOADSTARTTIME"] = {
-        [Op.between]: [startDate, endDate],
-      };
-    }
+    if (filterByCountry) metaDataFilter.push(`Country = '${filterByCountry}'`);
 
-    if (filterByCategory) {
-      whereClause["CATEGORY"] = filterByCategory;
-    }
+    if (filterByCategory)
+      metaDataFilter.push(`Category = '${filterByCategory}'`);
 
-    if (search) {
-      whereClause[Op.or] = [
-        { FILENAME: { [Op.like]: `%${search.trim()}%` } },
-        { COUNTRY: { [Op.like]: `%${search.trim()}%` } },
-        { CATEGORY: { [Op.like]: `%${search.trim()}%` } },
-      ];
-    }
+    if (search)
+      metaDataFilter.push(
+        `FILENAME LIKE '%${search.trim()}%' OR COUNTRY LIKE '%${search.trim()}%' OR CATEGORY LIKE '%${search.trim()}%'`
+      );
 
-    const statusFilterList = [];
+    if (startDate && endDate)
+      metaDataFilter.push(
+        `LOADSTARTTIME > ${startDate} AND LOADENDTIME < ${endDate}`
+      );
 
-    if (filterByFail && filterByFail != "false") {
-      statusFilterList.push(fileVolatilityFilterEnum.FAILURE);
-    }
+    if (filterByFail === "true")
+      statusFilter.push(fileVolatilityFilterEnum.FAILURE);
 
-    if (filterByInProgress && filterByInProgress != "false") {
-      statusFilterList.push(fileVolatilityFilterEnum.IN_PROGRESS);
-    }
+    if (filterByInProgress === "true")
+      statusFilter.push(fileVolatilityFilterEnum.IN_PROGRESS);
 
-    if (filterBySuccess && filterBySuccess != "false") {
-      statusFilterList.push(fileVolatilityFilterEnum.SUCCESS);
-    }
-
-    if (statusFilterList.length > 0) {
-      whereClause["PIPELINESTATUS"] = {
-        [Op.in]: statusFilterList,
-      };
-    }
-
-    if (filterByCountry) {
-      whereClause["COUNTRY"] = {
-        [Op.in]: [filterByCountry],
-      };
-    }
+    if (filterBySuccess === "true")
+      statusFilter.push(fileVolatilityFilterEnum.SUCCESS);
 
     if (orderById) {
-      orderClause = [["LogId", orderById]];
+      orderClause = "LogId DESC";
     }
 
     if (orderByProvider) {
-      orderClause = [["SOURCE", orderByProvider]];
+      orderClause = "SOURCE DESC";
     }
 
-    const volatilityList = await LoadLogModel.findAll({
-      limit,
-      offset,
-      where: whereClause,
-      order: orderClause,
-    });
+    if (metaDataFilter.length || statusFilter.length) {
+      query = "AND ";
+
+      if (metaDataFilter.length) {
+        query += metaDataFilter.join(" AND ");
+      }
+
+      if (statusFilter.length) {
+        if (metaDataFilter.length) {
+          query += " AND ";
+        }
+        query += `PIPELINESTATUS IN ('${statusFilter.join(",")}')`;
+      }
+    }
+
+    query += ` ORDER BY ${orderClause}`;
+
+    const result = await sequelize.query(`
+    SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+       [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY] FROM (
+        SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+        [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
+        ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
+      FROM [info].[LoadLog] AS [LoadLog]
+      WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS')
+      ) AS ranked_files
+    WHERE rn = 1 ${query}
+    OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY;`);
 
     const responseObj = {
-      result: volatilityList,
+      result: result[0],
     };
 
     res.json(responseObj);
@@ -121,78 +121,67 @@ const fetchVolatilityListPagination = async (req, res, next) => {
       order_by_provider: orderByProvider,
     } = req.query;
 
-    let whereClause = {};
-    let orderClause = [["LogId", "DESC"]];
+    let query = "";
+    let metaDataFilter = [];
+    let statusFilter = [];
 
-    if (filterByProvider) {
-      whereClause["SOURCE"] = filterByProvider;
-    } else {
-      whereClause["SOURCE"] = { [Op.in]: ["Nielsen", "POS"] };
+    if (filterByProvider) metaDataFilter.push(`SOURCE = '${filterByProvider}'`);
+
+    if (filterByCountry) metaDataFilter.push(`Country = '${filterByCountry}'`);
+
+    if (filterByCategory)
+      metaDataFilter.push(`Category = '${filterByCategory}'`);
+
+    if (search)
+      metaDataFilter.push(
+        `FILENAME LIKE '%${search.trim()}%' OR COUNTRY LIKE '%${search.trim()}%' OR CATEGORY LIKE '%${search.trim()}%'`
+      );
+
+    if (startDate && endDate)
+      metaDataFilter.push(
+        `LOADSTARTTIME > ${startDate} AND LOADENDTIME < ${endDate}`
+      );
+
+    if (filterByFail === "true")
+      statusFilter.push(fileVolatilityFilterEnum.FAILURE);
+
+    if (filterByInProgress === "true")
+      statusFilter.push(fileVolatilityFilterEnum.IN_PROGRESS);
+
+    if (filterBySuccess === "true")
+      statusFilter.push(fileVolatilityFilterEnum.SUCCESS);
+
+    if (metaDataFilter.length || statusFilter.length) {
+      query = "AND ";
+
+      if (metaDataFilter.length) {
+        query += metaDataFilter.join(" AND ");
+      }
+
+      if (statusFilter.length) {
+        if (metaDataFilter.length) {
+          query += " AND ";
+        }
+        query += `PIPELINESTATUS IN ('${statusFilter.join(",")}')`;
+      }
     }
 
-    if (startDate && endDate) {
-      whereClause["LOADSTARTTIME"] = {
-        [Op.between]: [startDate, endDate],
-      };
-    }
-
-    if (filterByCategory) {
-      whereClause["CATEGORY"] = filterByCategory;
-    }
-
-    if (search) {
-      whereClause[Op.or] = [
-        { FILENAME: { [Op.like]: `%${search.trim()}%` } },
-        { COUNTRY: { [Op.like]: `%${search.trim()}%` } },
-        { CATEGORY: { [Op.like]: `%${search.trim()}%` } },
-      ];
-    }
-
-    const statusFilterList = [];
-
-    if (filterByFail && filterByFail != "false") {
-      statusFilterList.push(fileVolatilityFilterEnum.FAILURE);
-    }
-
-    if (filterByInProgress && filterByInProgress != "false") {
-      statusFilterList.push(fileVolatilityFilterEnum.IN_PROGRESS);
-    }
-
-    if (filterBySuccess && filterBySuccess != "false") {
-      statusFilterList.push(fileVolatilityFilterEnum.SUCCESS);
-    }
-
-    if (statusFilterList.length > 0) {
-      whereClause["PIPELINESTATUS"] = {
-        [Op.in]: statusFilterList,
-      };
-    }
-
-    if (filterByCountry) {
-      whereClause["COUNTRY"] = {
-        [Op.in]: [filterByCountry],
-      };
-    }
-
-    if (orderById) {
-      orderClause = [["LogId", orderById]];
-    }
-
-    if (orderByProvider) {
-      orderClause = [["SOURCE", orderByProvider]];
-    }
-
-    const volatilityListCount = await LoadLogModel.count({
-      limit,
-      offset,
-      where: whereClause,
-      order: orderClause,
-    });
+    const result = await sequelize.query(`
+    select count(*) as count from (
+      SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+       [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY] FROM (
+        SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+        [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
+        ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
+      FROM [info].[LoadLog] AS [LoadLog]
+      WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS')
+      ) AS ranked_files
+    WHERE rn = 1 ${query} ) y;`);
 
     const responseObj = {
       page,
       page_size: limit,
-      total_count: volatilityListCount,
+      total_count: result[0][0]['count'],
     };
 
     res.json(responseObj);
