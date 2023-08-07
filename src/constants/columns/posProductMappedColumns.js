@@ -67,7 +67,7 @@ module.exports = [
   },
   {
     header: "Confidence Level",
-    key: "Confidencelevel",
+    key: "ConfidenceLevel",
     width: 30,
   },
 ];
