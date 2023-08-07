@@ -4,6 +4,7 @@ const sequelize = require("../../config/sequelize.config");
 const CriticalAttributesModel = sequelize.define(
   "CriticalAttributes",
   {
+    Country: DataTypes.STRING,
     GlobalDatabaseName: {type:DataTypes.STRING, field: 'Global Database Name', primaryKey: true},
     LocalDatabaseName: {type:DataTypes.STRING, field: 'Local Database Name'},
     MarketNameCode: DataTypes.STRING,
