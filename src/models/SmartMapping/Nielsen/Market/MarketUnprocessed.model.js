@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/sequelize.config");
+const sequelize = require("../../../../config/sequelize.config");
 
-const UnporcessedRecordMarketModel = sequelize.define('UnProcessedRecordsMarket', {
+const MarketUnprocessed = sequelize.define('UnProcessedRecordsMarket', {
     Id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -23,4 +23,4 @@ const UnporcessedRecordMarketModel = sequelize.define('UnProcessedRecordsMarket'
     hasTrigger: true
 });
 
-module.exports = UnporcessedRecordMarketModel
+module.exports = MarketUnprocessed
