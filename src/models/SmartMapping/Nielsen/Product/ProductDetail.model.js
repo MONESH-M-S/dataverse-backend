@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/sequelize.config");
+const sequelize = require("../../../../config/sequelize.config");
 
-const SmartMappingDetailsModel = sequelize.define(
+const ProductDetail = sequelize.define(
   "MappingProductOutput",
   {
     Id: {
@@ -67,4 +67,4 @@ const SmartMappingDetailsModel = sequelize.define(
   }
 );
 
-module.exports = SmartMappingDetailsModel;
+module.exports = ProductDetail;
