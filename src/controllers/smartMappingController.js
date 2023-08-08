@@ -602,6 +602,12 @@ const fetchMappedRecordsForMarketDimension = async (req, res, next) => {
       whereClause[Op.or] = [
         { Long: { [Op.like]: `%${search.trim()}%` } },
         { Tag: { [Op.like]: `%${search.trim()}%` } },
+        { Country: { [Op.like]: `%${search.trim()}%` } },
+        { Category: { [Op.like]: `%${search.trim()}%` } },
+        { FileName: { [Op.like]: `%${search.trim()}%` } },
+        { CreatedOn: { [Op.like]: `%${search.trim()}%` } },
+        { Channel: { [Op.like]: `%${search.trim()}%` } },
+        { TotalMarket: { [Op.like]: `%${search.trim()}%` } },
       ];
     }
 
@@ -639,6 +645,12 @@ const fetchMappedRecordsForMarketDimensionPagination = async (
       whereClause[Op.or] = [
         { Long: { [Op.like]: `%${search.trim()}%` } },
         { Tag: { [Op.like]: `%${search.trim()}%` } },
+        { Country: { [Op.like]: `%${search.trim()}%` } },
+        { Category: { [Op.like]: `%${search.trim()}%` } },
+        { FileName: { [Op.like]: `%${search.trim()}%` } },
+        { CreatedOn: { [Op.like]: `%${search.trim()}%` } },
+        { Channel: { [Op.like]: `%${search.trim()}%` } },
+        { TotalMarket: { [Op.like]: `%${search.trim()}%` } },
       ];
     }
 

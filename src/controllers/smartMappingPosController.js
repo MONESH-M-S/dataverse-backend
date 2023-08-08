@@ -21,6 +21,8 @@ const fetchMappingProductPOSDetails = async (req, res, next) => {
   try {
     const { id, confidence } = req.params;
 
+    const { search } = req.query;
+
     const smartMapping = await SmartMappingListModel.findByPk(id);
 
     const { limit, offset } = getPaginationDetails(req);
@@ -31,12 +33,28 @@ const fetchMappingProductPOSDetails = async (req, res, next) => {
 
     whereClause.Filename = smartMapping.Filename;
 
+    if (search) {
+      whereClause[Op.or] = [
+        { Filename: { [Op.like]: `%${search.trim()}%` } },
+        { CreatedOn: { [Op.like]: `%${search.trim()}%` } },
+        { Externaldesc: { [Op.like]: `%${search.trim()}%` } },
+        { Productidentifier: { [Op.like]: `%${search.trim()}%` } },
+      ];
+    }
+
     const { HIGH, MEDIUM, LOW, UNPROCESSED } = ConfidenceLevels;
 
     switch (confidence) {
       case HIGH:
       case MEDIUM:
       case LOW:
+        if (search) {
+          whereClause[Op.or] = [
+            ...whereClause[Op.or],
+            { Internaldesc: { [Op.like]: `%${search.trim()}%` } },
+            { Scenarioflag: { [Op.like]: `%${search.trim()}%` } },
+          ];
+        }
         whereClause.ConfidenceLevel = confidence.toUpperCase();
         table.model = MappingProductDetailsPOSModel;
         break;
@@ -63,6 +81,8 @@ const fetchMappingProductPOSDetailsPagination = async (req, res, next) => {
   try {
     const { id, confidence } = req.params;
 
+    const { search } = req.query;
+
     const smartMapping = await SmartMappingListModel.findByPk(id);
 
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
@@ -73,12 +93,28 @@ const fetchMappingProductPOSDetailsPagination = async (req, res, next) => {
 
     whereClause.Filename = smartMapping.Filename;
 
+    if (search) {
+      whereClause[Op.or] = [
+        { Filename: { [Op.like]: `%${search.trim()}%` } },
+        { CreatedOn: { [Op.like]: `%${search.trim()}%` } },
+        { Externaldesc: { [Op.like]: `%${search.trim()}%` } },
+        { Productidentifier: { [Op.like]: `%${search.trim()}%` } },
+      ];
+    }
+
     const { HIGH, MEDIUM, LOW, UNPROCESSED } = ConfidenceLevels;
 
     switch (confidence) {
       case HIGH:
       case MEDIUM:
       case LOW:
+        if (search) {
+          whereClause[Op.or] = [
+            ...whereClause[Op.or],
+            { Internaldesc: { [Op.like]: `%${search.trim()}%` } },
+            { Scenarioflag: { [Op.like]: `%${search.trim()}%` } },
+          ];
+        }
         whereClause.ConfidenceLevel = confidence.toUpperCase();
         table.model = MappingProductDetailsPOSModel;
         break;
@@ -321,6 +357,11 @@ const fetchMappingMarketPOSDetails = async (req, res, next) => {
       whereClause[Op.or] = [
         { MarketLong: { [Op.like]: `%${search.trim()}%` } },
         { UniqueTag: { [Op.like]: `%${search.trim()}%` } },
+        { Country: { [Op.like]: `%${search.trim()}%` } },
+        { FileName: { [Op.like]: `%${search.trim()}%` } },
+        { CreatedOn: { [Op.like]: `%${search.trim()}%` } },
+        { Customer: { [Op.like]: `%${search.trim()}%` } },
+        { StoreName: { [Op.like]: `%${search.trim()}%` } },
       ];
     }
 
@@ -367,6 +408,11 @@ const fetchMappingMarketPOSDetailsPagination = async (req, res, next) => {
       whereClause[Op.or] = [
         { MarketLong: { [Op.like]: `%${search.trim()}%` } },
         { UniqueTag: { [Op.like]: `%${search.trim()}%` } },
+        { Country: { [Op.like]: `%${search.trim()}%` } },
+        { FileName: { [Op.like]: `%${search.trim()}%` } },
+        { CreatedOn: { [Op.like]: `%${search.trim()}%` } },
+        { Customer: { [Op.like]: `%${search.trim()}%` } },
+        { StoreName: { [Op.like]: `%${search.trim()}%` } },
       ];
     }
 
