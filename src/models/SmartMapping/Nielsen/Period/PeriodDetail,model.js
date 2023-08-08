@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/sequelize.config");
+const sequelize = require("../../../../config/sequelize.config");
 
-const MappingPeriodOutput = sequelize.define(
+const PeriodDetail = sequelize.define(
   "MappingPeriodOutput",
   {
     Id: {
@@ -11,7 +11,6 @@ const MappingPeriodOutput = sequelize.define(
     },
     FileName: {
       type: DataTypes.STRING,
-      primaryKey: true,
     },
     Tag: DataTypes.STRING,
     Country: DataTypes.STRING,
@@ -44,4 +43,4 @@ const MappingPeriodOutput = sequelize.define(
   }
 );
 
-module.exports = MappingPeriodOutput;
+module.exports = PeriodDetail;
