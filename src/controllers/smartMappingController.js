@@ -491,7 +491,7 @@ const fetchUnmappedRecordsSuggestions = async (req, res, next) => {
 
     if (search) {
       whereClause["Internaldesc"] = {
-        [Op.like]: "%" + search + "%",
+        [Op.like]: "%" + search.trim() + "%",
       };
     }
 
@@ -523,7 +523,7 @@ const fetchMappedRecordsForPeriodDimension = async (req, res, next) => {
         { Short: { [Op.like]: `%${search.trim()}%` } },
         { Long: { [Op.like]: `%${search.trim()}%` } },
         { Periodicity: { [Op.like]: `%${search.trim()}%` } },
-        { Tag: { [Op.like]: `%${search}%` } },
+        { Tag: { [Op.like]: `%${search.trim()}%` } },
       ];
     }
 
@@ -565,7 +565,7 @@ const fetchMappedRecordsForPeriodDimensionPagination = async (
         { Short: { [Op.like]: `%${search.trim()}%` } },
         { Long: { [Op.like]: `%${search.trim()}%` } },
         { Periodicity: { [Op.like]: `%${search.trim()}%` } },
-        { Tag: { [Op.like]: `%${search}%` } },
+        { Tag: { [Op.like]: `%${search.trim()}%` } },
       ];
     }
 
@@ -600,8 +600,8 @@ const fetchMappedRecordsForMarketDimension = async (req, res, next) => {
 
     if (search) {
       whereClause[Op.or] = [
-        { Long: { [Op.like]: `%${search}%` } },
-        { Tag: { [Op.like]: `%${search}%` } },
+        { Long: { [Op.like]: `%${search.trim()}%` } },
+        { Tag: { [Op.like]: `%${search.trim()}%` } },
       ];
     }
 
@@ -637,8 +637,8 @@ const fetchMappedRecordsForMarketDimensionPagination = async (
 
     if (search) {
       whereClause[Op.or] = [
-        { Long: { [Op.like]: `%${search}%` } },
-        { Tag: { [Op.like]: `%${search}%` } },
+        { Long: { [Op.like]: `%${search.trim()}%` } },
+        { Tag: { [Op.like]: `%${search.trim()}%` } },
       ];
     }
 
@@ -715,7 +715,9 @@ const fetchUnprocessedProductRecords = async (req, res, next) => {
       result =
         await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
         from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
-        and u.Filename='${smartMapping.Filename}' and u.Externaldesc LIKE '% ${search} %' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
+        and u.Filename='${
+          smartMapping.Filename
+        }' and u.Externaldesc LIKE '% ${search.trim()} %' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
     } else {
       result =
         await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
@@ -745,7 +747,9 @@ const fetchUnprocessedProductRecordsPagination = async (req, res, next) => {
       result =
         await sequelize.query(`select count(*) from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
         from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
-        and u.Filename='${smartMapping.Filename}' and u.Externaldesc LIKE '% ${search} %'`);
+        and u.Filename='${
+          smartMapping.Filename
+        }' and u.Externaldesc LIKE '% ${search.trim()} %'`);
     } else {
       result =
         await sequelize.query(`select count(*) from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
@@ -781,7 +785,7 @@ const fetchUnprocessedRecords = async (req, res, next) => {
         modelName = UnprocessedRecordMarketModel;
         searchClause = {
           Long: {
-            [Op.like]: "%" + search + "%",
+            [Op.like]: "%" + search.trim() + "%",
           },
         };
         break;
@@ -790,7 +794,7 @@ const fetchUnprocessedRecords = async (req, res, next) => {
         modelName = UnprocessedRecordProductModel;
         searchClause = {
           Externaldesc: {
-            [Op.like]: "%" + search + "%",
+            [Op.like]: "%" + search.trim() + "%",
           },
         };
         whereClause = {

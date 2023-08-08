@@ -114,7 +114,7 @@ const fetchUnmappedPOSRecordsSuggestions = async (req, res, next) => {
     if (search) {
       whereClause[Op.or] = [
         { Productidentifier: { [Op.like]: `%${search.trim()}%` } },
-        { Externaldesc: { [Op.like]: `%${search}%` } },
+        { Externaldesc: { [Op.like]: `%${search.trim()}%` } },
       ];
     }
 

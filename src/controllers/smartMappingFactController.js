@@ -175,7 +175,7 @@ const fetchSmartMappingFactDetail = async (req, res, next) => {
 
     if (search) {
       whereClause["Externaldesc"] = {
-        [Op.like]: "%" + search + "%",
+        [Op.like]: "%" + search.trim() + "%",
       };
     }
 
@@ -208,7 +208,7 @@ const fetchSmartMappingFactDetailPagination = async (req, res, next) => {
 
     if (search) {
       whereClause["Externaldesc"] = {
-        [Op.like]: "%" + search + "%",
+        [Op.like]: "%" + search.trim() + "%",
       };
     }
 
@@ -240,7 +240,7 @@ const fetchLowMappingDetails = async (req, res, next) => {
 
     if (search) {
       whereClause["Externaldesc"] = {
-        [Op.like]: "%" + search + "%",
+        [Op.like]: "%" + search.trim() + "%",
       };
     }
 
@@ -315,7 +315,7 @@ const fetchFactUnprocessed = async (req, res, next) => {
 
     if (search) {
       whereClause["Externaldesc"] = {
-        [Op.like]: "%" + search + "%",
+        [Op.like]: "%" + search.trim() + "%",
       };
     }
 
@@ -341,7 +341,7 @@ const fetchFactUnprocessedCount = async (req, res, next) => {
 
     if (search) {
       whereClause["Externaldesc"] = {
-        [Op.like]: "%" + search + "%",
+        [Op.like]: "%" + search.trim() + "%",
       };
     }
 
