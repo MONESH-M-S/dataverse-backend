@@ -63,18 +63,20 @@ const fetchCellControlRecordsPagination = async (req, res, next) => {
 
 const fetchCellControlStatus = async (req, res, next) => {
   try {
-    const total_cells = await CellControlModel.count();
+    const { provider, country, category } = req.query;
+    const whereClause = {};
+    if (provider) whereClause["DataProvider"] = provider;
+    if (country) whereClause["Country"] = country;
+    if (category) whereClause["Category"] = category;
+
+    const total_cells = await CellControlModel.count({ where: whereClause });
 
     const activated_cells = await CellControlModel.count({
-      where: {
-        IsActive: 1,
-      },
+      where: { ...whereClause, IsActive: 1 },
     });
 
     const deactivated_cells = await CellControlModel.count({
-      where: {
-        IsActive: 0,
-      },
+      where: { ...whereClause, IsActive: 0 },
     });
     res.json({
       total_cells,
