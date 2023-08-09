@@ -6,16 +6,16 @@ const sendAsExcelFile = require("../../../../utils/response/sendAsExcelFile");
 const fetchMarketMapping = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
-    const { Filename, search } = req.query;
+    const { Filename, Search } = req.query;
 
     let whereClause = {
       Filename: Filename,
     };
 
-    if (search) {
+    if (Search) {
       whereClause[Op.or] = [
-        { Long: { [Op.like]: `%${search}%` } },
-        { Tag: { [Op.like]: `%${search}%` } },
+        { Long: { [Op.like]: `%${Search}%` } },
+        { Tag: { [Op.like]: `%${Search}%` } },
       ];
     }
 
@@ -38,16 +38,16 @@ const fetchMarketMappingPagination = async (
   try {
 
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
-    const { Filename, search } = req.query;
+    const { Filename, Search } = req.query;
 
     let whereClause = {
       Filename: Filename,
     };
 
-    if (search) {
+    if (Search) {
       whereClause[Op.or] = [
-        { Long: { [Op.like]: `%${search}%` } },
-        { Tag: { [Op.like]: `%${search}%` } },
+        { Long: { [Op.like]: `%${Search}%` } },
+        { Tag: { [Op.like]: `%${Search}%` } },
       ];
     }
 

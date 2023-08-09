@@ -7,14 +7,14 @@ const sendAsExcelFile = require("../../../../utils/response/sendAsExcelFile");
 const fetchProductUnprocessed = async (req, res, next) => {
     try {
         const { limit, offset } = getPaginationDetails(req);
-        const { Filename, search } = req.query;
+        const { Filename, Search } = req.query;
 
         let result;
-        if (search !== undefined && search.length) {
+        if (Search !== undefined && Search.length) {
             result =
                 await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
           from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
-          and u.Filename='${Filename}' and u.Externaldesc LIKE '% ${search} %' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
+          and u.Filename='${Filename}' and u.Externaldesc LIKE '% ${Search} %' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
         } else {
             result =
                 await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
@@ -31,15 +31,15 @@ const fetchProductUnprocessed = async (req, res, next) => {
 const fetchProductUnprocessedPagination = async (req, res, next) => {
     try {
         const { page, pageSize } = getPaginationDetails(req);
-        const { Filename, search } = req.query
+        const { Filename, Search } = req.query
 
         let result;
 
-        if (search !== undefined && search.length) {
+        if (Search !== undefined && Search.length) {
             result =
                 await sequelize.query(`select count(*) as count from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
           from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
-          and u.Filename='${Filename}' and u.Externaldesc LIKE '% ${search} %'`);
+          and u.Filename='${Filename}' and u.Externaldesc LIKE '% ${Search} %'`);
         } else {
             result =
                 await sequelize.query(`select count(*) as count from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel

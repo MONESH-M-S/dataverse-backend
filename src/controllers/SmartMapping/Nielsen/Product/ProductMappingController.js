@@ -6,14 +6,14 @@ const ProductMappedColumns = require('../../../../constants/Excel-Columns/SmartM
 
 const fetchProductMapping = async (req, res, next) => {
     try {
-        const { Filename, confidenceLevel } = req.query
+        const { Filename, Confidencelevel } = req.query
 
         const { limit, offset } = getPaginationDetails(req);
 
         const mappedData =
             await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
       from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-      and u.filename = '${Filename}' and u.Confidencelevel = '${confidenceLevel}' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
+      and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
 
         res.json({ result: mappedData[0] });
     } catch (error) {
@@ -24,14 +24,14 @@ const fetchProductMapping = async (req, res, next) => {
 
 const fetchProductMappingPagination = async (req, res, next) => {
     try {
-        const { Filename, confidenceLevel } = req.query
+        const { Filename, Confidencelevel } = req.query
 
         const { page, pageSize } = getPaginationDetails(req);
 
         const count =
             await sequelize.query(`select count(*) as count from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
       from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-      and u.filename = '${Filename}' and u.Confidencelevel = '${confidenceLevel}'`);
+      and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}'`);
 
         const responseObj = {
             page,

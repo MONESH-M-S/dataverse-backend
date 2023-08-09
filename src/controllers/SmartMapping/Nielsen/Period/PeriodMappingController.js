@@ -5,7 +5,7 @@ const sendAsExcelFile = require("../../../../utils/response/sendAsExcelFile");
 
 const fetchPeriodMapping = async (req, res, next) => {
     try {
-        const { Filename, search } = req.query;
+        const { Filename, Search } = req.query;
 
         const { limit, offset } = getPaginationDetails(req);
 
@@ -13,12 +13,12 @@ const fetchPeriodMapping = async (req, res, next) => {
             Filename: Filename
         }
 
-        if (search) {
+        if (Search) {
             whereClause[Op.or] = [
-                { Short: { [Op.like]: `%${search.trim()}%` } },
-                { Long: { [Op.like]: `%${search.trim()}%` } },
-                { Periodicity: { [Op.like]: `%${search.trim()}%` } },
-                { Tag: { [Op.like]: `%${search}%` } },
+                { Short: { [Op.like]: `%${Search.trim()}%` } },
+                { Long: { [Op.like]: `%${Search.trim()}%` } },
+                { Periodicity: { [Op.like]: `%${Search.trim()}%` } },
+                { Tag: { [Op.like]: `%${Search}%` } },
             ];
         }
         const result = await PeriodMappingModel.findAll({
@@ -42,7 +42,7 @@ const fetchPeriodMappingPagination = async (
 ) => {
     try {
 
-        const { Filename, search } = req.query;
+        const { Filename, Search } = req.query;
 
         const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
@@ -50,12 +50,12 @@ const fetchPeriodMappingPagination = async (
             Filename: Filename
         };
 
-        if (search) {
+        if (Search) {
             whereClause[Op.or] = [
-                { Short: { [Op.like]: `%${search.trim()}%` } },
-                { Long: { [Op.like]: `%${search.trim()}%` } },
-                { Periodicity: { [Op.like]: `%${search.trim()}%` } },
-                { Tag: { [Op.like]: `%${search}%` } },
+                { Short: { [Op.like]: `%${Search.trim()}%` } },
+                { Long: { [Op.like]: `%${Search.trim()}%` } },
+                { Periodicity: { [Op.like]: `%${Search.trim()}%` } },
+                { Tag: { [Op.like]: `%${Search}%` } },
             ];
         }
 
