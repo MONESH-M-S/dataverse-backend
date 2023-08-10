@@ -10,12 +10,12 @@ const fetchProductMapping = async (req, res, next) => {
 
         const { limit, offset } = getPaginationDetails(req);
 
-        const mappedData =
+        const result =
             await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
       from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
       and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
 
-        res.json({ result: mappedData[0] });
+        res.json({ result: result[0] });
     } catch (error) {
         next(error);
     }
