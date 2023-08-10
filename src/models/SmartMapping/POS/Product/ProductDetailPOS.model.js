@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/sequelize.config");
+const sequelize = require("../../../../config/sequelize.config");
 
-const MappingProductOutputPOS = sequelize.define(
+const ProductDetailPOS = sequelize.define(
   "MappingProductOutput_POS",
   {
     Id: {
@@ -48,4 +48,4 @@ const MappingProductOutputPOS = sequelize.define(
   }
 );
 
-module.exports = MappingProductOutputPOS;
+module.exports = ProductDetailPOS;

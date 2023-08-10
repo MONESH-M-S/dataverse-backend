@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/sequelize.config");
+const sequelize = require("../../../../config/sequelize.config");
 
-const UnporcessedRecordProductPOSModel = sequelize.define(
+const ProductUnprocessedPOS = sequelize.define(
   "UnProcessedRecordsProduct_POS",
   {
     Id: {
@@ -23,4 +23,4 @@ const UnporcessedRecordProductPOSModel = sequelize.define(
   }
 );
 
-module.exports = UnporcessedRecordProductPOSModel;
+module.exports = ProductUnprocessedPOS;

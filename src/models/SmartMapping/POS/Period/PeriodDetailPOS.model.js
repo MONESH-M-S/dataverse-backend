@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/sequelize.config");
+const sequelize = require("../../../../config/sequelize.config");
 
-const MappingPeriodOutputPOS = sequelize.define(
+const PeriodDetailPOS = sequelize.define(
   "MappingPeriodOutput_POS",
   {
     Id: {
@@ -44,4 +44,4 @@ const MappingPeriodOutputPOS = sequelize.define(
   }
 );
 
-module.exports = MappingPeriodOutputPOS;
+module.exports = PeriodDetailPOS;
