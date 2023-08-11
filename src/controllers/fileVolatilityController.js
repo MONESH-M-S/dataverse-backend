@@ -32,7 +32,11 @@ const fetchVolatilityList = async (req, res, next) => {
     let metaDataFilter = [];
     let statusFilter = [];
 
-    if (filterByProvider) metaDataFilter.push(`SOURCE = '${filterByProvider}'`);
+    if (filterByProvider) {
+      if (filterByProvider === "POS")
+        metaDataFilter.push(`SOURCE IN ('POS','EPOS')`);
+      else metaDataFilter.push(`SOURCE = '${filterByProvider}'`);
+    }
 
     if (filterByCountry) metaDataFilter.push(`Country = '${filterByCountry}'`);
 
@@ -125,7 +129,11 @@ const fetchVolatilityListPagination = async (req, res, next) => {
     let metaDataFilter = [];
     let statusFilter = [];
 
-    if (filterByProvider) metaDataFilter.push(`SOURCE = '${filterByProvider}'`);
+    if (filterByProvider) {
+      if (filterByProvider === "POS")
+        metaDataFilter.push(`SOURCE IN ('POS','EPOS')`);
+      else metaDataFilter.push(`SOURCE = '${filterByProvider}'`);
+    }
 
     if (filterByCountry) metaDataFilter.push(`Country = '${filterByCountry}'`);
 
