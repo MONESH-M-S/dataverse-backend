@@ -174,9 +174,12 @@ const fetchSmartMappingFactDetail = async (req, res, next) => {
     //   whereClause["Confidencelevel"] = confidenceLevel.toUpperCase();
 
     if (search) {
-      whereClause["Externaldesc"] = {
-        [Op.like]: "%" + search + "%",
-      };
+      whereClause[Op.or] = [
+        { Tag: { [Op.like]: `%${search.trim()}%` } },
+        { Short: { [Op.like]: `%${search.trim()}%` } },
+        { Externaldesc: { [Op.like]: `%${search.trim()}%` } },
+        { Uniqueidentifier: { [Op.like]: `%${search.trim()}%` } },
+      ];
     }
 
     const mappingDataList = await SmartMappingFactDetailsModel.findAll({
@@ -207,9 +210,12 @@ const fetchSmartMappingFactDetailPagination = async (req, res, next) => {
     //   whereClause["confidenceLevel"] = confidenceLevel.toUpperCase();
 
     if (search) {
-      whereClause["Externaldesc"] = {
-        [Op.like]: "%" + search + "%",
-      };
+      whereClause[Op.or] = [
+        { Tag: { [Op.like]: `%${search.trim()}%` } },
+        { Short: { [Op.like]: `%${search.trim()}%` } },
+        { Externaldesc: { [Op.like]: `%${search.trim()}%` } },
+        { Uniqueidentifier: { [Op.like]: `%${search.trim()}%` } },
+      ];
     }
 
     const count = await SmartMappingFactDetailsModel.count({
@@ -240,7 +246,7 @@ const fetchLowMappingDetails = async (req, res, next) => {
 
     if (search) {
       whereClause["Externaldesc"] = {
-        [Op.like]: "%" + search + "%",
+        [Op.like]: "%" + search.trim() + "%",
       };
     }
 
@@ -315,7 +321,7 @@ const fetchFactUnprocessed = async (req, res, next) => {
 
     if (search) {
       whereClause["Externaldesc"] = {
-        [Op.like]: "%" + search + "%",
+        [Op.like]: "%" + search.trim() + "%",
       };
     }
 
@@ -341,7 +347,7 @@ const fetchFactUnprocessedCount = async (req, res, next) => {
 
     if (search) {
       whereClause["Externaldesc"] = {
-        [Op.like]: "%" + search + "%",
+        [Op.like]: "%" + search.trim() + "%",
       };
     }
 

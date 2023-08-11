@@ -18,6 +18,9 @@ const {
   updateCriticalAttributesRecords,
   createCriticalAttributesRecord,
   deleteCriticalAttributesRecords,
+  fetchGlobalDbMeta,
+  fetchLocalDbMeta,
+  fetchMarketNameCodeMeta
 } = require("../controllers/admin/criticalAttributesMetadata");
 const {
   fetchFactMetadataRecords,
@@ -25,7 +28,12 @@ const {
   updateFactMetadataRecords,
   createFactMetadataRecord,
   deleteFactMetadataRecords,
+  fetchFactCellMeta,
+  fetchFactCountryMeta,
+  fetchFactNielsenMarketMeta
 } = require("../controllers/admin/factMetadata");
+
+
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
 
@@ -42,13 +50,18 @@ router.get("/critical-attributes/count", auth, criticalAttributesPagination);
 router.post("/critical-attributes", auth, createCriticalAttributesRecord);
 router.put("/critical-attributes", auth, updateCriticalAttributesRecords);
 router.delete("/critical-attributes", auth, deleteCriticalAttributesRecords);
-
+router.get("/critical-attributes/global", auth, fetchGlobalDbMeta)
+router.get("/critical-attributes/local", auth, fetchLocalDbMeta)
+router.get("/critical-attributes/market", auth, fetchMarketNameCodeMeta)
 // Fact Metadata
 router.get("/fact", auth, fetchFactMetadataRecords);
 router.get("/fact/count", auth, fetchFactMetadataRecordsPagination);
 router.post("/fact", auth, createFactMetadataRecord);
 router.put("/fact", auth, updateFactMetadataRecords);
 router.delete("/fact", auth, deleteFactMetadataRecords);
+router.get('/fact/meta/cell', auth, fetchFactCellMeta);
+router.get('/fact/meta/country', auth, fetchFactCountryMeta);
+router.get('/fact/meta/market', auth, fetchFactNielsenMarketMeta)
 
 //Cell-Control
 router.get("/cell-control", auth, fetchCellControlRecords);
