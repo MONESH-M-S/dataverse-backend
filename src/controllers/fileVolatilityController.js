@@ -50,7 +50,7 @@ const fetchVolatilityList = async (req, res, next) => {
 
     if (startDate && endDate)
       metaDataFilter.push(
-        `LOADSTARTTIME > ${startDate} AND LOADENDTIME < ${endDate}`
+        `LOADSTARTTIME >= '${startDate}' AND LOADENDTIME <= '${endDate}'`
       );
 
     if (filterByFail === "true")
@@ -85,8 +85,6 @@ const fetchVolatilityList = async (req, res, next) => {
       }
     }
 
-    query += ` ORDER BY ${orderClause}`;
-
     const result = await sequelize.query(`
     SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
        [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY] FROM (
@@ -94,9 +92,9 @@ const fetchVolatilityList = async (req, res, next) => {
         [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
         ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
       FROM [info].[LoadLog] AS [LoadLog]
-      WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS')
+      WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS') ${query}
       ) AS ranked_files
-    WHERE rn = 1 ${query}
+    WHERE rn = 1 ORDER BY ${orderClause}
     OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY;`);
 
     const responseObj = {
@@ -147,7 +145,7 @@ const fetchVolatilityListPagination = async (req, res, next) => {
 
     if (startDate && endDate)
       metaDataFilter.push(
-        `LOADSTARTTIME > ${startDate} AND LOADENDTIME < ${endDate}`
+        `LOADSTARTTIME >= '${startDate}' AND LOADENDTIME <= '${endDate}'`
       );
 
     if (filterByFail === "true")
@@ -174,22 +172,17 @@ const fetchVolatilityListPagination = async (req, res, next) => {
       }
     }
 
-    const result = await sequelize.query(`
-    select count(*) as count from (
-      SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
-       [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY] FROM (
-        SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
-        [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
-        ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
-      FROM [info].[LoadLog] AS [LoadLog]
-      WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS')
-      ) AS ranked_files
-    WHERE rn = 1 ${query} ) y;`);
+    const result = await sequelize.query(`SELECT 
+      COUNT(*) as count
+    FROM 
+      [info].[LoadLog] AS [LoadLog] 
+    WHERE 
+      [LoadLog].[SOURCE] IN ('Nielsen','POS') ${query}`);
 
     const responseObj = {
       page,
       page_size: limit,
-      total_count: result[0][0]['count'],
+      total_count: result[0][0]["count"],
     };
 
     res.json(responseObj);
@@ -214,9 +207,9 @@ const fetchColumnMappings = async (req, res, next) => {
     const { entity } = req.query;
 
     const logDetails = await LoadLogModel.findByPk(id);
-    
+
     let Entity = entity ?? "Product";
-    
+
     const fileData = await sequelize.query(`
     select top 1 * from (SELECT
 
@@ -406,7 +399,7 @@ const fetchColumnMappings = async (req, res, next) => {
     
     where Q2.ZipFileName =  '${logDetails.FILENAME}'
     and Q2.Entity = '${Entity}'`);
-    
+
     if (fileData === null) {
       res.json({});
       return;
