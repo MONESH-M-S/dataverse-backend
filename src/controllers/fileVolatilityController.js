@@ -50,7 +50,7 @@ const fetchVolatilityList = async (req, res, next) => {
 
     if (startDate && endDate)
       metaDataFilter.push(
-        `LOADSTARTTIME > ${startDate} AND LOADENDTIME < ${endDate}`
+        `LOADSTARTTIME >= '${startDate}' AND LOADENDTIME <= '${endDate}'`
       );
 
     if (filterByFail === "true")
@@ -145,7 +145,7 @@ const fetchVolatilityListPagination = async (req, res, next) => {
 
     if (startDate && endDate)
       metaDataFilter.push(
-        `LOADSTARTTIME > ${startDate} AND LOADENDTIME < ${endDate}`
+        `LOADSTARTTIME >= '${startDate}' AND LOADENDTIME <= '${endDate}'`
       );
 
     if (filterByFail === "true")
@@ -172,17 +172,12 @@ const fetchVolatilityListPagination = async (req, res, next) => {
       }
     }
 
-    const result = await sequelize.query(`
-    select count(*) as count from (
-      SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
-       [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY] FROM (
-        SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
-        [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
-        ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
-      FROM [info].[LoadLog] AS [LoadLog]
-      WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS') ${query}
-      ) AS ranked_files
-    WHERE rn = 1 );`);
+    const result = await sequelize.query(`SELECT 
+      COUNT(*) as count
+    FROM 
+      [info].[LoadLog] AS [LoadLog] 
+    WHERE 
+      [LoadLog].[SOURCE] IN ('Nielsen','POS') ${query}`);
 
     const responseObj = {
       page,
