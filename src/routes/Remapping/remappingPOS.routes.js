@@ -14,8 +14,6 @@ const {
     updatePosRemappingPeriodValues,
     updatePosRemappingProductValues
 } = require('../../controllers/Remapping/POS/RemappingPOSUpdateController')
-
-
 //POS Remapping Dropdown Options
 router.get("/product/:columnName", posProductRemappingOptions);
 router.get("/period/:columnName", posPeriodRemappingOptions);

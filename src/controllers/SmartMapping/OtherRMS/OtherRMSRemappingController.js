@@ -1,7 +1,7 @@
 const FactOtherRMSModel = require("../../../models/SmartMapping/OtherRms/FactOtherRMS.model");
 const MarketOtherRMSModel = require("../../../models/SmartMapping/OtherRms/MarketOtherRMS.model");
 const PeriodOtherRMSModel = require("../../../models/SmartMapping/OtherRms/PeriodOtherRMS.model");
-const { Fact_Dropdowns, Period_Dropdowns, Market_Dropdowns } = require('../../../constants/dropDown/otherRmsRMConstant')
+const { Fact_Dropdowns, Period_Dropdowns, Market_Dropdowns } = require('../../../constants/dropDown/remappingConstant')
 const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");
 const statusTypeEnum = require("../../../enums/statusType.enum");

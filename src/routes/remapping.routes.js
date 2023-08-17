@@ -1,16 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../middlewares/auth.middleware");
-const {
-  factRemappingOptions,
-  productRemappingOptions,
-  periodRemappingOptions,
-  marketRemappingOptions,
-  updateRemappingProductValues,
-  updateRemappingFactValues,
-  updateRemappingPeriodValues,
-  updateRemappingMarketValues,
-} = require("../controllers/remappingController");
 
 const {
   posPeriodRemappingOptions,
@@ -23,26 +12,7 @@ const {
   updatePosRemappingFactValues,
 } = require("../controllers/posRemappingController");
 
-const {
-  otherRMSPeriodRemappingOptions,
-  otherRMSMarketRemappingOptions,
-  otherRMSFactRemappingOptions,
-  updateOtherRMSRemappingPeriodValues,
-  updateOtherRMSRemappingMarketValues,
-  updateOtherRMSRemappingFactValues,
-} = require("../controllers/SmartMapping/OtherRMSRemappingController");
 
-//Remapping Dropdown Options
-router.get("/product/:columnName", auth, productRemappingOptions);
-router.get("/fact/:columnName", auth, factRemappingOptions);
-router.get("/period/:columnName", auth, periodRemappingOptions);
-router.get("/market/:columnName", auth, marketRemappingOptions);
-
-//Remapping Update
-router.put("/product/:id", auth, updateRemappingProductValues);
-router.put("/fact/:id", auth, updateRemappingFactValues);
-router.put("/period/:id", auth, updateRemappingPeriodValues);
-router.put("/market/:id", auth, updateRemappingMarketValues);
 
 //POS Remapping Dropdown Options
 router.get("/pos/product/:columnName", auth, posProductRemappingOptions);
@@ -55,15 +25,5 @@ router.put("/pos/product/:id", auth, updatePosRemappingProductValues);
 router.put("/pos/period/:id", auth, updatePosRemappingPeriodValues);
 router.put("/pos/market/:id", auth, updatePosRemappingMarketValues);
 router.put("/pos/fact/:id", auth, updatePosRemappingFactValues);
-
-//Other RMS Remapping Dropdown Options
-router.get("/other-rms/fact/:columnName", auth, otherRMSFactRemappingOptions);
-router.get("/other-rms/period/:columnName", auth, otherRMSPeriodRemappingOptions);
-router.get("/other-rms/market/:columnName", auth, otherRMSMarketRemappingOptions);
-
-//Other RMS Remapping Update
-router.put("/other-rms/fact/:id", auth, updateOtherRMSRemappingFactValues);
-router.put("/other-rms/period/:id", auth, updateOtherRMSRemappingPeriodValues);
-router.put("/other-rms/market/:id", auth, updateOtherRMSRemappingMarketValues);
 
 module.exports = router;
