@@ -12,7 +12,7 @@ const ExcelJS = require("exceljs");
 
 const fetchVolatilityList = async (req, res, next) => {
   try {
-    const { limit, offset, page } = getPaginationDetails(req);
+    const { limit, offset } = getPaginationDetails(req);
     const {
       search,
       filter_by_provider: filterByProvider,
@@ -108,7 +108,7 @@ const fetchVolatilityList = async (req, res, next) => {
 };
 const fetchVolatilityListPagination = async (req, res, next) => {
   try {
-    const { limit, offset, page } = getPaginationDetails(req);
+    const { limit, page } = getPaginationDetails(req);
     const {
       search,
       filter_by_provider: filterByProvider,
@@ -124,6 +124,7 @@ const fetchVolatilityListPagination = async (req, res, next) => {
     } = req.query;
 
     let query = "";
+    let orderClause = "[LOADSTARTTIME] DESC";
     let metaDataFilter = [];
     let statusFilter = [];
 
@@ -157,6 +158,14 @@ const fetchVolatilityListPagination = async (req, res, next) => {
     if (filterBySuccess === "true")
       statusFilter.push(fileVolatilityFilterEnum.SUCCESS);
 
+    if (orderById) {
+      orderClause = "LogId DESC";
+    }
+
+    if (orderByProvider) {
+      orderClause = "SOURCE DESC";
+    }
+
     if (metaDataFilter.length || statusFilter.length) {
       query = "AND ";
 
@@ -172,17 +181,21 @@ const fetchVolatilityListPagination = async (req, res, next) => {
       }
     }
 
-    const result = await sequelize.query(`SELECT 
-      COUNT(*) as count
-    FROM 
-      [info].[LoadLog] AS [LoadLog] 
-    WHERE 
-      [LoadLog].[SOURCE] IN ('Nielsen','POS') ${query}`);
+    const result = await sequelize.query(`
+    SELECT count(*) from (SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+       [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY] FROM (
+        SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+        [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
+        ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
+      FROM [info].[LoadLog] AS [LoadLog]
+      WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS') ${query}
+      ) AS ranked_files
+    WHERE rn = 1) as count;`);
 
     const responseObj = {
       page,
       page_size: limit,
-      total_count: result[0][0]["count"],
+      total_count: result[0][0][""],
     };
 
     res.json(responseObj);
@@ -231,7 +244,7 @@ const fetchColumnMappings = async (req, res, next) => {
     
       COALESCE(q1.TargetColumn, 'NA') AS TargetColumn,
     
-      COALESCE(q1.CriticalAttributes_Flag, 'NA') AS CriticalAttributes_Flag,
+      COALESCE(q1.CriticalFlag, 'NA') AS CriticalFlag,
     
       ISNULL(p.PreviousSource, 'NA') AS PreviousSource,
     
@@ -263,7 +276,7 @@ const fetchColumnMappings = async (req, res, next) => {
     
         A.TargetColumn,
     
-        A.CriticalAttributes_Flag,
+        A.CriticalFlag,
     
         A.DataProvider,
     
@@ -418,7 +431,7 @@ const updateColumnMapping = async (req, res) => {
     await FactColumnMappingModel.update(
       {
         SourceColumn,
-        CriticalAttributes_Flag: criticalAttributes,
+        CriticalFlag: criticalAttributes,
       },
       {
         where: {
