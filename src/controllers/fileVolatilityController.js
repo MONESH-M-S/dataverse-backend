@@ -424,7 +424,7 @@ const fetchColumnMappings = async (req, res, next) => {
   }
 };
 
-const updateColumnMapping = async (req, res) => {
+const updateColumnMapping = async (req, res, next) => {
   try {
     const { SourceColumn, Id, criticalAttributes } = req.body;
 
