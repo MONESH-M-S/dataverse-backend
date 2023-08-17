@@ -17,7 +17,7 @@ const ColumnMappingModel = sequelize.define(
     SourceColumn: DataTypes.STRING,
     TargetColumn: DataTypes.STRING,
     ZipFileName: DataTypes.STRING,
-    CriticalAttributes_Flag: DataTypes.STRING,
+    CriticalFlag: DataTypes.STRING,
   },
   {
     tableName: "ColumnMapping",
