@@ -44,6 +44,7 @@ const remappingRoutes = require("./src/routes/remapping.routes");
 const dqCheckRoutes = require("./src/routes/dqChecks.routes");
 const adminRoutes = require("./src/routes/admin.routes");
 const otherRMSRoutes = require("./src/routes/SmartMapping/otherRMS.routes");
+const pocRoutes = require("./src/routes/poc.routes");
 
 const cookieParser = require("cookie-parser");
 
@@ -56,6 +57,7 @@ app.use(
 
 app.use(cors());
 app.use(cookieParser());
+app.use("/api/poc", pocRoutes);
 app.use("/api/smart-mapping/other-rms", otherRMSRoutes);
 app.use("/api/smart-mapping", smartMappingRoutes);
 app.use("/api/meta", metaRoutes);
