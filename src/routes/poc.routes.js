@@ -15,7 +15,6 @@ const auth = require("../middlewares/auth.middleware");
 router.get("/sml-pcat", auth, fetchSmlPcatRecords);
 router.get("/sml-pcat/count", auth, fetchSmlPcatRecordsPagination);
 router.put("/sml-pcat", auth, updateSmlPcatRecords);
-router.post("/sml-pcat", auth, createSmlPcatRecord);
 router.post("/sml-pcat/bulkcreate",auth,createBulkSmlPcatRecord)
 router.delete("/sml-pcat", auth, deleteSmlPcatRecords);
 

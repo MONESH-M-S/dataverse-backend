@@ -25,12 +25,15 @@ const fetchSmlPcatRecords = async (req, res, next) => {
 
     if (tableFilters.length > 0) {
       tableFilters.forEach((filter) => {
-        whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
       });
     }
 
     if (sortFilters.length > 0) {
-      orderClause = [[sortFilters[0].id, sortFilters[0].desc ? "DESC" : "ASC"]];
+      orderClause = [
+        [sortFilters[0].id ?? "SML_ID", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
     }
 
     const smlPcatlist = await SmlPcatModel.findAll({
@@ -72,7 +75,8 @@ const fetchSmlPcatRecordsPagination = async (req, res, next) => {
 
     if (tableFilters.length > 0) {
       tableFilters.forEach((filter) => {
-        whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
       });
     }
 
@@ -150,8 +154,9 @@ const createSmlPcatRecord = async (req, res, next) => {
 
 const createBulkSmlPcatRecord = async (req, res, next) => {
   try {
-    const { record } = req.body;
-    const createdRecord = await SmlPcatModel.bulkCreate(record);
+    const { records } = req.body;
+
+    const createdRecord = await SmlPcatModel.bulkCreate(records);
     res.json({
       status: statusTypeEnum.success,
       message: "Entry for New Metadata was successful. Team has been notified.",
@@ -186,5 +191,5 @@ module.exports = {
   updateSmlPcatRecords,
   createSmlPcatRecord,
   deleteSmlPcatRecords,
-  createBulkSmlPcatRecord
+  createBulkSmlPcatRecord,
 };
