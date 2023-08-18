@@ -148,6 +148,20 @@ const createSmlPcatRecord = async (req, res, next) => {
   }
 };
 
+const createBulkSmlPcatRecord = async (req, res, next) => {
+  try {
+    const { record } = req.body;
+    const createdRecord = await SmlPcatModel.bulkCreate(record);
+    res.json({
+      status: statusTypeEnum.success,
+      message: "Entry for New Metadata was successful. Team has been notified.",
+      result: createdRecord,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const deleteSmlPcatRecords = async (req, res, next) => {
   try {
     const { ids } = req.body;
@@ -172,4 +186,5 @@ module.exports = {
   updateSmlPcatRecords,
   createSmlPcatRecord,
   deleteSmlPcatRecords,
+  createBulkSmlPcatRecord
 };
