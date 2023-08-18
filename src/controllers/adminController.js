@@ -1,19 +1,43 @@
 const SmlPcatModel = require("../models/smlPcat.model");
 const getPaginationDetails = require("../utils/response/getPaginationDetails");
+const { Op } = require("sequelize");
 const statusTypeEnum = require("../enums/statusType.enum");
 
 const fetchSmlPcatRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
-    const { category, market, segment } = req.query;
-    const whereClause = {};
+    const { category, market, segment, filters, sorting } = req.query;
+
+    let whereClause = {};
+    let orderClause = [];
+
     if (category) whereClause["DP_CATEGORY"] = category;
     if (market) whereClause["DP_MARKET"] = market;
     if (segment) whereClause["DP_SEGMENT"] = segment;
+
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [[sortFilters[0].id, sortFilters[0].desc ? "DESC" : "ASC"]];
+    }
+
     const smlPcatlist = await SmlPcatModel.findAll({
       limit,
       offset,
       where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = {
@@ -29,16 +53,40 @@ const fetchSmlPcatRecords = async (req, res, next) => {
 const fetchSmlPcatRecordsPagination = async (req, res, next) => {
   try {
     const { limit, offset, page } = getPaginationDetails(req);
-    const { category, market, segment } = req.query;
-    const whereClause = {};
+    const { category, market, segment, filters, sorting } = req.query;
+
+    let whereClause = {};
+    let orderClause = [];
+
     if (category) whereClause["DP_CATEGORY"] = category;
     if (market) whereClause["DP_MARKET"] = market;
     if (segment) whereClause["DP_SEGMENT"] = segment;
+
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "SML_ID", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
 
     const smlPcatCount = await SmlPcatModel.count({
       limit,
       offset,
       where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = {
