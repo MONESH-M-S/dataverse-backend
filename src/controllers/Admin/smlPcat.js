@@ -1,20 +1,15 @@
-const SmlPcatModel = require("../models/smlPcat.model");
-const getPaginationDetails = require("../utils/response/getPaginationDetails");
+const SmlPcatModel = require("../../models/smlPcat.model");
+const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const { Op } = require("sequelize");
-const statusTypeEnum = require("../enums/statusType.enum");
+const statusTypeEnum = require("../../enums/statusType.enum");
 
 const fetchSmlPcatRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
-    const { category, market, segment, filters, sorting } = req.query;
+    const { filters, sorting } = req.query;
 
     let whereClause = {};
     let orderClause = [];
-
-    if (category) whereClause["DP_CATEGORY"] = category;
-    if (market) whereClause["DP_MARKET"] = market;
-    if (segment) whereClause["DP_SEGMENT"] = segment;
-
     let tableFilters = [];
     let sortFilters = [];
 
@@ -56,15 +51,10 @@ const fetchSmlPcatRecords = async (req, res, next) => {
 const fetchSmlPcatRecordsPagination = async (req, res, next) => {
   try {
     const { limit, offset, page } = getPaginationDetails(req);
-    const { category, market, segment, filters, sorting } = req.query;
+    const { filters, sorting } = req.query;
 
     let whereClause = {};
     let orderClause = [];
-
-    if (category) whereClause["DP_CATEGORY"] = category;
-    if (market) whereClause["DP_MARKET"] = market;
-    if (segment) whereClause["DP_SEGMENT"] = segment;
-
     let tableFilters = [];
     let sortFilters = [];
 
@@ -107,7 +97,6 @@ const fetchSmlPcatRecordsPagination = async (req, res, next) => {
 
 const updateSmlPcatRecords = async (req, res, next) => {
   try {
-    const { limit, offset } = getPaginationDetails(req);
     const data = req.body.records;
 
     if (data.length) {
@@ -123,15 +112,9 @@ const updateSmlPcatRecords = async (req, res, next) => {
       }
     }
 
-    const smlPcatlist = await SmlPcatModel.findAll({
-      limit,
-      offset,
-    });
-
     res.json({
       status: statusTypeEnum.success,
       message: "Your entry has been updated.",
-      result: smlPcatlist,
     });
   } catch (error) {
     next(error);
@@ -156,11 +139,11 @@ const createBulkSmlPcatRecord = async (req, res, next) => {
   try {
     const { records } = req.body;
 
-    const createdRecord = await SmlPcatModel.bulkCreate(records);
+    const createdRecords = await SmlPcatModel.bulkCreate(records);
     res.json({
       status: statusTypeEnum.success,
       message: "Entry for New Metadata was successful. Team has been notified.",
-      result: createdRecord,
+      result: createdRecords,
     });
   } catch (error) {
     next(error);

@@ -2,23 +2,45 @@ const CriticalAttributesModel = require("../../models/admin/criticalAttributes.m
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const statusTypeEnum = require("../../enums/statusType.enum");
 const { Sequelize } = require("../../../models");
+const { Op } = require("sequelize");
 
 const criticalAttributesRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
 
-    const { globalDB, localDB, marketName } = req.query
+    const { filters, sorting } = req.query;
 
-    const whereClause = {};
+    let whereClause = {};
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
 
-    if (globalDB) whereClause["Global Database Name"] = globalDB;
-    if (localDB) whereClause["Local Database Name"] = localDB;
-    if (marketName) whereClause["MarketNameCode"] = marketName;
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [
+          sortFilters[0].id ?? "GlobalDatabaseName",
+          sortFilters[0].desc ? "DESC" : "ASC",
+        ],
+      ];
+    }
 
     const criticalAttributesList = await CriticalAttributesModel.findAll({
       limit,
       offset,
-      where: whereClause
+      where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = {
@@ -36,18 +58,39 @@ const criticalAttributesPagination = async (req, res, next) => {
   try {
     const { limit, offset, page } = getPaginationDetails(req);
 
-    const { globalDB, localDB, marketName } = req.query
+    const { filters, sorting } = req.query;
 
-    const whereClause = {};
+    let whereClause = {};
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
 
-    if (globalDB) whereClause["Global Database Name"] = globalDB;
-    if (localDB) whereClause["Local Database Name"] = localDB;
-    if (marketName) whereClause["MarketNameCode"] = marketName;
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [
+          sortFilters[0].id ?? "GlobalDatabaseName",
+          sortFilters[0].desc ? "DESC" : "ASC",
+        ],
+      ];
+    }
 
     const criticalAttributesCount = await CriticalAttributesModel.count({
       limit,
       offset,
-      where: whereClause
+      where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = {
@@ -64,7 +107,6 @@ const criticalAttributesPagination = async (req, res, next) => {
 
 const updateCriticalAttributesRecords = async (req, res, next) => {
   try {
-    const { limit, offset } = getPaginationDetails(req);
     const data = req.body.records;
 
     if (data.length) {
@@ -80,15 +122,9 @@ const updateCriticalAttributesRecords = async (req, res, next) => {
       }
     }
 
-    const criticalAttributeslist = await CriticalAttributesModel.findAll({
-      limit,
-      offset,
-    });
-
     res.json({
       status: statusTypeEnum.success,
       message: "Your entry has been updated.",
-      result: criticalAttributeslist,
     });
   } catch (error) {
     next(error);
@@ -103,6 +139,20 @@ const createCriticalAttributesRecord = async (req, res, next) => {
       status: statusTypeEnum.success,
       message: "Entry for New Metadata was successful. Team has been notified.",
       result: createdRecord,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createBulkCriticalAttributesRecord = async (req, res, next) => {
+  try {
+    const { records } = req.body;
+    const createdRecords = await CriticalAttributesModel.bulkCreate(records);
+    res.json({
+      status: statusTypeEnum.success,
+      message: "Entry for New Metadata was successful. Team has been notified.",
+      result: createdRecords,
     });
   } catch (error) {
     next(error);
@@ -137,16 +187,18 @@ const fetchGlobalDbMeta = async (req, res, next) => {
 
     const list = await CriticalAttributesModel.findAll({
       attributes: [
-        [Sequelize.fn("DISTINCT", Sequelize.col("Global Database Name")), "name"],
+        [
+          Sequelize.fn("DISTINCT", Sequelize.col("Global Database Name")),
+          "name",
+        ],
       ],
       where: whereClause,
     });
     res.json(list);
-
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchLocalDbMeta = async (req, res, next) => {
   try {
@@ -158,15 +210,18 @@ const fetchLocalDbMeta = async (req, res, next) => {
 
     const list = await CriticalAttributesModel.findAll({
       attributes: [
-        [Sequelize.fn("DISTINCT", Sequelize.col("Local Database Name")), "name"],
+        [
+          Sequelize.fn("DISTINCT", Sequelize.col("Local Database Name")),
+          "name",
+        ],
       ],
       where: whereClause,
     });
     res.json(list);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchMarketNameCodeMeta = async (req, res, next) => {
   try {
@@ -185,9 +240,9 @@ const fetchMarketNameCodeMeta = async (req, res, next) => {
     });
     res.json(list);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 module.exports = {
   criticalAttributesRecords,
@@ -197,5 +252,6 @@ module.exports = {
   deleteCriticalAttributesRecords,
   fetchGlobalDbMeta,
   fetchLocalDbMeta,
-  fetchMarketNameCodeMeta
+  fetchMarketNameCodeMeta,
+  createBulkCriticalAttributesRecord,
 };
