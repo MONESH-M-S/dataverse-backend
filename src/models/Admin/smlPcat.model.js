@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/sequelize.config");
+const sequelize = require("../../config/sequelize.config");
 
 const SmlPcatModel = sequelize.define(
   "settings_sml_pcat",
@@ -57,14 +57,15 @@ const SmlPcatModel = sequelize.define(
     AG013: DataTypes.STRING,
     Maxattrilifestage: DataTypes.STRING,
     AG005: DataTypes.STRING,
-    Maxattrifatcontent: DataTypes.STRING
+    Maxattrifatcontent: DataTypes.STRING,
   },
   {
     tableName: "settings_sml_pcat",
     schema: "metadata",
     timestamps: false,
-  }, {
-    constraints: false
+  },
+  {
+    constraints: false,
   }
 );
 

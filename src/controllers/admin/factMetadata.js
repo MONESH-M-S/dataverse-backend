@@ -1,4 +1,4 @@
-const FactMetadata = require("../../models/admin/FactMetadata.model");
+const FactMetadata = require("../../models/Admin/FactMetadata.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const statusTypeEnum = require("../../enums/statusType.enum");
 const { Sequelize } = require("../../../models");

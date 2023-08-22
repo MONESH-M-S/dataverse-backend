@@ -1,4 +1,4 @@
-const SmlPcatModel = require("../../models/smlPcat.model");
+const SmlPcatModel = require("../../models/Admin/smlPcat.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const { Op } = require("sequelize");
 const statusTypeEnum = require("../../enums/statusType.enum");

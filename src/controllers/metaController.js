@@ -1,8 +1,8 @@
 const MappingFlagDetailsModel = require("../models/MappingFlagDetails.model");
 const LoadLogModel = require("../models/loadLog.model");
 const FactColumnMappingModel = require("../models/factColumnMapping.model");
-const SmlPcatModel = require("../models/smlPcat.model");
-const CellControlModel = require("../models/sourceDetails.model");
+const SmlPcatModel = require("../models/Admin/smlPcat.model");
+const CellControlModel = require("../models/Admin/sourceDetails.model");
 const { Sequelize, sequelize } = require("../../models");
 const { Op } = require("sequelize");
 

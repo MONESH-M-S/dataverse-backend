@@ -12,7 +12,7 @@ const {
   fetchCellControlRecordsPagination,
   updateCellControlRecords,
   fetchCellControlStatus,
-} = require("../controllers/Admin/cellControlController");
+} = require("../controllers/Admin/cellControl");
 const {
   criticalAttributesRecords,
   criticalAttributesPagination,
@@ -23,7 +23,7 @@ const {
   fetchLocalDbMeta,
   fetchMarketNameCodeMeta,
   createBulkCriticalAttributesRecord,
-} = require("../controllers/admin/criticalAttributesMetadata");
+} = require("../controllers/Admin/criticalAttributesMetadata");
 const {
   fetchFactMetadataRecords,
   fetchFactMetadataRecordsPagination,
@@ -34,7 +34,7 @@ const {
   fetchFactCountryMeta,
   fetchFactNielsenMarketMeta,
   createBulkFactMetadataRecord,
-} = require("../controllers/admin/factMetadata");
+} = require("../controllers/Admin/factMetadata");
 
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");

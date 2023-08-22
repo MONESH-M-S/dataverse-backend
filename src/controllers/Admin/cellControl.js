@@ -1,4 +1,4 @@
-const CellControlModel = require("../../models/sourceDetails.model");
+const CellControlModel = require("../../models/Admin/sourceDetails.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const statusTypeEnum = require("../../enums/statusType.enum");
 const { Op } = require("sequelize");

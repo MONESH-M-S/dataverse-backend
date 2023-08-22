@@ -1,4 +1,4 @@
-const CriticalAttributesModel = require("../../models/admin/criticalAttributes.model");
+const CriticalAttributesModel = require("../../models/Admin/criticalAttributes.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const statusTypeEnum = require("../../enums/statusType.enum");
 const { Sequelize } = require("../../../models");
