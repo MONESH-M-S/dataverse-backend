@@ -1,4 +1,5 @@
 const express = require("express");
+const { triggerADFPipeline } = require('../controllers/FileVolatility/CriticalAttributes')
 const {
   fetchVolatilityList,
   fetchIndividualVolatilityFile,
@@ -18,13 +19,14 @@ const {
   fetchPeriodColumnMappings,
   updateColumnMappingPeriodValues,
 } = require("../controllers/fileVolatilityPeriodController");
-const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
 const addTargetSchema = require("../schema/addTarget.schema");
 const updateColumnMappingsSchema = require("../schema/updateColumnMappings.schema");
 const validator = require("express-joi-validation").createValidator({
   passError: true,
 });
+
+const router = express.Router();
 
 // Fact
 router.get("/fact", auth, fetchFactColumnMappings);
@@ -37,6 +39,7 @@ router.put("/period", auth, updateColumnMappingPeriodValues);
 router.get("/", auth, fetchVolatilityList);
 router.get("/count", auth, fetchVolatilityListPagination);
 router.get("/dashboard", auth, fetchDashboardDetails);
+router.get("/ca-pipeline-trigger", auth, triggerADFPipeline);
 router.get("/:id", auth, fetchIndividualVolatilityFile);
 router.get("/:id/mappings", auth, fetchColumnMappings);
 router.put("/:id/mappings", auth, updateColumnMapping);
