@@ -1,7 +1,7 @@
-const FactMetadata = require("../models/Admin/FactMetadata.model");
-const getPaginationDetails = require("../utils/response/getPaginationDetails");
-const statusTypeEnum = require("../enums/statusType.enum");
-const { Sequelize } = require("../../models");
+const FactMetadata = require("../../models/Admin/FactMetadata.model");
+const getPaginationDetails = require("../../utils/response/getPaginationDetails");
+const statusTypeEnum = require("../../enums/statusType.enum");
+const { Sequelize } = require("../../../models");
 const { Op } = require("sequelize");
 
 const fetchFactMetadataRecords = async (req, res, next) => {
