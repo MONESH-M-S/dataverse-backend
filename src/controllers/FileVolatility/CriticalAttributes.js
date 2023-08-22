@@ -1,5 +1,5 @@
 const { DataFactoryManagementClient } = require("@azure/arm-datafactory");
-const { DefaultAzureCredential } = require("@azure/identity");
+const { DefaultAzureCredential, AzureAuthorityHosts, ClientSecretCredential } = require("@azure/identity");
 
 const triggerADFPipeline = async (req, res, next) => {
   try {
@@ -18,10 +18,18 @@ const triggerADFPipeline = async (req, res, next) => {
       parameters,
     };
 
-    const credential = new DefaultAzureCredential();
-    const client = new DataFactoryManagementClient(credential, subscriptionId);
+    // const credential = new DefaultAzureCredential();
 
-    console.log(resourceGroupName, factoryName, pipelineName, options);
+    const credential = new ClientSecretCredential(
+      process.env["APP_REGISTRATON_TENENT_ID"],
+      process.env["APP_REGISTRATON_CLIENT_ID"],
+      process.env["APP_REGISTRATON_CLIENT_SECRET"],
+      {
+        authorityHost: AzureAuthorityHosts.AzureGovernment,
+      }
+    )
+
+    const client = new DataFactoryManagementClient(credential, subscriptionId);
 
     const result = await client.pipelines.createRun(
       resourceGroupName,
