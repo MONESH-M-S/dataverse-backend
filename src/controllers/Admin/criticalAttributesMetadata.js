@@ -131,27 +131,15 @@ const updateCriticalAttributesRecords = async (req, res, next) => {
   }
 };
 
-const createCriticalAttributesRecord = async (req, res, next) => {
-  try {
-    const { record } = req.body;
-    const createdRecord = await CriticalAttributesModel.create(record);
-    res.json({
-      status: statusTypeEnum.success,
-      message: "Entry for New Metadata was successful. Team has been notified.",
-      result: createdRecord,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const createBulkCriticalAttributesRecord = async (req, res, next) => {
+const createCriticalAttributesRecords = async (req, res, next) => {
   try {
     const { records } = req.body;
     const createdRecords = await CriticalAttributesModel.bulkCreate(records);
     res.json({
       status: statusTypeEnum.success,
-      message: "Entry for New Metadata was successful. Team has been notified.",
+      message: `Entr${
+        records.length > 1 ? "ies" : "y"
+      } for New Metadata was successful. Team has been notified.`,
       result: createdRecords,
     });
   } catch (error) {
@@ -248,10 +236,9 @@ module.exports = {
   criticalAttributesRecords,
   criticalAttributesPagination,
   updateCriticalAttributesRecords,
-  createCriticalAttributesRecord,
+  createCriticalAttributesRecords,
   deleteCriticalAttributesRecords,
   fetchGlobalDbMeta,
   fetchLocalDbMeta,
   fetchMarketNameCodeMeta,
-  createBulkCriticalAttributesRecord,
 };

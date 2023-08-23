@@ -1,10 +1,10 @@
-const FactMetadata = require("../../models/Admin/FactMetadata.model");
+const MarketMetadata = require("../../models/Admin/MarketMetadata.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const statusTypeEnum = require("../../enums/statusType.enum");
 const { Sequelize } = require("../../../models");
 const { Op } = require("sequelize");
 
-const fetchFactMetadataRecords = async (req, res, next) => {
+const fetchMarketMetadataRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
 
@@ -33,14 +33,14 @@ const fetchFactMetadataRecords = async (req, res, next) => {
       ];
     }
 
-    const factMetadataList = await FactMetadata.findAll({
+    const marketMetadataList = await MarketMetadata.findAll({
       limit,
       offset,
       where: whereClause,
       order: orderClause,
     });
 
-    const responseObj = { result: factMetadataList };
+    const responseObj = { result: marketMetadataList };
 
     res.json(responseObj);
   } catch (error) {
@@ -48,7 +48,7 @@ const fetchFactMetadataRecords = async (req, res, next) => {
   }
 };
 
-const fetchFactMetadataRecordsPagination = async (req, res, next) => {
+const fetchMarketMetadataRecordsPagination = async (req, res, next) => {
   try {
     const { limit, offset, page } = getPaginationDetails(req);
 
@@ -77,7 +77,7 @@ const fetchFactMetadataRecordsPagination = async (req, res, next) => {
       ];
     }
 
-    const factCount = await FactMetadata.count({
+    const marketCount = await MarketMetadata.count({
       limit,
       offset,
       where: whereClause,
@@ -87,7 +87,7 @@ const fetchFactMetadataRecordsPagination = async (req, res, next) => {
     const responseObj = {
       page,
       page_size: limit,
-      total_count: factCount,
+      total_count: marketCount,
     };
 
     res.json(responseObj);
@@ -96,7 +96,7 @@ const fetchFactMetadataRecordsPagination = async (req, res, next) => {
   }
 };
 
-const updateFactMetadataRecords = async (req, res, next) => {
+const updateMarketMetadataRecords = async (req, res, next) => {
   try {
     const data = req.body.records;
 
@@ -104,7 +104,7 @@ const updateFactMetadataRecords = async (req, res, next) => {
       for (const record of data) {
         const { Id, ...rest } = record;
 
-        await FactMetadata.update(rest, {
+        await MarketMetadata.update(rest, {
           where: {
             Id,
           },
@@ -122,10 +122,10 @@ const updateFactMetadataRecords = async (req, res, next) => {
   }
 };
 
-const createFactMetadataRecords = async (req, res, next) => {
+const createMarketMetadataRecords = async (req, res, next) => {
   try {
     const { records } = req.body;
-    const createdRecords = await FactMetadata.bulkCreate(records);
+    const createdRecords = await MarketMetadata.bulkCreate(records);
     res.json({
       status: statusTypeEnum.success,
       message: `Entr${
@@ -138,10 +138,10 @@ const createFactMetadataRecords = async (req, res, next) => {
   }
 };
 
-const deleteFactMetadataRecords = async (req, res, next) => {
+const deleteMarketMetadataRecords = async (req, res, next) => {
   try {
     const { ids } = req.body;
-    const deletedRecords = await FactMetadata.destroy({
+    const deletedRecords = await MarketMetadata.destroy({
       where: {
         Id: ids,
       },
@@ -156,74 +156,10 @@ const deleteFactMetadataRecords = async (req, res, next) => {
   }
 };
 
-//META CONTROLLER FOR FACT
-
-const fetchFactCellMeta = async (req, res, next) => {
-  try {
-    const { country, market } = req.query;
-
-    const whereClause = {};
-
-    if (country) whereClause["CountryName"] = country;
-    if (market) whereClause["NielsenMarketName"] = market;
-
-    const list = await FactMetadata.findAll({
-      attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("Cell")), "name"]],
-      where: whereClause,
-    });
-    res.json(list);
-  } catch (error) {
-    next(error);
-  }
-};
-
-const fetchFactCountryMeta = async (req, res, next) => {
-  try {
-    const { cell, market } = req.query;
-    const whereClause = {};
-
-    if (cell) whereClause["Cell"] = cell;
-    if (market) whereClause["NielsenMarketName"] = market;
-
-    const list = await FactMetadata.findAll({
-      attributes: [
-        [Sequelize.fn("DISTINCT", Sequelize.col("CountryName")), "name"],
-      ],
-      where: whereClause,
-    });
-    res.json(list);
-  } catch (error) {
-    next(error);
-  }
-};
-
-const fetchFactNielsenMarketMeta = async (req, res, next) => {
-  try {
-    const { cell, country } = req.query;
-    const whereClause = {};
-
-    if (cell) whereClause["Cell"] = cell;
-    if (country) whereClause["CountryName"] = country;
-
-    const list = await FactMetadata.findAll({
-      attributes: [
-        [Sequelize.fn("DISTINCT", Sequelize.col("NielsenMarketName")), "name"],
-      ],
-      where: whereClause,
-    });
-    res.json(list);
-  } catch (error) {
-    next(error);
-  }
-};
-
 module.exports = {
-  fetchFactMetadataRecords,
-  fetchFactMetadataRecordsPagination,
-  updateFactMetadataRecords,
-  createFactMetadataRecords,
-  deleteFactMetadataRecords,
-  fetchFactCellMeta,
-  fetchFactCountryMeta,
-  fetchFactNielsenMarketMeta,
+  fetchMarketMetadataRecords,
+  fetchMarketMetadataRecordsPagination,
+  updateMarketMetadataRecords,
+  createMarketMetadataRecords,
+  deleteMarketMetadataRecords,
 };
