@@ -1,5 +1,5 @@
 const { DataFactoryManagementClient } = require("@azure/arm-datafactory");
-const { AzureAuthorityHosts, ClientSecretCredential } = require("@azure/identity");
+const { InteractiveBrowserCredential } = require("@azure/identity");
 const {getClientSecret} = require('../../config/msal.config')
 
 const triggerADFPipeline = async (req, res, next) => {
@@ -21,16 +21,21 @@ const triggerADFPipeline = async (req, res, next) => {
 
     // const credential = new DefaultAzureCredential();
 
-    const clientSecret = await getClientSecret()
+    // const clientSecret = await getClientSecret()
 
-    const credential = new ClientSecretCredential(
-      process.env["TENENT_ID"],
-      process.env["CLIENT_ID"],
-      clientSecret,
-      {
-        authorityHost: AzureAuthorityHosts.AzureGovernment,
-      }
-    )
+    // const credential = new ClientSecretCredential(
+    //   process.env["TENENT_ID"],
+    //   process.env["CLIENT_ID"],
+    //   clientSecret,
+    //   {
+    //     authorityHost: AzureAuthorityHosts.AzureGovernment,
+    //   }
+    // )
+
+    const credential = new InteractiveBrowserCredential({
+        tenantId: process.env["TENENT_ID"],
+        clientId: process.env["CLIENT_ID"]
+      });
 
     const client = new DataFactoryManagementClient(credential, subscriptionId);
 
