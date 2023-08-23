@@ -39,7 +39,7 @@ router.put("/period", auth, updateColumnMappingPeriodValues);
 router.get("/", auth, fetchVolatilityList);
 router.get("/count", auth, fetchVolatilityListPagination);
 router.get("/dashboard", auth, fetchDashboardDetails);
-router.get("/ca-pipeline-trigger", auth, triggerADFPipeline);
+router.post("/ca-pipeline-trigger", auth, triggerADFPipeline);
 router.get("/:id", auth, fetchIndividualVolatilityFile);
 router.get("/:id/mappings", auth, fetchColumnMappings);
 router.put("/:id/mappings", auth, updateColumnMapping);
