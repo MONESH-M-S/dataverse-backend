@@ -33,6 +33,13 @@ const {
   fetchFactNielsenMarketMeta
 } = require("../controllers/admin/factMetadata");
 
+const {
+  fetchPeriodMetadatRecords,
+  fetchPeriodMetadataRecordsPagination,
+  updatePeriodMetadataRecords,
+  createPeriodMetadataRecord,
+  deletePeriodMetadataRecords
+} = require("../controllers/admin/periodMetadata");
 
 const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
@@ -69,3 +76,9 @@ router.get("/cell-control/count", auth, fetchCellControlRecordsPagination);
 router.get("/cell-control/status", auth, fetchCellControlStatus);
 router.put("/cell-control", auth, updateCellControlRecords);
 module.exports = router;
+
+router.get("/period",auth, fetchPeriodMetadatRecords);
+router.get("/period/count", auth, fetchPeriodMetadataRecordsPagination);
+router.post("/period", auth, createPeriodMetadataRecord);
+router.delete("/period", auth, deletePeriodMetadataRecords);
+router.put("/period", auth, updatePeriodMetadataRecords);

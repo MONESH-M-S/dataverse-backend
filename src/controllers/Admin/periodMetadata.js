@@ -1,22 +1,47 @@
 const PeriodMetadata = require("../../models/Admin/PeriodMetadata.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
+const statusTypeEnum = require("../../enums/statusType.enum");
 const { Sequelize } = require("../../../models");
+const { Op } = require("sequelize");
 
 const fetchPeriodMetadatRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
-    const { country, market } = req.query;
-    const whereClause = {};
+   
+    const { filters, sorting } = req.query;
 
-    if (country) whereClause["Country1"] = country;
-    if (market) whereClause["MarketName"] = market;
+    let whereClause = {};
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
+ 
     const periodMetadataList = await PeriodMetadata.findAll({
       limit,
       offset,
       where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = { result: periodMetadataList };
+    
     res.json(responseObj);
   } catch (error) {
     next(error);
@@ -26,16 +51,37 @@ const fetchPeriodMetadatRecords = async (req, res, next) => {
 const fetchPeriodMetadataRecordsPagination = async (req, res, next) => {
   try {
     const { limit, offset, page } = getPaginationDetails(req);
-    const { country, market } = req.query;
-    const whereClause = {};
 
-    if (country) whereClause["Country1"] = country;
-    if (market) whereClause["MarketName"] = market;
+    const { filters, sorting } = req.query;
+
+    let whereClause = {};
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
 
     const factCount = await PeriodMetadata.count({
       limit,
       offset,
       where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = {
@@ -43,65 +89,78 @@ const fetchPeriodMetadataRecordsPagination = async (req, res, next) => {
       page_size: limit,
       total_count: factCount,
     };
+
     res.json(responseObj);
   } catch (error) {
-    next(error); //fetchPeriodCountryMeta, fetchPeriodPosMarketMeta,
+    next(error);
   }
 };
 
-const fetchPeriodPosMarketMeta = async (req, res, next) => {
-    try{
-        const {  country } = req.query;
-        const whereClause = {};
+const updatePeriodMetadataRecords = async (req, res, next) => {
+    try {     
+      const data = req.body.records;
 
-        // if (cell) whereClause["Cell"] = cell;
-    if (country) whereClause["Country1"] = country;
+      if (data.length) {
+        for (const record of data) {
+          const { Id, ...rest } = record;
+  
+          await PeriodMetadata.update(rest, {
+            where: {
+              Id,
+            },
+            returning: true,
+          });
+        }
+      }
 
-    const list = await PeriodMetadata.findAll({
-        attributes: [
-          [Sequelize.fn("DISTINCT", Sequelize.col("MarketName")), "name"],
-        ],
-        where: whereClause,
+      res.json({
+        status: statusTypeEnum.success,
+        message: "Your entry has been updated.",
       });
-      res.json(list);
-
-    }catch(error){
-        next(error)
+    } catch (error) {
+        next(error);
     }
 };
 
-const fetchPeriodCountryMeta = async (req, res, next) => {
-  const { market } = req.query;
-  const whereClause = {};
-
-  // if (cell) whereClause["Cell"] = cell;
-  if (market) whereClause["MarketName"] = market;
-
-  const list = await PeriodMetadata.findAll({
-    attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("Country1")), "name"]],
-    where: whereClause,
-  });
-  res.json(list);
+const createPeriodMetadataRecord = async (req, res, next) => {
+  try {
+    const { records } = req.body;
+    const createdRecords = await PeriodMetadata.bulkCreate(records);
+    res.json({
+      status: statusTypeEnum.success,
+      message: `Entr${
+        records.length > 1 ? "ies" : "y"
+      } for New Metadata was successful. Team has been notified.`,
+      result: createdRecords,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-const createPeriodMetadataRecord = async(req,res,next)=>{
-    try {
-        const { record } = req.body;
-        const createdRecord = await PeriodMetadata.create(record);
-        res.json({
-          status: statusTypeEnum.success,
-          message: "Entry for New Metadata was successful. Team has been notified.",
-          result: createdRecord,
-        });
-      } catch (error) {
-        next(error);
-      }
+const deletePeriodMetadataRecords = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    const deletedRecords = await PeriodMetadata.destroy({
+      where: {
+        Id: ids,
+      },
+    });
+    res.json({
+      status: statusTypeEnum.success,
+      message: "Delete submission successful",
+      result: deletedRecords,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
+
 
 module.exports = {
   fetchPeriodMetadatRecords,
   fetchPeriodMetadataRecordsPagination,
-  fetchPeriodCountryMeta,
-  fetchPeriodPosMarketMeta,
-  createPeriodMetadataRecord
+  updatePeriodMetadataRecords,
+  createPeriodMetadataRecord,
+  deletePeriodMetadataRecords
 };
