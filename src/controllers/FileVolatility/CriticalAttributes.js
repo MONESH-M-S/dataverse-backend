@@ -4,9 +4,10 @@ const {getClientSecret} = require('../../config/msal.config')
 
 const testTrigger = async (req, res, next) => {
   try {
-     const credential = new ManagedIdentityCredential("6d8fc003-0459-4b44-8e78-937f3d76f009")
+     const credential = new ManagedIdentityCredential("5b6c9f37-df7c-452f-a3ab-29bce6dd4ad7")
      const token = await credential.getToken();
     //  const tokenCredential = new TokenCredential()
+    const subscriptionId = process.env["DATAFACTORY_SUBSCRIPTION_ID"];
      const client = new DataFactoryManagementClient(credential, subscriptionId)
     res.json({token, credential, client}).status(200)
   } catch (error) {
@@ -17,8 +18,10 @@ const testTrigger = async (req, res, next) => {
 const testTriggerwithDefault = async (req, res, next) => {
   try {
      const credential = new DefaultAzureCredential({ managedIdentityClientId : "6d8fc003-0459-4b44-8e78-937f3d76f009" })
+     console.log("Credential", credential);
      const token = await credential.getToken();
     //  const tokenCredential = new TokenCredential()
+    const subscriptionId = process.env["DATAFACTORY_SUBSCRIPTION_ID"];
      const client = new DataFactoryManagementClient(credential, subscriptionId)
     res.json({token, credential, client}).status(200)
   } catch (error) {
