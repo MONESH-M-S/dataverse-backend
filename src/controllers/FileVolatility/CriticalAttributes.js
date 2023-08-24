@@ -1,5 +1,5 @@
 const { DataFactoryManagementClient } = require("@azure/arm-datafactory");
-const { ClientSecretCredential } = require("@azure/identity");
+const { ManagedIdentityCredential } = require("@azure/identity");
 const {getClientSecret} = require('../../config/msal.config')
 
 const triggerADFPipeline = async (req, res, next) => {
@@ -20,14 +20,7 @@ const triggerADFPipeline = async (req, res, next) => {
     };
 
     // const credential = new DefaultAzureCredential();
-
-    const clientSecret = await getClientSecret()
-
-    const credential = new ClientSecretCredential(
-      process.env["TENENT_ID"],
-      process.env["CLIENT_ID"],
-      clientSecret,
-    )
+    const credential = new ManagedIdentityCredential(process.env["CLIENT_ID"])
 
     const client = new DataFactoryManagementClient(credential, subscriptionId);
 
