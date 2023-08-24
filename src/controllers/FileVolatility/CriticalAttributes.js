@@ -1,10 +1,22 @@
 const { DataFactoryManagementClient } = require("@azure/arm-datafactory");
-const { ClientSecretCredential, DefaultAzureCredential, ManagedIdentityCredential, TokenCredential, InteractiveBrowserCredential } = require("@azure/identity");
+const { ClientSecretCredential, DefaultAzureCredential, ManagedIdentityCredential, TokenCredential } = require("@azure/identity");
 const {getClientSecret} = require('../../config/msal.config')
 
 const testTrigger = async (req, res, next) => {
   try {
      const credential = new ManagedIdentityCredential("6d8fc003-0459-4b44-8e78-937f3d76f009")
+     const token = await credential.getToken();
+    //  const tokenCredential = new TokenCredential()
+     const client = new DataFactoryManagementClient(credential, subscriptionId)
+    res.json({token, credential, client}).status(200)
+  } catch (error) {
+    res.send(error).status(200)
+  }
+}
+
+const testTriggerwithDefault = async (req, res, next) => {
+  try {
+     const credential = new DefaultAzureCredential({ managedIdentityClientId : "6d8fc003-0459-4b44-8e78-937f3d76f009" })
      const token = await credential.getToken();
     //  const tokenCredential = new TokenCredential()
      const client = new DataFactoryManagementClient(credential, subscriptionId)
@@ -53,4 +65,4 @@ const triggerADFPipeline = async (req, res, next) => {
   }
 };
 
-module.exports = { triggerADFPipeline,testTrigger };
+module.exports = { triggerADFPipeline,testTrigger, testTriggerwithDefault };
