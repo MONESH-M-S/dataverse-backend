@@ -46,9 +46,11 @@ const triggerADFPipeline = async (req, res, next) => {
       parameters,
     };
 
-    const credential = new DefaultAzureCredential({ managedIdentityClientId : "6d8fc003-0459-4b44-8e78-937f3d76f009" });
+    const clientSecret = await getClientSecret()
+
+    // const credential = new DefaultAzureCredential({ managedIdentityClientId : "6d8fc003-0459-4b44-8e78-937f3d76f009" });
     // const credential = new ManagedIdentityCredential(process.env["CLIENT_ID"])
-    // const credential = new ClientSecretCredential(process.env["TENENT_ID"], process.env["CLIENT_ID"], "Y5t8Q~YWA1s9sT6ToOqA1NH3aVLhZoBIfG4RMaaz")
+    const credential = new ClientSecretCredential(process.env["TENENT_ID"], process.env["CLIENT_ID"], clientSecret)
     console.log(credential);
     const client = new DataFactoryManagementClient(credential, subscriptionId);
 
