@@ -19,11 +19,11 @@ const triggerADFPipeline = async (req, res, next) => {
       parameters,
     };
 
-    const credential = new InteractiveBrowserCredential(process.env["TENENT_ID"], process.env["CLIENT_ID"]);
+    // const credential = new InteractiveBrowserCredential(process.env["TENENT_ID"], process.env["CLIENT_ID"]);
     // const credential = new ManagedIdentityCredential(process.env["CLIENT_ID"])
     // const credential = new ClientSecretCredential(, , "Y5t8Q~YWA1s9sT6ToOqA1NH3aVLhZoBIfG4RMaaz")
-    console.log(credential);
-    const client = new DataFactoryManagementClient(credential, subscriptionId);
+    // console.log(credential);
+    const client = new DataFactoryManagementClient(req.body.credential, subscriptionId);
 
     const result = await client.pipelines.createRun(
       resourceGroupName,
