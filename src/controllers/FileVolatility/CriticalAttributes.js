@@ -37,4 +37,4 @@ const triggerADFPipeline = async (req, res, next) => {
   }
 };
 
-module.exports = { triggerADFPipeline,testTrigger, testTriggerwithDefault };
+module.exports = { triggerADFPipeline };
