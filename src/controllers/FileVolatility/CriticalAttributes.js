@@ -1,6 +1,18 @@
 const { DataFactoryManagementClient } = require("@azure/arm-datafactory");
-const { ClientSecretCredential, DefaultAzureCredential, InteractiveBrowserCredential } = require("@azure/identity");
+const { ClientSecretCredential, DefaultAzureCredential, ManagedIdentityCredential, TokenCredential, InteractiveBrowserCredential } = require("@azure/identity");
 const {getClientSecret} = require('../../config/msal.config')
+
+const testTrigger = async (req, res, next) => {
+  try {
+     const credential = new ManagedIdentityCredential("6d8fc003-0459-4b44-8e78-937f3d76f009")
+     const token = await credential.getToken();
+    //  const tokenCredential = new TokenCredential()
+     const client = new DataFactoryManagementClient(credential, subscriptionId)
+    res.json({token, credential, client}).status(200)
+  } catch (error) {
+    res.send(error).status(200)
+  }
+}
 
 const triggerADFPipeline = async (req, res, next) => {
   try {
@@ -19,11 +31,11 @@ const triggerADFPipeline = async (req, res, next) => {
       parameters,
     };
 
-    // const credential = new InteractiveBrowserCredential(process.env["TENENT_ID"], process.env["CLIENT_ID"]);
+    const credential = new DefaultAzureCredential({ managedIdentityClientId : "6d8fc003-0459-4b44-8e78-937f3d76f009" });
     // const credential = new ManagedIdentityCredential(process.env["CLIENT_ID"])
-    // const credential = new ClientSecretCredential(, , "Y5t8Q~YWA1s9sT6ToOqA1NH3aVLhZoBIfG4RMaaz")
-    // console.log(credential);
-    const client = new DataFactoryManagementClient(req.body.credential, subscriptionId);
+    // const credential = new ClientSecretCredential(process.env["TENENT_ID"], process.env["CLIENT_ID"], "Y5t8Q~YWA1s9sT6ToOqA1NH3aVLhZoBIfG4RMaaz")
+    console.log(credential);
+    const client = new DataFactoryManagementClient(credential, subscriptionId);
 
     const result = await client.pipelines.createRun(
       resourceGroupName,
@@ -41,4 +53,4 @@ const triggerADFPipeline = async (req, res, next) => {
   }
 };
 
-module.exports = { triggerADFPipeline };
+module.exports = { triggerADFPipeline,testTrigger };
