@@ -1,6 +1,6 @@
 const { DataFactoryManagementClient } = require("@azure/arm-datafactory");
-const { InteractiveBrowserCredential } = require("@azure/identity");
-const {getClientSecret} = require('../../config/msal.config')
+const { ClientSecretCredential } = require("@azure/identity");
+const {getClientSecret} = require('../../config/msal.config');
 
 const triggerADFPipeline = async (req, res, next) => {
   try {
@@ -10,33 +10,15 @@ const triggerADFPipeline = async (req, res, next) => {
     const pipelineName = process.env["PIPELINE_NAME"];
     const referencePipelineRunId = undefined;
 
-    const parameters = {
-      test: ["12"],
-    };
+    const parameters = {...req.body, EmailId: req.user.email};
 
     const options = {
       referencePipelineRunId,
       parameters,
     };
 
-    // const credential = new DefaultAzureCredential();
-
-    // const clientSecret = await getClientSecret()
-
-    // const credential = new ClientSecretCredential(
-    //   process.env["TENENT_ID"],
-    //   process.env["CLIENT_ID"],
-    //   clientSecret,
-    //   {
-    //     authorityHost: AzureAuthorityHosts.AzureGovernment,
-    //   }
-    // )
-
-    const credential = new InteractiveBrowserCredential({
-        tenantId: process.env["TENENT_ID"],
-        clientId: process.env["CLIENT_ID"]
-      });
-
+    const clientSecret = await getClientSecret()
+    const credential = new ClientSecretCredential(process.env["TENENT_ID"], process.env["CLIENT_ID"], clientSecret)
     const client = new DataFactoryManagementClient(credential, subscriptionId);
 
     const result = await client.pipelines.createRun(
@@ -45,8 +27,6 @@ const triggerADFPipeline = async (req, res, next) => {
       pipelineName,
       options
     );
-
-    console.log(result);
 
     res.json({ result });
   } catch (err) {

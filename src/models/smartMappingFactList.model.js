@@ -23,6 +23,8 @@ const SmartMappingFactListModel = sequelize.define(
     Country: DataTypes.STRING,
     Category: DataTypes.STRING,
     Dimension: DataTypes.STRING,
+    DirectIndirect: DataTypes.STRING,
+    Dataset: DataTypes.STRING,
   },
   {
     tableName: "vw_MappingReportSummary",
