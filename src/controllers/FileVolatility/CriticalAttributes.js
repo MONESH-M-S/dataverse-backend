@@ -10,9 +10,7 @@ const triggerADFPipeline = async (req, res, next) => {
     const pipelineName = process.env["PIPELINE_NAME"];
     const referencePipelineRunId = undefined;
 
-    const parameters = {
-      test: "12",
-    };
+    const parameters = {...req.body, EmailId: req.user.email};
 
     const options = {
       referencePipelineRunId,
