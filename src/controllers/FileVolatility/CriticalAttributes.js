@@ -10,9 +10,12 @@ const triggerADFPipeline = async (req, res, next) => {
     const pipelineName = process.env["PIPELINE_NAME"];
     const referencePipelineRunId = undefined;
 
-    const parameters = {...req.body, EmailId: req.user.email};
+    const parameters = {...req.body};
 
-    console.log(parameters);
+    const options = {
+      referencePipelineRunId,
+      parameters,
+    };
 
     const clientSecret = await getClientSecret()
     const credential = new ClientSecretCredential(process.env["TENENT_ID"], process.env["CLIENT_ID"], clientSecret)
@@ -22,7 +25,7 @@ const triggerADFPipeline = async (req, res, next) => {
       resourceGroupName,
       factoryName,
       pipelineName,
-      parameters
+      options
     );
 
     res.json({ result });
