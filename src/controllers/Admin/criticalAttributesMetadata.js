@@ -30,7 +30,7 @@ const criticalAttributesRecords = async (req, res, next) => {
     if (sortFilters.length > 0) {
       orderClause = [
         [
-          sortFilters[0].id ?? "GlobalDatabaseName",
+          sortFilters[0].id ?? "Id",
           sortFilters[0].desc ? "DESC" : "ASC",
         ],
       ];
@@ -80,7 +80,7 @@ const criticalAttributesPagination = async (req, res, next) => {
     if (sortFilters.length > 0) {
       orderClause = [
         [
-          sortFilters[0].id ?? "GlobalDatabaseName",
+          sortFilters[0].id ?? "Id",
           sortFilters[0].desc ? "DESC" : "ASC",
         ],
       ];
@@ -111,11 +111,11 @@ const updateCriticalAttributesRecords = async (req, res, next) => {
 
     if (data.length) {
       for (const record of data) {
-        const { GlobalDatabaseName, ...rest } = record;
+        const { Id, ...rest } = record;
 
         await CriticalAttributesModel.update(rest, {
           where: {
-            GlobalDatabaseName,
+            Id,
           },
           returning: true,
         });
@@ -152,7 +152,7 @@ const deleteCriticalAttributesRecords = async (req, res, next) => {
     const { ids } = req.body;
     const deletedRecords = await CriticalAttributesModel.destroy({
       where: {
-        GlobalDatabaseName: ids,
+        Id: ids,
       },
     });
     res.json({

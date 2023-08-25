@@ -5,10 +5,13 @@ const CriticalAttributesModel = sequelize.define(
   "CriticalAttributes",
   {
     Country: DataTypes.STRING,
+    Id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+    },
     GlobalDatabaseName: {
       type: DataTypes.STRING,
       field: "Global Database Name",
-      primaryKey: true,
     },
     LocalDatabaseName: { type: DataTypes.STRING, field: "Local Database Name" },
     MarketNameCode: DataTypes.STRING,
