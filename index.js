@@ -68,6 +68,13 @@ app.use("/api/remapping", remappingRoutes);
 app.use("/api/dq-checks", dqCheckRoutes);
 app.use("/api/admin", adminRoutes);
 
+const {getClientSecret} = require('./src/config/msal.config');
+
+app.get('/get/secret', async (req, res) => {
+  const secret = await getClientSecret();
+  res.send(secret)
+})
+
 app.use(express.static(path.join(__dirname, "ui")));
 
 app.get("/*", (req, res) => {
