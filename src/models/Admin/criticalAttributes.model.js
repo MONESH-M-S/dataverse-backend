@@ -8,6 +8,7 @@ const CriticalAttributesModel = sequelize.define(
     Id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
+      autoIncrement: true
     },
     GlobalDatabaseName: {
       type: DataTypes.STRING,
