@@ -4,13 +4,18 @@ const {getClientSecret} = require('../../config/msal.config');
 
 const triggerADFPipeline = async (req, res, next) => {
   try {
+    console.log(req.body);
     const subscriptionId = process.env["DATAFACTORY_SUBSCRIPTION_ID"];
     const resourceGroupName = process.env["DATAFACTORY_RESOURCE_GROUP"];
     const factoryName = process.env["FACTORY_NAME"];
     const pipelineName = process.env["PIPELINE_NAME"];
     const referencePipelineRunId = undefined;
 
-    const parameters = {...req.body};
+    const parameters = {...req.body.params, EmailId: req.user.email};
+
+    console.log("-------------------");
+    console.log(parameters);
+    console.log("-------------------");
 
     const options = {
       referencePipelineRunId,
