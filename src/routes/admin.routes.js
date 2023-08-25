@@ -33,6 +33,15 @@ const {
   fetchFactNielsenMarketMeta,
   createFactMetadataRecords,
 } = require("../controllers/Admin/factMetadata");
+
+const {
+  fetchPeriodMetadatRecords,
+  fetchPeriodMetadataRecordsPagination,
+  updatePeriodMetadataRecords,
+  createPeriodMetadataRecord,
+  deletePeriodMetadataRecords,
+} = require("../controllers/admin/periodMetadata");
+
 const {
   fetchMarketMetadataRecords,
   fetchMarketMetadataRecordsPagination,
@@ -84,3 +93,9 @@ router.post("/market", auth, createMarketMetadataRecords);
 router.put("/market", auth, updateMarketMetadataRecords);
 router.delete("/market", auth, deleteMarketMetadataRecords);
 module.exports = router;
+
+router.get("/period", auth, fetchPeriodMetadatRecords);
+router.get("/period/count", auth, fetchPeriodMetadataRecordsPagination);
+router.post("/period", auth, createPeriodMetadataRecord);
+router.delete("/period", auth, deletePeriodMetadataRecords);
+router.put("/period", auth, updatePeriodMetadataRecords);
