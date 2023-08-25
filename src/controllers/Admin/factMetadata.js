@@ -1,24 +1,43 @@
-const FactMetadata = require("../../models/admin/FactMetadata.model");
+const FactMetadata = require("../../models/Admin/FactMetadata.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const statusTypeEnum = require("../../enums/statusType.enum");
 const { Sequelize } = require("../../../models");
+const { Op } = require("sequelize");
 
 const fetchFactMetadataRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
 
-    const { cell, country, market } = req.query
+    const { filters, sorting } = req.query;
 
-    const whereClause = {};
+    let whereClause = {};
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
 
-    if (cell) whereClause["Cell"] = cell;
-    if (country) whereClause["CountryName"] = country;
-    if (market) whereClause["NielsenMarketName"] = market;
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
 
     const factMetadataList = await FactMetadata.findAll({
       limit,
       offset,
-      where: whereClause
+      where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = { result: factMetadataList };
@@ -33,17 +52,36 @@ const fetchFactMetadataRecordsPagination = async (req, res, next) => {
   try {
     const { limit, offset, page } = getPaginationDetails(req);
 
-    const { cell, country, market } = req.query
-    const whereClause = {};
+    const { filters, sorting } = req.query;
 
-    if (cell) whereClause["Cell"] = cell;
-    if (country) whereClause["CountryName"] = country;
-    if (market) whereClause["NielsenMarketName"] = market;
+    let whereClause = {};
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
 
     const factCount = await FactMetadata.count({
       limit,
       offset,
-      where: whereClause
+      where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = {
@@ -60,7 +98,6 @@ const fetchFactMetadataRecordsPagination = async (req, res, next) => {
 
 const updateFactMetadataRecords = async (req, res, next) => {
   try {
-    const { limit, offset } = getPaginationDetails(req);
     const data = req.body.records;
 
     if (data.length) {
@@ -76,29 +113,25 @@ const updateFactMetadataRecords = async (req, res, next) => {
       }
     }
 
-    const factMetadataList = await FactMetadata.findAll({
-      limit,
-      offset,
-    });
-
     res.json({
       status: statusTypeEnum.success,
       message: "Your entry has been updated.",
-      result: factMetadataList,
     });
   } catch (error) {
     next(error);
   }
 };
 
-const createFactMetadataRecord = async (req, res, next) => {
+const createFactMetadataRecords = async (req, res, next) => {
   try {
-    const { record } = req.body;
-    const createdRecord = await FactMetadata.create(record);
+    const { records } = req.body;
+    const createdRecords = await FactMetadata.bulkCreate(records);
     res.json({
       status: statusTypeEnum.success,
-      message: "Entry for New Metadata was successful. Team has been notified.",
-      result: createdRecord,
+      message: `Entr${
+        records.length > 1 ? "ies" : "y"
+      } for New Metadata was successful. Team has been notified.`,
+      result: createdRecords,
     });
   } catch (error) {
     next(error);
@@ -126,27 +159,23 @@ const deleteFactMetadataRecords = async (req, res, next) => {
 //META CONTROLLER FOR FACT
 
 const fetchFactCellMeta = async (req, res, next) => {
-
   try {
     const { country, market } = req.query;
-    
+
     const whereClause = {};
 
     if (country) whereClause["CountryName"] = country;
     if (market) whereClause["NielsenMarketName"] = market;
 
     const list = await FactMetadata.findAll({
-      attributes: [
-        [Sequelize.fn("DISTINCT", Sequelize.col("Cell")), "name"],
-      ],
+      attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("Cell")), "name"]],
       where: whereClause,
     });
     res.json(list);
-
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchFactCountryMeta = async (req, res, next) => {
   try {
@@ -163,11 +192,10 @@ const fetchFactCountryMeta = async (req, res, next) => {
       where: whereClause,
     });
     res.json(list);
-
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchFactNielsenMarketMeta = async (req, res, next) => {
   try {
@@ -184,19 +212,18 @@ const fetchFactNielsenMarketMeta = async (req, res, next) => {
       where: whereClause,
     });
     res.json(list);
-
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 module.exports = {
   fetchFactMetadataRecords,
   fetchFactMetadataRecordsPagination,
   updateFactMetadataRecords,
-  createFactMetadataRecord,
+  createFactMetadataRecords,
   deleteFactMetadataRecords,
   fetchFactCellMeta,
   fetchFactCountryMeta,
-  fetchFactNielsenMarketMeta
+  fetchFactNielsenMarketMeta,
 };

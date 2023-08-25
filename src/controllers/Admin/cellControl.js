@@ -1,24 +1,46 @@
-const CellControlModel = require("../models/sourceDetails.model");
-const getPaginationDetails = require("../utils/response/getPaginationDetails");
-const statusTypeEnum = require("../enums/statusType.enum");
+const CellControlModel = require("../../models/Admin/sourceDetails.model");
+const getPaginationDetails = require("../../utils/response/getPaginationDetails");
+const statusTypeEnum = require("../../enums/statusType.enum");
 const { Op } = require("sequelize");
 
 const fetchCellControlRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
-    const { provider, country, category, activated, deactivated } = req.query;
-    const whereClause = {};
-    if (provider) whereClause["DataProvider"] = provider;
-    if (country) whereClause["Country"] = country;
-    if (category) whereClause["Category"] = category;
+    const { filters, sorting, activated, deactivated } = req.query;
+
+    let whereClause = {};
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
+
     if (activated === "true" && deactivated === "true")
       whereClause[Op.or] = [{ IsActive: 1 }, { IsActive: 0 }];
     else if (activated === "true") whereClause["IsActive"] = 1;
     else if (deactivated === "true") whereClause["IsActive"] = 0;
+
     const cellControlList = await CellControlModel.findAll({
       limit,
       offset,
       where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = {
@@ -34,19 +56,42 @@ const fetchCellControlRecords = async (req, res, next) => {
 const fetchCellControlRecordsPagination = async (req, res, next) => {
   try {
     const { limit, offset, page } = getPaginationDetails(req);
-    const { provider, country, category, activated, deactivated } = req.query;
-    const whereClause = {};
-    if (provider) whereClause["DataProvider"] = provider;
-    if (country) whereClause["Country"] = country;
-    if (category) whereClause["Category"] = category;
+
+    const { filters, sorting, activated, deactivated } = req.query;
+
+    let whereClause = {};
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
+
     if (activated === "true" && deactivated === "true")
       whereClause[Op.or] = [{ IsActive: 1 }, { IsActive: 0 }];
     else if (activated === "true") whereClause["IsActive"] = 1;
     else if (deactivated === "true") whereClause["IsActive"] = 0;
+
     const cellControlCount = await CellControlModel.count({
       limit,
       offset,
       where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = {
@@ -63,11 +108,19 @@ const fetchCellControlRecordsPagination = async (req, res, next) => {
 
 const fetchCellControlStatus = async (req, res, next) => {
   try {
-    const { provider, country, category } = req.query;
-    const whereClause = {};
-    if (provider) whereClause["DataProvider"] = provider;
-    if (country) whereClause["Country"] = country;
-    if (category) whereClause["Category"] = category;
+    const { filters, sorting } = req.query;
+
+    let whereClause = {};
+    let tableFilters = [];
+
+    if (filters && sorting) tableFilters = JSON.parse(filters);
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
 
     const total_cells = await CellControlModel.count({ where: whereClause });
 
@@ -78,6 +131,7 @@ const fetchCellControlStatus = async (req, res, next) => {
     const deactivated_cells = await CellControlModel.count({
       where: { ...whereClause, IsActive: 0 },
     });
+
     res.json({
       total_cells,
       activated_cells,
@@ -90,17 +144,7 @@ const fetchCellControlStatus = async (req, res, next) => {
 
 const updateCellControlRecords = async (req, res, next) => {
   try {
-    const { limit, offset } = getPaginationDetails(req);
     const { status, ids } = req.body;
-    const { provider, country, category, activated, deactivated } = req.query;
-    const whereClause = {};
-    if (provider) whereClause["DataProvider"] = provider;
-    if (country) whereClause["Country"] = country;
-    if (category) whereClause["Category"] = category;
-    if (activated === "true" && deactivated === "true")
-      whereClause[Op.or] = [{ IsActive: 1 }, { IsActive: 0 }];
-    else if (activated === "true") whereClause["IsActive"] = 1;
-    else if (deactivated === "true") whereClause["IsActive"] = 0;
     await CellControlModel.update(
       { IsActive: status },
       {
@@ -111,18 +155,11 @@ const updateCellControlRecords = async (req, res, next) => {
       }
     );
 
-    const cellControlList = await CellControlModel.findAll({
-      limit,
-      offset,
-      where: whereClause,
-    });
-
     res.json({
       status: statusTypeEnum.success,
       message: `Cell${ids.length > 1 ? "s" : ""} ${
         status ? "activated" : "deactivated"
       }`,
-      result: cellControlList,
     });
   } catch (error) {
     next(error);
