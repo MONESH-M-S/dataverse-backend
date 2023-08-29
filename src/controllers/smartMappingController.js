@@ -38,7 +38,7 @@ const fetchSmartMappingList = async (req, res, next) => {
       filter_by_country: filterByCountry,
       filter_by_provider: filterByProvider,
       filter_by_category: filterByCategory,
-    } = req.query;
+    } = req.query;  
 
     let whereClause = {};
     let orderClause = [];
