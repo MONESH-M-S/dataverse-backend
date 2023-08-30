@@ -1,7 +1,11 @@
 const FactOtherRMSModel = require("../../models/SmartMapping/FactOtherRMS.model");
 const MarketOtherRMSModel = require("../../models/SmartMapping/MarketOtherRMS.model");
 const PeriodOtherRMSModel = require("../../models/SmartMapping/PeriodOtherRMS.model");
+const ProductOtherRMSModel = require("../../models/SmartMapping/ProductOtherRMS.model");
+const UnprocessedProductOtherRMSModel = require("../../models/SmartMapping/UnprocessedProductOtherRMS.model");
 
+const ProductColumns = require("../../constants/Excel-Columns/SmartMapping/OtherRMS/ProductMapped");
+const ProductUnprocessedColumns = require("../../constants/Excel-Columns/SmartMapping/OtherRMS/ProductUnprocessed");
 const FactColumns = require("../../constants/Excel-Columns/SmartMapping/OtherRMS/FactMapped");
 const MarketColumns = require("../../constants/Excel-Columns/SmartMapping/OtherRMS/MarketMapped");
 const PeriodColumns = require("../../constants/Excel-Columns/SmartMapping/OtherRMS/PeriodMapped");
@@ -11,6 +15,9 @@ const ExcelJS = require("exceljs");
 const { Sequelize } = require("../../../models");
 
 const { Op } = require("sequelize");
+
+const dimensionEnum = require("./../../models/enums/dimension.enum");
+const confidenceLevelEnum = require("./../../enums/confidenceLevel.enum");
 
 const TABEL_MODEL = {
   Fact: FactOtherRMSModel,
@@ -37,6 +44,7 @@ const fetchTableRecords = async (req, res, next) => {
       filter_by_country: filterByCountry,
       filter_by_provider: filterByProvider,
       filter_by_category: filterByCategory,
+      confidenceLevel,
     } = req.query;
 
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
@@ -79,7 +87,19 @@ const fetchTableRecords = async (req, res, next) => {
       whereClause["CATEGORY"] = filterByCategory;
     }
 
-    const model = TABEL_MODEL[filterByDimension];
+    let model;
+
+    if (filterByDimension === dimensionEnum.product) {
+      if (
+        confidenceLevel &&
+        confidenceLevel === confidenceLevelEnum.UNPROCESSED
+      )
+        model = UnprocessedProductOtherRMSModel;
+      else {
+        if (confidenceLevel) whereClause["ConfidenceLevel"] = confidenceLevel;
+        model = ProductOtherRMSModel;
+      }
+    } else model = TABEL_MODEL[filterByDimension];
 
     const result = await model.findAll({
       limit,
@@ -106,6 +126,7 @@ const fetchTableRecordsCount = async (req, res, next) => {
       filter_by_country: filterByCountry,
       filter_by_provider: filterByProvider,
       filter_by_category: filterByCategory,
+      confidenceLevel,
     } = req.query;
 
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
@@ -148,7 +169,19 @@ const fetchTableRecordsCount = async (req, res, next) => {
       whereClause["CATEGORY"] = filterByCategory;
     }
 
-    const model = TABEL_MODEL[filterByDimension];
+    let model;
+
+    if (filterByDimension === dimensionEnum.product) {
+      if (
+        confidenceLevel &&
+        confidenceLevel === confidenceLevelEnum.UNPROCESSED
+      )
+        model = UnprocessedProductOtherRMSModel;
+      else {
+        if (confidenceLevel) whereClause["ConfidenceLevel"] = confidenceLevel;
+        model = ProductOtherRMSModel;
+      }
+    } else model = TABEL_MODEL[filterByDimension];
 
     const result = await model.count({
       limit,
@@ -165,11 +198,21 @@ const fetchTableRecordsCount = async (req, res, next) => {
 const downloadOtherRMSExcel = async (req, res, next) => {
   try {
     const type = req.params.type;
-    const columns = COLUMN_DOWNLOAD_MODEL[type];
-    const table = TABEL_MODEL[type];
-    const { Filename } = req.query;
-
-    console.log(table, columns);
+    const { Filename, confidenceLevel } = req.query;
+    let columns;
+    let table;
+    if (type === dimensionEnum.product) {
+      if (confidenceLevel === confidenceLevelEnum.UNPROCESSED) {
+        columns = ProductUnprocessedColumns;
+        table = UnprocessedProductOtherRMSModel;
+      } else {
+        columns = ProductColumns;
+        table = ProductOtherRMSModel;
+      }
+    } else {
+      columns = COLUMN_DOWNLOAD_MODEL[type];
+      table = TABEL_MODEL[type];
+    }
 
     const data = await table.findAll({
       where: {
