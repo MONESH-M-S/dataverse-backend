@@ -31,7 +31,7 @@ const fetchSmlPcatRecords = async (req, res, next) => {
       ];
     }
 
-    const smlPcatlist = await SmlPcatModel.findAll({
+    const smlPcatlist = await SmlPcatModel.findAndCountAll({
       limit,
       offset,
       where: whereClause,
@@ -39,7 +39,8 @@ const fetchSmlPcatRecords = async (req, res, next) => {
     });
 
     const responseObj = {
-      result: smlPcatlist,
+      result: smlPcatlist.rows,
+      count: smlPcatlist.count
     };
 
     res.json(responseObj);
@@ -48,52 +49,6 @@ const fetchSmlPcatRecords = async (req, res, next) => {
   }
 };
 
-const fetchSmlPcatRecordsPagination = async (req, res, next) => {
-  try {
-    const { limit, offset, page } = getPaginationDetails(req);
-    const { filters, sorting } = req.query;
-
-    let whereClause = {};
-    let orderClause = [];
-    let tableFilters = [];
-    let sortFilters = [];
-
-    if (filters && sorting) {
-      tableFilters = JSON.parse(filters);
-      sortFilters = JSON.parse(sorting);
-    }
-
-    if (tableFilters.length > 0) {
-      tableFilters.forEach((filter) => {
-        if (filter.value)
-          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
-      });
-    }
-
-    if (sortFilters.length > 0) {
-      orderClause = [
-        [sortFilters[0].id ?? "SML_ID", sortFilters[0].desc ? "DESC" : "ASC"],
-      ];
-    }
-
-    const smlPcatCount = await SmlPcatModel.count({
-      limit,
-      offset,
-      where: whereClause,
-      order: orderClause,
-    });
-
-    const responseObj = {
-      page,
-      page_size: limit,
-      total_count: smlPcatCount,
-    };
-
-    res.json(responseObj);
-  } catch (error) {
-    next(error);
-  }
-};
 
 const updateSmlPcatRecords = async (req, res, next) => {
   try {
@@ -170,7 +125,6 @@ const deleteSmlPcatRecords = async (req, res, next) => {
 
 module.exports = {
   fetchSmlPcatRecords,
-  fetchSmlPcatRecordsPagination,
   updateSmlPcatRecords,
   createSmlPcatRecord,
   deleteSmlPcatRecords,

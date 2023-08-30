@@ -36,7 +36,7 @@ const fetchCellControlRecords = async (req, res, next) => {
     else if (activated === "true") whereClause["IsActive"] = 1;
     else if (deactivated === "true") whereClause["IsActive"] = 0;
 
-    const cellControlList = await CellControlModel.findAll({
+    const cellControlList = await CellControlModel.findAndCountAll({
       limit,
       offset,
       where: whereClause,
@@ -44,7 +44,8 @@ const fetchCellControlRecords = async (req, res, next) => {
     });
 
     const responseObj = {
-      result: cellControlList,
+      result: cellControlList.rows,
+      count: cellControlList.count
     };
 
     res.json(responseObj);
@@ -53,58 +54,6 @@ const fetchCellControlRecords = async (req, res, next) => {
   }
 };
 
-const fetchCellControlRecordsPagination = async (req, res, next) => {
-  try {
-    const { limit, offset, page } = getPaginationDetails(req);
-
-    const { filters, sorting, activated, deactivated } = req.query;
-
-    let whereClause = {};
-    let orderClause = [];
-    let tableFilters = [];
-    let sortFilters = [];
-
-    if (filters && sorting) {
-      tableFilters = JSON.parse(filters);
-      sortFilters = JSON.parse(sorting);
-    }
-
-    if (tableFilters.length > 0) {
-      tableFilters.forEach((filter) => {
-        if (filter.value)
-          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
-      });
-    }
-
-    if (sortFilters.length > 0) {
-      orderClause = [
-        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
-      ];
-    }
-
-    if (activated === "true" && deactivated === "true")
-      whereClause[Op.or] = [{ IsActive: 1 }, { IsActive: 0 }];
-    else if (activated === "true") whereClause["IsActive"] = 1;
-    else if (deactivated === "true") whereClause["IsActive"] = 0;
-
-    const cellControlCount = await CellControlModel.count({
-      limit,
-      offset,
-      where: whereClause,
-      order: orderClause,
-    });
-
-    const responseObj = {
-      page,
-      page_size: limit,
-      total_count: cellControlCount,
-    };
-
-    res.json(responseObj);
-  } catch (error) {
-    next(error);
-  }
-};
 
 const fetchCellControlStatus = async (req, res, next) => {
   try {
@@ -157,9 +106,8 @@ const updateCellControlRecords = async (req, res, next) => {
 
     res.json({
       status: statusTypeEnum.success,
-      message: `Cell${ids.length > 1 ? "s" : ""} ${
-        status ? "activated" : "deactivated"
-      }`,
+      message: `Cell${ids.length > 1 ? "s" : ""} ${status ? "activated" : "deactivated"
+        }`,
     });
   } catch (error) {
     next(error);
@@ -168,7 +116,6 @@ const updateCellControlRecords = async (req, res, next) => {
 
 module.exports = {
   fetchCellControlRecords,
-  fetchCellControlRecordsPagination,
   updateCellControlRecords,
   fetchCellControlStatus,
 };

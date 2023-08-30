@@ -1,7 +1,6 @@
 const express = require("express");
 const {
   fetchSmlPcatRecords,
-  fetchSmlPcatRecordsPagination,
   updateSmlPcatRecords,
   createSmlPcatRecord,
   deleteSmlPcatRecords,
@@ -9,7 +8,6 @@ const {
 } = require("../controllers/Admin/smlPcat");
 const {
   fetchCellControlRecords,
-  fetchCellControlRecordsPagination,
   updateCellControlRecords,
   fetchCellControlStatus,
 } = require("../controllers/Admin/cellControl");
@@ -55,7 +53,6 @@ const auth = require("../middlewares/auth.middleware");
 
 //SML-PCAT
 router.get("/sml-pcat", auth, fetchSmlPcatRecords);
-router.get("/sml-pcat/count", auth, fetchSmlPcatRecordsPagination);
 router.put("/sml-pcat", auth, updateSmlPcatRecords);
 router.post("/sml-pcat", auth, createSmlPcatRecord);
 router.post("/sml-pcat/bulk-create", auth, createBulkSmlPcatRecord);
@@ -82,7 +79,6 @@ router.get("/fact/meta/market", auth, fetchFactNielsenMarketMeta);
 
 //Cell-Control
 router.get("/cell-control", auth, fetchCellControlRecords);
-router.get("/cell-control/count", auth, fetchCellControlRecordsPagination);
 router.get("/cell-control/status", auth, fetchCellControlStatus);
 router.put("/cell-control", auth, updateCellControlRecords);
 
