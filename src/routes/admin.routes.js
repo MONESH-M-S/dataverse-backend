@@ -23,7 +23,6 @@ const {
 } = require("../controllers/Admin/criticalAttributesMetadata");
 const {
   fetchFactMetadataRecords,
-  fetchFactMetadataRecordsPagination,
   updateFactMetadataRecords,
   deleteFactMetadataRecords,
   fetchFactCellMeta,
@@ -34,7 +33,6 @@ const {
 
 const {
   fetchPeriodMetadatRecords,
-  fetchPeriodMetadataRecordsPagination,
   updatePeriodMetadataRecords,
   createPeriodMetadataRecord,
   deletePeriodMetadataRecords,
@@ -42,7 +40,6 @@ const {
 
 const {
   fetchMarketMetadataRecords,
-  fetchMarketMetadataRecordsPagination,
   updateMarketMetadataRecords,
   deleteMarketMetadataRecords,
   createMarketMetadataRecords,
@@ -69,7 +66,6 @@ router.get("/critical-attributes/local", auth, fetchLocalDbMeta);
 router.get("/critical-attributes/market", auth, fetchMarketNameCodeMeta);
 // Fact Metadata
 router.get("/fact", auth, fetchFactMetadataRecords);
-router.get("/fact/count", auth, fetchFactMetadataRecordsPagination);
 router.post("/fact", auth, createFactMetadataRecords);
 router.put("/fact", auth, updateFactMetadataRecords);
 router.delete("/fact", auth, deleteFactMetadataRecords);
@@ -84,14 +80,12 @@ router.put("/cell-control", auth, updateCellControlRecords);
 
 // Market Metadata
 router.get("/market", auth, fetchMarketMetadataRecords);
-router.get("/market/count", auth, fetchMarketMetadataRecordsPagination);
 router.post("/market", auth, createMarketMetadataRecords);
 router.put("/market", auth, updateMarketMetadataRecords);
 router.delete("/market", auth, deleteMarketMetadataRecords);
 module.exports = router;
 
 router.get("/period", auth, fetchPeriodMetadatRecords);
-router.get("/period/count", auth, fetchPeriodMetadataRecordsPagination);
 router.post("/period", auth, createPeriodMetadataRecord);
 router.delete("/period", auth, deletePeriodMetadataRecords);
 router.put("/period", auth, updatePeriodMetadataRecords);
