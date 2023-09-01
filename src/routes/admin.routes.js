@@ -57,7 +57,6 @@ router.delete("/sml-pcat", auth, deleteSmlPcatRecords);
 
 // Critical Attributes Metadata
 router.get("/critical-attributes", auth, criticalAttributesRecords);
-router.get("/critical-attributes/count", auth, criticalAttributesPagination);
 router.post("/critical-attributes", auth, createCriticalAttributesRecords);
 router.put("/critical-attributes", auth, updateCriticalAttributesRecords);
 router.delete("/critical-attributes", auth, deleteCriticalAttributesRecords);

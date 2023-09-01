@@ -36,7 +36,7 @@ const criticalAttributesRecords = async (req, res, next) => {
       ];
     }
 
-    const criticalAttributesList = await CriticalAttributesModel.findAll({
+    const criticalAttributesList = await CriticalAttributesModel.findAndCountAll({
       limit,
       offset,
       where: whereClause,
@@ -44,7 +44,7 @@ const criticalAttributesRecords = async (req, res, next) => {
     });
 
     const responseObj = {
-      result: criticalAttributesList,
+      result: criticalAttributesList.rows, count: criticalAttributesList.count
     };
 
     res.json(responseObj);
@@ -54,56 +54,6 @@ const criticalAttributesRecords = async (req, res, next) => {
   }
 };
 
-const criticalAttributesPagination = async (req, res, next) => {
-  try {
-    const { limit, offset, page } = getPaginationDetails(req);
-
-    const { filters, sorting } = req.query;
-
-    let whereClause = {};
-    let orderClause = [];
-    let tableFilters = [];
-    let sortFilters = [];
-
-    if (filters && sorting) {
-      tableFilters = JSON.parse(filters);
-      sortFilters = JSON.parse(sorting);
-    }
-
-    if (tableFilters.length > 0) {
-      tableFilters.forEach((filter) => {
-        if (filter.value)
-          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
-      });
-    }
-
-    if (sortFilters.length > 0) {
-      orderClause = [
-        [
-          sortFilters[0].id ?? "Id",
-          sortFilters[0].desc ? "DESC" : "ASC",
-        ],
-      ];
-    }
-
-    const criticalAttributesCount = await CriticalAttributesModel.count({
-      limit,
-      offset,
-      where: whereClause,
-      order: orderClause,
-    });
-
-    const responseObj = {
-      page,
-      page_size: limit,
-      total_count: criticalAttributesCount,
-    };
-
-    res.json(responseObj);
-  } catch (error) {
-    next(error);
-  }
-};
 
 const updateCriticalAttributesRecords = async (req, res, next) => {
   try {
@@ -234,7 +184,6 @@ const fetchMarketNameCodeMeta = async (req, res, next) => {
 
 module.exports = {
   criticalAttributesRecords,
-  criticalAttributesPagination,
   updateCriticalAttributesRecords,
   createCriticalAttributesRecords,
   deleteCriticalAttributesRecords,
