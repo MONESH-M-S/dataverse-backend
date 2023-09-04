@@ -33,14 +33,14 @@ const fetchPeriodMetadatRecords = async (req, res, next) => {
       ];
     }
  
-    const periodMetadataList = await PeriodMetadata.findAll({
+    const periodMetadataList = await PeriodMetadata.findAndCountAll({
       limit,
       offset,
       where: whereClause,
       order: orderClause,
     });
 
-    const responseObj = { result: periodMetadataList };
+    const responseObj = { result: periodMetadataList.rows, count:periodMetadataList.count };
     
     res.json(responseObj);
   } catch (error) {
@@ -48,53 +48,6 @@ const fetchPeriodMetadatRecords = async (req, res, next) => {
   }
 };
 
-const fetchPeriodMetadataRecordsPagination = async (req, res, next) => {
-  try {
-    const { limit, offset, page } = getPaginationDetails(req);
-
-    const { filters, sorting } = req.query;
-
-    let whereClause = {};
-    let orderClause = [];
-    let tableFilters = [];
-    let sortFilters = [];
-
-    if (filters && sorting) {
-      tableFilters = JSON.parse(filters);
-      sortFilters = JSON.parse(sorting);
-    }
-
-    if (tableFilters.length > 0) {
-      tableFilters.forEach((filter) => {
-        if (filter.value)
-          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
-      });
-    }
-
-    if (sortFilters.length > 0) {
-      orderClause = [
-        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
-      ];
-    }
-
-    const factCount = await PeriodMetadata.count({
-      limit,
-      offset,
-      where: whereClause,
-      order: orderClause,
-    });
-
-    const responseObj = {
-      page,
-      page_size: limit,
-      total_count: factCount,
-    };
-
-    res.json(responseObj);
-  } catch (error) {
-    next(error);
-  }
-};
 
 const updatePeriodMetadataRecords = async (req, res, next) => {
     try {     
@@ -159,7 +112,6 @@ const deletePeriodMetadataRecords = async (req, res, next) => {
 
 module.exports = {
   fetchPeriodMetadatRecords,
-  fetchPeriodMetadataRecordsPagination,
   updatePeriodMetadataRecords,
   createPeriodMetadataRecord,
   deletePeriodMetadataRecords

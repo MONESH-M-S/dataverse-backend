@@ -33,14 +33,14 @@ const fetchFactMetadataRecords = async (req, res, next) => {
       ];
     }
 
-    const factMetadataList = await FactMetadata.findAll({
+    const factMetadataList = await FactMetadata.findAndCountAll({
       limit,
       offset,
       where: whereClause,
       order: orderClause,
     });
 
-    const responseObj = { result: factMetadataList };
+    const responseObj = { result: factMetadataList.rows,    count: factMetadataList.count };
 
     res.json(responseObj);
   } catch (error) {
@@ -48,53 +48,6 @@ const fetchFactMetadataRecords = async (req, res, next) => {
   }
 };
 
-const fetchFactMetadataRecordsPagination = async (req, res, next) => {
-  try {
-    const { limit, offset, page } = getPaginationDetails(req);
-
-    const { filters, sorting } = req.query;
-
-    let whereClause = {};
-    let orderClause = [];
-    let tableFilters = [];
-    let sortFilters = [];
-
-    if (filters && sorting) {
-      tableFilters = JSON.parse(filters);
-      sortFilters = JSON.parse(sorting);
-    }
-
-    if (tableFilters.length > 0) {
-      tableFilters.forEach((filter) => {
-        if (filter.value)
-          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
-      });
-    }
-
-    if (sortFilters.length > 0) {
-      orderClause = [
-        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
-      ];
-    }
-
-    const factCount = await FactMetadata.count({
-      limit,
-      offset,
-      where: whereClause,
-      order: orderClause,
-    });
-
-    const responseObj = {
-      page,
-      page_size: limit,
-      total_count: factCount,
-    };
-
-    res.json(responseObj);
-  } catch (error) {
-    next(error);
-  }
-};
 
 const updateFactMetadataRecords = async (req, res, next) => {
   try {
@@ -219,7 +172,6 @@ const fetchFactNielsenMarketMeta = async (req, res, next) => {
 
 module.exports = {
   fetchFactMetadataRecords,
-  fetchFactMetadataRecordsPagination,
   updateFactMetadataRecords,
   createFactMetadataRecords,
   deleteFactMetadataRecords,

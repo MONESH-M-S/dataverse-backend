@@ -33,14 +33,14 @@ const fetchMarketMetadataRecords = async (req, res, next) => {
       ];
     }
 
-    const marketMetadataList = await MarketMetadata.findAll({
+    const marketMetadataList = await MarketMetadata.findAndCountAll({
       limit,
       offset,
       where: whereClause,
       order: orderClause,
     });
 
-    const responseObj = { result: marketMetadataList };
+    const responseObj = { result: marketMetadataList.rows , count:marketMetadataList.count };
 
     res.json(responseObj);
   } catch (error) {
@@ -48,53 +48,6 @@ const fetchMarketMetadataRecords = async (req, res, next) => {
   }
 };
 
-const fetchMarketMetadataRecordsPagination = async (req, res, next) => {
-  try {
-    const { limit, offset, page } = getPaginationDetails(req);
-
-    const { filters, sorting } = req.query;
-
-    let whereClause = {};
-    let orderClause = [];
-    let tableFilters = [];
-    let sortFilters = [];
-
-    if (filters && sorting) {
-      tableFilters = JSON.parse(filters);
-      sortFilters = JSON.parse(sorting);
-    }
-
-    if (tableFilters.length > 0) {
-      tableFilters.forEach((filter) => {
-        if (filter.value)
-          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
-      });
-    }
-
-    if (sortFilters.length > 0) {
-      orderClause = [
-        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
-      ];
-    }
-
-    const marketCount = await MarketMetadata.count({
-      limit,
-      offset,
-      where: whereClause,
-      order: orderClause,
-    });
-
-    const responseObj = {
-      page,
-      page_size: limit,
-      total_count: marketCount,
-    };
-
-    res.json(responseObj);
-  } catch (error) {
-    next(error);
-  }
-};
 
 const updateMarketMetadataRecords = async (req, res, next) => {
   try {
@@ -158,7 +111,6 @@ const deleteMarketMetadataRecords = async (req, res, next) => {
 
 module.exports = {
   fetchMarketMetadataRecords,
-  fetchMarketMetadataRecordsPagination,
   updateMarketMetadataRecords,
   createMarketMetadataRecords,
   deleteMarketMetadataRecords,
