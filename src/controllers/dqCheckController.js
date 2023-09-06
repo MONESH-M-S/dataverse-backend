@@ -294,7 +294,7 @@ const fetchDQChecksDataCount = async (req, res, next) => {
       statusFilter.push(`'In Progress'`);
 
     if (metaDataFilter.length || statusFilter.length) {
-      query = "AND ";
+      query = "WHERE ";
 
       if (metaDataFilter.length) {
         query += metaDataFilter.join(" AND ");
