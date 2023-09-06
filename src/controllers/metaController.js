@@ -75,7 +75,7 @@ const fetchDQProviderMeta = async (req, res, next) => {
     );
     INSERT INTO @LatestFileRunLoadLog EXEC [info].[spGetLatestFileRunLoadLogs];
     SELECT 
-      DISTINCT Source AS DataProvider 
+      DISTINCT Source AS name
     FROM 
       @LatestFileRunLoadLog a 
       join info.LoadDetailLog b ON a.LogId = b.LogId
@@ -83,7 +83,7 @@ const fetchDQProviderMeta = async (req, res, next) => {
     
     `);
 
-    res.json(data[0]);
+    res.json(data);
   } catch (error) {
     next(error);
   }
@@ -105,11 +105,11 @@ const fetchDqDatasetMeta = async (req, res, next) => {
     );
     INSERT INTO @LatestFileRunLoadLog EXEC [info].[spGetLatestFileRunLoadLogs];
     SELECT 
-      DISTINCT Dataset 
+      DISTINCT Dataset AS name
     FROM 
       @LatestFileRunLoadLog
     `)
-
+    res.json(data)
   } catch (err) {
     next(error);
   }
