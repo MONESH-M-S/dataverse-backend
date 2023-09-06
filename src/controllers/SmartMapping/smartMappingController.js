@@ -1,49 +1,82 @@
 const SmartMappingListModel = require("../../models/SmartMapping/SmartMappingList.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
-const { Op } = require("sequelize");
+const {
+  Op
+} = require("sequelize");
 const statusTypeEnum = require("../../enums/statusType.enum");
 
 const fetchSmartMappingList = async (req, res, next) => {
   try {
-    const { limit, offset } = getPaginationDetails(req);
+    const {
+      limit,
+      offset
+    } = getPaginationDetails(req);
+
+
     const {
       search,
       start_date: startDate,
       end_date: endDate,
-      filter_by_country: filterByCountry,
-      filter_by_category: filterByCategory,
+      filter_by_dimension: filterByDimension,
+      filters,
+      sorting
     } = req.query;
 
-    const { provider } = req.params;
 
     let whereClause = {};
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+
+        if (filter.id === 'dataProvider') {
+          filter.id = 'ExternalDataProvider'
+        } else if (filter.id === 'country') {
+          filter.id = 'Country'
+        } else if (filter.id === 'category') {
+          filter.id = 'category'
+        }
+
+
+        if (filter.value)
+          whereClause[filter.id] = {
+            [Op.like]: `%${filter.value.trim()}%`
+          };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters.id ?? "CreatedOn", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
 
     if (startDate && endDate)
       whereClause["CreatedOn"] = {
         [Op.between]: [startDate, endDate],
       };
 
-    if (filterByCountry)
-      whereClause["Country"] = {
-        [Op.in]: [filterByCountry],
-      };
 
-    if (filterByProvider)
-      whereClause["ExternalDataProvider"] = filterByProvider;
-
-    if (filterByCategory)
-      whereClause["Category"] = filterByCategory;
 
     if (search) {
-      whereClause[Op.or] = [
-        { Filename: { [Op.like]: `%${search.trim()}%` } },
-        { Category: { [Op.like]: `%${search.trim()}%` } },
-        { Country: { [Op.like]: `%${search.trim()}%` } },
-      ];
+      whereClause[Op.or] = [{
+        Filename: {
+          [Op.like]: `%${search.trim()}%`
+        }
+      }, ];
     }
 
-    if (provider) {
-      whereClause["Dimension"] = provider;
+    if (filterByDimension) {
+      whereClause["Dimension"] = filterByDimension;
     } else {
       whereClause["Dimension"] = "Product";
     }
@@ -52,10 +85,12 @@ const fetchSmartMappingList = async (req, res, next) => {
       limit,
       offset,
       where: whereClause,
-      order: [["id", "DESC"]],
+      order: orderClause,
     });
 
-    res.json({ result: SummaryList });
+    res.json({
+      result: SummaryList
+    });
   } catch (error) {
     next(error);
   }
@@ -63,18 +98,18 @@ const fetchSmartMappingList = async (req, res, next) => {
 
 const fetchSmartMappingListPagination = async (req, res, next) => {
   try {
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const {
+      limit,
+      offset
+    } = getPaginationDetails(req);
     const {
       search,
       start_date: startDate,
-      filter_by_dimension: filterByDimension,
       end_date: endDate,
-      filter_by_country: filterByCountry,
-      filter_by_provider: filterByProvider,
-      filter_by_category: filterByCategory,
+      filter_by_dimension: filterByDimension,
+
     } = req.query;
 
-    const { provider } = req.params
 
     let whereClause = {};
 
@@ -84,30 +119,17 @@ const fetchSmartMappingListPagination = async (req, res, next) => {
       };
     }
 
-    if (filterByCountry) {
-      whereClause["Country"] = {
-        [Op.in]: [filterByCountry],
-      };
-    }
-
-    if (filterByProvider) {
-      whereClause["ExternalDataProvider"] = filterByProvider;
-    }
-
-    if (filterByCategory) {
-      whereClause["Category"] = filterByCategory;
-    }
 
     if (search) {
-      whereClause[Op.or] = [
-        { Filename: { [Op.like]: `%${search.trim()}%` } },
-        { Category: { [Op.like]: `%${search.trim()}%` } },
-        { Country: { [Op.like]: `%${search.trim()}%` } },
-      ];
+      whereClause[Op.or] = [{
+        Filename: {
+          [Op.like]: `%${search.trim()}%`
+        }
+      }, ];
     }
 
     if (filterByDimension) {
-      whereClause["Dimension"] = provider;
+      whereClause["Dimension"] = filterByDimension;
     } else {
       whereClause["Dimension"] = "Product";
     }
@@ -120,9 +142,7 @@ const fetchSmartMappingListPagination = async (req, res, next) => {
     });
 
     const response = {
-      page,
-      page_size: pageSize,
-      total_count: count,
+      count: count,
     };
 
     res.json(response);
@@ -133,7 +153,9 @@ const fetchSmartMappingListPagination = async (req, res, next) => {
 
 const fetchIndividualSmartMapping = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const {
+      id
+    } = req.params;
     const data = await SmartMappingListModel.findByPk(id);
     res.json(data);
   } catch (error) {
