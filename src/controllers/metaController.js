@@ -110,7 +110,7 @@ const fetchDqDatasetMeta = async (req, res, next) => {
       @LatestFileRunLoadLog
     `)
     res.json(data[0])
-  } catch (err) {
+  } catch (error) {
     next(error);
   }
 }
