@@ -83,7 +83,7 @@ const fetchDQProviderMeta = async (req, res, next) => {
     
     `);
 
-    res.json(data);
+    res.json(data[0]);
   } catch (error) {
     next(error);
   }
@@ -109,7 +109,7 @@ const fetchDqDatasetMeta = async (req, res, next) => {
     FROM 
       @LatestFileRunLoadLog
     `)
-    res.json(data)
+    res.json(data[0])
   } catch (err) {
     next(error);
   }
