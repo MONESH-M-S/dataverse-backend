@@ -3,11 +3,18 @@ const LoadLogModel = require("../models/loadLog.model");
 const FactColumnMappingModel = require("../models/factColumnMapping.model");
 const SmlPcatModel = require("../models/Admin/smlPcat.model");
 const CellControlModel = require("../models/Admin/sourceDetails.model");
-const { Sequelize, sequelize } = require("../../models");
-const { Op } = require("sequelize");
+const {
+  Sequelize,
+  sequelize
+} = require("../../models");
+const {
+  Op
+} = require("sequelize");
 
 const fetchCountryMeta = async (req, res, next) => {
-  const { category } = req.query;
+  const {
+    category
+  } = req.query;
 
   let whereClause = {
     SOURCE: {
@@ -52,8 +59,67 @@ const fetchProviderMeta = async (req, res, next) => {
   }
 };
 
+const fetchDQProviderMeta = async (req, res, next) => {
+  try {
+    const data = await sequelize.query(`
+    DECLARE @LatestFileRunLoadLog TABLE (
+      LogId INT, 
+      LoadDesc NVARCHAR(100), 
+      LoadStartTime Datetime, 
+      FileName Nvarchar(100), 
+      Source Nvarchar(100), 
+      Country Nvarchar(100), 
+      Category Nvarchar(100), 
+      Dataset Nvarchar(100), 
+      DirectIndirect Nvarchar(100)
+    );
+    INSERT INTO @LatestFileRunLoadLog EXEC [info].[spGetLatestFileRunLoadLogs];
+    SELECT 
+      DISTINCT Source AS DataProvider 
+    FROM 
+      @LatestFileRunLoadLog a 
+      join info.LoadDetailLog b ON a.LogId = b.LogId
+    
+    
+    `);
+
+    res.json(data[0]);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const fetchDqDatasetMeta = async (req, res, next) => {
+  try {
+    const data = await sequelize.query(`
+    DECLARE @LatestFileRunLoadLog TABLE (
+      LogId INT, 
+      LoadDesc NVARCHAR(100), 
+      LoadStartTime Datetime, 
+      FileName Nvarchar(100), 
+      Source Nvarchar(100), 
+      Country Nvarchar(100), 
+      Category Nvarchar(100), 
+      Dataset Nvarchar(100), 
+      DirectIndirect Nvarchar(100)
+    );
+    INSERT INTO @LatestFileRunLoadLog EXEC [info].[spGetLatestFileRunLoadLogs];
+    SELECT 
+      DISTINCT Dataset 
+    FROM 
+      @LatestFileRunLoadLog
+    `)
+
+  } catch (err) {
+    next(error);
+  }
+}
+
+
 const fetchCategoryMeta = async (req, res, next) => {
-  const { country } = req.query;
+  const {
+    country
+  } = req.query;
   let whereClause = {};
   if (country) whereClause["COUNTRY"] = country;
 
@@ -85,7 +151,10 @@ const fetchIMScenarioFlag = async (req, res, next) => {
 
 const fetchSmlPcatCategoryMeta = async (req, res, next) => {
   try {
-    const { market, segment } = req.query;
+    const {
+      market,
+      segment
+    } = req.query;
     const whereClause = {};
     if (market) whereClause["DP_MARKET"] = market;
     if (segment) whereClause["DP_SEGMENT"] = segment;
@@ -102,7 +171,10 @@ const fetchSmlPcatCategoryMeta = async (req, res, next) => {
 };
 const fetchSmlPcatMarketMeta = async (req, res, next) => {
   try {
-    const { category, segment } = req.query;
+    const {
+      category,
+      segment
+    } = req.query;
     const whereClause = {};
     if (category) whereClause["DP_CATEGORY"] = category;
     if (segment) whereClause["DP_SEGMENT"] = segment;
@@ -119,7 +191,10 @@ const fetchSmlPcatMarketMeta = async (req, res, next) => {
 };
 const fetchSmlPcatSegmentMeta = async (req, res, next) => {
   try {
-    const { category, market } = req.query;
+    const {
+      category,
+      market
+    } = req.query;
     const whereClause = {};
     if (category) whereClause["DP_CATEGORY"] = category;
     if (market) whereClause["DP_MARKET"] = market;
@@ -137,7 +212,10 @@ const fetchSmlPcatSegmentMeta = async (req, res, next) => {
 
 const fetchCellControlProviderMeta = async (req, res, next) => {
   try {
-    const { country, category } = req.query;
+    const {
+      country,
+      category
+    } = req.query;
     const whereClause = {};
     if (country) whereClause["Country"] = country;
     if (category) whereClause["Category"] = category;
@@ -154,7 +232,10 @@ const fetchCellControlProviderMeta = async (req, res, next) => {
 };
 const fetchCellControlCountryMeta = async (req, res, next) => {
   try {
-    const { provider, category } = req.query;
+    const {
+      provider,
+      category
+    } = req.query;
     const whereClause = {};
     if (provider) whereClause["DataProvider"] = provider;
     if (category) whereClause["Category"] = category;
@@ -172,7 +253,10 @@ const fetchCellControlCountryMeta = async (req, res, next) => {
 };
 const fetchCellControlCategoryMeta = async (req, res, next) => {
   try {
-    const { provider, country } = req.query;
+    const {
+      provider,
+      country
+    } = req.query;
     const whereClause = {};
     if (provider) whereClause["DataProvider"] = provider;
     if (country) whereClause["Country"] = country;
@@ -198,4 +282,6 @@ module.exports = {
   fetchCellControlProviderMeta,
   fetchCellControlCountryMeta,
   fetchCellControlCategoryMeta,
+  fetchDQProviderMeta,
+  fetchDqDatasetMeta
 };
