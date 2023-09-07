@@ -10,10 +10,15 @@ const fetchFactMetadataRecords = async (req, res, next) => {
 
     const { filters, sorting } = req.query;
 
-    let whereClause = {};
     let orderClause = [];
     let tableFilters = [];
     let sortFilters = [];
+
+    let whereClause = {
+      HarmonisedAttribute: {
+        [Op.in]: ['SalesUnits', 'SalesVolume', 'SalesValueInEuros']
+      }
+    };
 
     if (filters && sorting) {
       tableFilters = JSON.parse(filters);
