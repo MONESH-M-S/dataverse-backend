@@ -14,8 +14,6 @@ const fetchSmartMappingList = async (req, res, next) => {
     const { limit, offset } = getPaginationDetails(req);
 
     const {
-      start_date: startDate,
-      end_date: endDate,
       filter_by_dimension: filterByDimension,
       filters,
       sorting,
@@ -34,20 +32,23 @@ const fetchSmartMappingList = async (req, res, next) => {
 
     if (Object.keys(tableFilters).length) {
       Object.keys(tableFilters).forEach((filter) => {
-        whereClause[FILTER_META[filter]] = tableFilters[filter];
+        if (filter == "startDate" || filter == "endDate") {
+          whereClause["CreatedOn"] = {
+            [Op.between]: [tableFilters["startDate"], tableFilters["endDate"]],
+          };
+        } else {
+          whereClause[FILTER_META[filter]] = tableFilters[filter];
+        }
       });
     }
+
+    console.log(whereClause);
 
     if (sortFilters.length > 0) {
       orderClause = [
         [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
       ];
     }
-
-    if (startDate && endDate)
-      whereClause["CreatedOn"] = {
-        [Op.between]: [startDate, endDate],
-      };
 
     if (fileName) {
       whereClause[Op.and] = [
@@ -83,8 +84,6 @@ const fetchSmartMappingList = async (req, res, next) => {
 const fetchSmartMappingListPagination = async (req, res, next) => {
   try {
     const {
-      start_date: startDate,
-      end_date: endDate,
       filter_by_dimension: filterByDimension,
       filters,
       fileName,
@@ -99,14 +98,14 @@ const fetchSmartMappingListPagination = async (req, res, next) => {
 
     if (Object.keys(tableFilters).length) {
       Object.keys(tableFilters).forEach((filter) => {
-        whereClause[FILTER_META[filter]] = tableFilters[filter];
+        if (filter == "startDate" || filter == "endDate") {
+          whereClause["CreatedOn"] = {
+            [Op.between]: [tableFilters["startDate"], tableFilters["endDate"]],
+          };
+        } else {
+          whereClause[FILTER_META[filter]] = tableFilters[filter];
+        }
       });
-    }
-
-    if (startDate && endDate) {
-      whereClause["CreatedOn"] = {
-        [Op.between]: [startDate, endDate],
-      };
     }
 
     if (fileName) {
