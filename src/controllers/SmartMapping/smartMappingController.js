@@ -1,62 +1,46 @@
 const SmartMappingListModel = require("../../models/SmartMapping/SmartMappingList.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
-const {
-  Op
-} = require("sequelize");
+const { Op } = require("sequelize");
 const statusTypeEnum = require("../../enums/statusType.enum");
+
+const FILTER_META = {
+  provider: "ExternalDataProvider",
+  country: "Country",
+  category: "Category",
+};
 
 const fetchSmartMappingList = async (req, res, next) => {
   try {
-    const {
-      limit,
-      offset
-    } = getPaginationDetails(req);
-
+    const { limit, offset } = getPaginationDetails(req);
 
     const {
-      search,
       start_date: startDate,
       end_date: endDate,
       filter_by_dimension: filterByDimension,
       filters,
-      sorting
+      sorting,
+      fileName,
     } = req.query;
-
 
     let whereClause = {};
     let orderClause = [];
     let tableFilters = [];
     let sortFilters = [];
 
-
-
     if (filters && sorting) {
       tableFilters = JSON.parse(filters);
       sortFilters = JSON.parse(sorting);
     }
 
-    if (tableFilters.length > 0) {
-      tableFilters.forEach((filter) => {
-
-        if (filter.id === 'dataProvider') {
-          filter.id = 'ExternalDataProvider'
-        } else if (filter.id === 'country') {
-          filter.id = 'Country'
-        } else if (filter.id === 'category') {
-          filter.id = 'category'
-        }
-
-
-        if (filter.value)
-          whereClause[filter.id] = {
-            [Op.like]: `%${filter.value.trim()}%`
-          };
+    if (Object.keys(tableFilters).length) {
+      Object.keys(tableFilters).forEach((filter) => {
+        whereClause[FILTER_META[filter]] = tableFilters[filter];
       });
     }
 
     if (sortFilters.length > 0) {
       orderClause = [
-        [sortFilters.id ?? "CreatedOn", sortFilters[0].desc ? "DESC" : "ASC"],
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
       ];
     }
 
@@ -65,14 +49,14 @@ const fetchSmartMappingList = async (req, res, next) => {
         [Op.between]: [startDate, endDate],
       };
 
-
-
-    if (search) {
-      whereClause[Op.or] = [{
-        Filename: {
-          [Op.like]: `%${search.trim()}%`
-        }
-      }, ];
+    if (fileName) {
+      whereClause[Op.and] = [
+        {
+          Filename: {
+            [Op.like]: `%${fileName.trim()}%`,
+          },
+        },
+      ];
     }
 
     if (filterByDimension) {
@@ -89,7 +73,7 @@ const fetchSmartMappingList = async (req, res, next) => {
     });
 
     res.json({
-      result: SummaryList
+      result: SummaryList,
     });
   } catch (error) {
     next(error);
@@ -99,19 +83,25 @@ const fetchSmartMappingList = async (req, res, next) => {
 const fetchSmartMappingListPagination = async (req, res, next) => {
   try {
     const {
-      limit,
-      offset
-    } = getPaginationDetails(req);
-    const {
-      search,
       start_date: startDate,
       end_date: endDate,
       filter_by_dimension: filterByDimension,
-
+      filters,
+      fileName,
     } = req.query;
 
-
     let whereClause = {};
+    let tableFilters = [];
+
+    if (filters) {
+      tableFilters = JSON.parse(filters);
+    }
+
+    if (Object.keys(tableFilters).length) {
+      Object.keys(tableFilters).forEach((filter) => {
+        whereClause[FILTER_META[filter]] = tableFilters[filter];
+      });
+    }
 
     if (startDate && endDate) {
       whereClause["CreatedOn"] = {
@@ -119,13 +109,14 @@ const fetchSmartMappingListPagination = async (req, res, next) => {
       };
     }
 
-
-    if (search) {
-      whereClause[Op.or] = [{
-        Filename: {
-          [Op.like]: `%${search.trim()}%`
-        }
-      }, ];
+    if (fileName) {
+      whereClause[Op.and] = [
+        {
+          Filename: {
+            [Op.like]: `%${fileName.trim()}%`,
+          },
+        },
+      ];
     }
 
     if (filterByDimension) {
@@ -135,10 +126,7 @@ const fetchSmartMappingListPagination = async (req, res, next) => {
     }
 
     const count = await SmartMappingListModel.count({
-      limit,
-      offset,
       where: whereClause,
-      order: ["id", "DESC"],
     });
 
     const response = {
@@ -153,9 +141,7 @@ const fetchSmartMappingListPagination = async (req, res, next) => {
 
 const fetchIndividualSmartMapping = async (req, res, next) => {
   try {
-    const {
-      id
-    } = req.params;
+    const { id } = req.params;
     const data = await SmartMappingListModel.findByPk(id);
     res.json(data);
   } catch (error) {
@@ -202,10 +188,9 @@ const fetchSmartMappingDashboardCount = async (req, res, next) => {
   }
 };
 
-
 module.exports = {
   fetchSmartMappingList,
   fetchSmartMappingListPagination,
   fetchSmartMappingDashboardCount,
-  fetchIndividualSmartMapping
+  fetchIndividualSmartMapping,
 };
