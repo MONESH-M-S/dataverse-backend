@@ -7,7 +7,7 @@ const MarketColumns = require("../../../constants/Excel-Columns/SmartMapping/Oth
 const PeriodColumns = require("../../../constants/Excel-Columns/SmartMapping/OtherRMS/PeriodMapped");
 
 const getPaginationDetails = require("../../../utils/response/getPaginationDetails");
-const sendAsExcelFile = require('../../../utils/response/sendAsExcelFile')
+const sendAsExcelFile = require("../../../utils/response/sendAsExcelFile");
 
 const { Op } = require("sequelize");
 
@@ -41,7 +41,6 @@ const fetchTableRecords = async (req, res, next) => {
     let whereClause = {
       Filename: Filename,
     };
-
 
     if (Search) {
       whereClause[Op.or] = [
@@ -79,7 +78,7 @@ const fetchTableRecords = async (req, res, next) => {
       where: whereClause,
     });
 
-    res.json({ result:result });
+    res.json({ result: result });
   } catch (error) {
     next(error);
   }
@@ -99,7 +98,6 @@ const fetchTableRecordsCount = async (req, res, next) => {
     } = req.query;
 
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
-
 
     let whereClause = {
       Filename: Filename,
@@ -155,8 +153,8 @@ const downloadOtherRMSExcel = async (req, res, next) => {
 
     const table = {};
 
-    table.columns = COLUMN_DOWNLOAD_MODEL[type]
-    table.model = TABEL_MODEL[type]
+    table.columns = COLUMN_DOWNLOAD_MODEL[type];
+    table.model = TABEL_MODEL[type];
 
     const data = await table.model.findAll({
       where: {

@@ -1,7 +1,11 @@
 const FactOtherRMSModel = require("../../../models/SmartMapping/OtherRms/FactOtherRMS.model");
 const MarketOtherRMSModel = require("../../../models/SmartMapping/OtherRms/MarketOtherRMS.model");
 const PeriodOtherRMSModel = require("../../../models/SmartMapping/OtherRms/PeriodOtherRMS.model");
-const { Fact_Dropdowns, Period_Dropdowns, Market_Dropdowns } = require('../../../constants/dropDown/remappingConstant')
+const {
+  Fact_Dropdowns,
+  Period_Dropdowns,
+  Market_Dropdowns,
+} = require("../../../constants/dropDown/remappingConstant");
 const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");
 const statusTypeEnum = require("../../../enums/statusType.enum");
@@ -27,10 +31,7 @@ const getWhereObjectFromQuery = (query) => {
 
 const otherRMSPeriodRemappingOptions = async (req, res, next) => {
   try {
-
-
     const whereClause = getWhereObjectFromQuery(req.query);
-
 
     const columnName = req.params.columnName;
     const dbColumnName = Period_Dropdowns[columnName];
@@ -67,8 +68,6 @@ const otherRMSMarketRemappingOptions = async (req, res, next) => {
 
 const otherRMSFactRemappingOptions = async (req, res, next) => {
   try {
-
-   
     const whereClause = getWhereObjectFromQuery(req.query);
 
     const columnName = req.params.columnName;

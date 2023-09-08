@@ -1,6 +1,6 @@
-const MarketMappingModel = require('../../../../models/SmartMapping/Nielsen/Market/MarketDetail.model');
-const getPaginationDetails = require('../../../../utils/response/getPaginationDetails')
-const marketMappedColumns = require('../../../../constants/Excel-Columns/SmartMapping/Nielsen/Market/marketMappedColumns')
+const MarketMappingModel = require("../../../../models/SmartMapping/Nielsen/Market/MarketDetail.model");
+const getPaginationDetails = require("../../../../utils/response/getPaginationDetails");
+const marketMappedColumns = require("../../../../constants/Excel-Columns/SmartMapping/Nielsen/Market/marketMappedColumns");
 const sendAsExcelFile = require("../../../../utils/response/sendAsExcelFile");
 
 const fetchMarketMapping = async (req, res, next) => {
@@ -30,13 +30,8 @@ const fetchMarketMapping = async (req, res, next) => {
     next(error);
   }
 };
-const fetchMarketMappingPagination = async (
-  req,
-  res,
-  next
-) => {
+const fetchMarketMappingPagination = async (req, res, next) => {
   try {
-
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
     const { Filename, Search } = req.query;
 
@@ -69,7 +64,6 @@ const fetchMarketMappingPagination = async (
   }
 };
 
-
 const downloadMarketMapping = async (req, res, next) => {
   try {
     const { Filename } = req.query;
@@ -93,5 +87,8 @@ const downloadMarketMapping = async (req, res, next) => {
   }
 };
 
-
-module.exports = { fetchMarketMapping, fetchMarketMappingPagination, downloadMarketMapping }
+module.exports = {
+  fetchMarketMapping,
+  fetchMarketMappingPagination,
+  downloadMarketMapping,
+};
