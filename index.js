@@ -1,4 +1,3 @@
-
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
@@ -34,8 +33,12 @@ app.use(
 app.use(cors());
 
 // Api Routes
-// const smartMappingRoutes = require("./src/routes/smartMapping.routes");
-// const metaRoutes = require("./src/routes/meta.routes");
+const smartMappingRoutes = require("./src/routes/smartMapping.routes");
+const smartMappingNielsenProductRoutes = require("./src/routes/SmartMapping/product.routes");
+const smartMappingNielsenFactRoutes = require("./src/routes/SmartMapping/fact.routes");
+const smartMappingNielsenMarketRoutes = require("./src/routes/SmartMapping/market.routes");
+const smartMappingNielsenPeriodRoutes = require("./src/routes/SmartMapping/period.routes");
+const metaRoutes = require("./src/routes/meta.routes");
 // const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes");
 // const authRoutes = require("./src/routes/auth.routes");
 // const dashboardRoutes = require("./src/routes/dashboard.routes");
@@ -44,11 +47,15 @@ app.use(cors());
 // const adminRoutes = require("./src/routes/admin.routes");
 // const otherRMSRoutes = require("./src/routes/SmartMapping/otherRMS.routes");
 
-
+app.use("/api/smart-mapping", smartMappingRoutes);
+app.use("/api/smart-mapping/product", smartMappingNielsenProductRoutes);
+app.use("/api/smart-mapping/fact", smartMappingNielsenFactRoutes);
+app.use("/api/smart-mapping/market", smartMappingNielsenMarketRoutes);
+app.use("/api/smart-mapping/period", smartMappingNielsenPeriodRoutes);
 
 // app.use("/api/smart-mapping/other-rms", otherRMSRoutes);
-// app.use("/api/smart-mapping", smartMappingRoutes);
-// app.use("/api/meta", metaRoutes);
+
+app.use("/api/meta", metaRoutes);
 // app.use("/api/file-volatility", fileVolatilityRoutes);
 // app.use("/api/auth", authRoutes);
 // app.use("/api/dashboard", dashboardRoutes);
@@ -60,8 +67,8 @@ app.use(express.static(path.join(__dirname, "ui")));
 
 app.get("/*", (req, res) => {
   let file = "";
-  
-  const sanitizedUrl = req.path
+
+  const sanitizedUrl = req.path;
 
   if (sanitizedUrl === "/") file = "/index.html";
   else file = sanitizedUrl;
@@ -79,10 +86,8 @@ const joiErrorHandlerMiddleware = require("./src/middlewares/joiErrorHandler.mid
 app.use(joiErrorHandlerMiddleware);
 app.use(errorHandlerMiddleware);
 
-
 const port = process.env.PORT || 3000;
 
 app.listen(port, "0.0.0.0", () => {
   console.log(`App listening at http://localhost:${port}`);
 });
-
