@@ -2,16 +2,41 @@ const FactMappingPOSModel = require("../../../../models/SmartMapping/POS/Fact/Fa
 const getPaginationDetails = require("../../../../utils/response/getPaginationDetails");
 const sendAsExcelFile = require("../../../../utils/response/sendAsExcelFile");
 const factMappedColumns = require("../../../../constants/Excel-Columns/SmartMapping/POS/Fact/posFactMappedColumns");
-
+const {Op} = require('sequelize')
 const fetchMarketPOSMapping = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
 
-    const { Filename, Search } = req.query;
+    const { Filename, Search, filters, sorting } = req.query;
 
     const whereClause = {
       Filename: Filename,
     };
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = {
+            [Op.like]: `%${filter.value.trim()}%`
+          };
+        else
+          return
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
 
     if (Search) {
       whereClause[Op.or] = [
@@ -24,6 +49,7 @@ const fetchMarketPOSMapping = async (req, res, next) => {
       limit,
       offset,
       where: whereClause,
+      order: orderClause
     });
 
     res.json({ result: result });
@@ -35,11 +61,36 @@ const fetchMarketPOSMappingPagination = async (req, res, next) => {
   try {
     const { page, pageSize, limit, offset } = getPaginationDetails(req);
 
-    const { Filename, Search } = req.query;
+    const { Filename, Search, filters, sorting } = req.query;
 
     const whereClause = {
       Filename: Filename,
     };
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = {
+            [Op.like]: `%${filter.value.trim()}%`
+          };
+        else
+          return
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
 
     if (Search) {
       whereClause[Op.or] = [
@@ -52,6 +103,7 @@ const fetchMarketPOSMappingPagination = async (req, res, next) => {
       limit,
       offset,
       where: whereClause,
+      order: orderClause
     });
 
     const responseObj = {
