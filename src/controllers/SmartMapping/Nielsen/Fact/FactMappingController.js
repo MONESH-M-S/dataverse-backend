@@ -2,15 +2,47 @@ const FactMappingModel = require("../../../../models/SmartMapping/Nielsen/Fact/F
 const getPaginationDetails = require("../../../../utils/response/getPaginationDetails");
 const factMappedColumns = require("../../../../constants/Excel-Columns/SmartMapping/Nielsen/Fact/factMappedColumns");
 const sendAsExcelFile = require("../../../../utils/response/sendAsExcelFile");
+const { Op } = require("sequelize");
 
 const fetchFactMapping = async (req, res, next) => {
   try {
-    const { limit, offset } = getPaginationDetails(req);
-    const { Filename, Search } = req.query;
+    const {
+      limit,
+      offset
+    } = getPaginationDetails(req);
+    const {
+      Filename,
+      Search,
+      filters,
+      sorting
+    } = req.query;
 
     let whereClause = {
       Filename: Filename,
     };
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+        else
+           return
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
 
     if (Search) {
       whereClause["Externaldesc"] = {
@@ -22,9 +54,12 @@ const fetchFactMapping = async (req, res, next) => {
       limit,
       offset,
       where: whereClause,
+      order: orderClause,
     });
 
-    res.json({ result: result });
+    res.json({
+      result: result
+    });
   } catch (error) {
     next(error);
   }
@@ -32,12 +67,46 @@ const fetchFactMapping = async (req, res, next) => {
 
 const fetchFactMappingPagination = async (req, res, next) => {
   try {
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
-    const { Filename, Search } = req.query;
+    const {
+      limit,
+      offset,
+      page,
+      pageSize
+    } = getPaginationDetails(req);
+    const {
+      Filename,
+      Search,
+      filters,
+      sorting
+    } = req.query;
 
     let whereClause = {
       Filename: Filename,
     };
+
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = {
+            [Op.like]: `%${filter.value.trim()}%`
+          };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
 
     if (Search) {
       whereClause["Externaldesc"] = {
@@ -49,6 +118,7 @@ const fetchFactMappingPagination = async (req, res, next) => {
       limit,
       offset,
       where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = {
@@ -65,7 +135,9 @@ const fetchFactMappingPagination = async (req, res, next) => {
 
 const downloadFactMapping = async (req, res, next) => {
   try {
-    const { Filename } = req.query;
+    const {
+      Filename
+    } = req.query;
 
     const table = {};
 
