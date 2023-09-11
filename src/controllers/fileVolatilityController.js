@@ -224,200 +224,125 @@ const fetchColumnMappings = async (req, res, next) => {
     let Entity = entity ?? "Product";
 
     const fileData = await sequelize.query(`
-    select top 1 * from (SELECT 
-
-        q1.Id, 
-      
-        q1.ZipFileName, 
-      
-        q1.FileName, 
-      
-        q1.Country, 
-      
-        q1.Category, 
-      
-        q1.Entity, 
-      
-        q1.SourceColumnList, 
-      
-        COALESCE(q1.SourceColumn, 'NA') AS SourceColumn, 
-      
-        COALESCE(q1.TargetColumn, 'NA') AS TargetColumn, 
-      
-        COALESCE(q1.CriticalFlag, 'NA') AS CriticalFlag, 
-      
-        ISNULL(p.PreviousSource, 'NA') AS PreviousSource, 
-      
-        q1.DataProvider, 
-      
-        q1.Missing_Critical_Attribute_Values 
-      
-      FROM 
-      
-      ( 
-      
-        SELECT 
-      
-          A.Id, 
-      
-          A.ZipFileName, 
-      
-          A.FileName, 
-      
-          A.Country, 
-      
-          A.Category, 
-      
-          A.Entity, 
-      
-          A.SourceColumnList, 
-      
-          A.SourceColumn, 
-      
-          A.TargetColumn, 
-      
-          A.CriticalFlag, 
-      
-          A.DataProvider, 
-      
-          D.Missing_Critical_Attribute_Values 
-      
-        FROM 
-      
-          [metadata].[ColumnMapping] A 
-      
-          LEFT JOIN 
-      
-          ( 
-      
-            SELECT 
-      
-              C.[ZipFileName], 
-      
-              C.[Entity], 
-      
-              CASE WHEN COUNT(*) > 1 THEN STRING_AGG(TRIM(C.Missing_Critical_Attribute_Value), '|') ELSE MAX(TRIM(C.Missing_Critical_Attribute_Value)) END AS Missing_Critical_Attribute_Values 
-      
-            FROM 
-      
-              ( 
-      
-                SELECT 
-      
-                  [ZipFileName], 
-      
-                  C.[FileName], 
-      
-                  [Country], 
-      
-                  [Category], 
-      
-                  [MarketNameCode], 
-      
-                  C.[Entity], 
-      
-                  [DataProvider], 
-      
-                  TRIM(E.Missing_Critical_Attribute_Value) AS Missing_Critical_Attribute_Value 
-      
-                FROM 
-      
-                  [metadata].[ColumnMapping] C 
-      
-                  INNER JOIN 
-      
-                  ( 
-      
-                    SELECT DISTINCT 
-      
-                      [FileName], 
-      
-                      [TaskName], 
-      
-                      TRIM([Missing_Critical_Attribute_Value]) AS Missing_Critical_Attribute_Value, 
-      
-                      TRIM([filename_new]) AS filename_new 
-      
-                    FROM 
-      
-                      ( 
-      
-                        SELECT 
-      
-                          [FileName], 
-      
-                          [TaskName], 
-      
-                          [MessageType], 
-      
-                          [LogMessage], 
-      
-                          [value] AS Missing_Critical_Attribute_Value, 
-      
-                          CASE WHEN [MessageType] LIKE '%Error%' THEN REPLACE([MessageType], 'Error', '') ELSE [MessageType] END AS filename_new, 
-      
-                          [LogDate] 
-      
-                        FROM 
-      
-                          [info].[LoadDetailLog] 
-      
-                        CROSS APPLY 
-      
-                          STRING_SPLIT(REPLACE(REPLACE([LogMessage], 'Missing Critical Attributes:', ''), 'Missing Critical Attributes', ''), ',') 
-      
-                        WHERE 
-      
-                          [TaskName] LIKE '%Critical Attributes%' 
-      
-                          AND [LogMessage] LIKE '%Missing%' 
-      
-                      ) AS D 
-      
-                      WHERE [LogDate] = (SELECT MAX([LogDate]) FROM [info].[LoadDetailLog] WHERE [FileName] = D.[FileName]) 
-      
-                  ) AS E ON C.FileName = E.filename_new 
-      
-              ) AS C 
-      
-            GROUP BY 
-      
-              [ZipFileName], 
-      
-              [Entity] 
-      
-          ) AS D 
-      
-          ON A.ZipFileName = D.ZipFileName 
-      
-          AND A.Entity = D.Entity 
-      
-      ) q1 
-      
-      LEFT JOIN ( 
-      
-        SELECT 
-      
-          [ZipFileName], 
-      
-          [Entity], 
-      
-          ISNULL(STRING_AGG([SourceColumn], '|') WITHIN GROUP (ORDER BY [LoadDate] DESC), 'NA') AS PreviousSource 
-      
-        FROM [metadata].[ColumnMapping] 
-      
-        GROUP BY [ZipFileName], [Entity] 
-      
-      ) p 
-      
-      ON q1.ZipFileName = p.ZipFileName 
-      
-      AND q1.Entity = p.Entity 
-      
-      where Missing_Critical_Attribute_Values is not NULL ) as Q2
-    
-    where Q2.ZipFileName =  '${logDetails.FILENAME}'
-    and Q2.Entity = '${Entity}'`);
+    SELECT 
+  A.Id, 
+  A.ZipFileName, 
+  A.FileName, 
+  A.Country, 
+  A.Category, 
+  A.Entity, 
+  A.SourceColumnList, 
+  COALESCE(A.SourceColumn, 'NA') AS SourceColumn, 
+  COALESCE(A.TargetColumn, 'NA') AS TargetColumn, 
+  COALESCE(A.CriticalFlag, 'NA') AS CriticalFlag, 
+  COALESCE(B.SourceColumn, 'NA') AS PreviousSource, 
+  A.DataProvider, 
+  COALESCE(
+    C.Missing_Critical_Attribute_Value, 
+    'NA'
+  ) AS Missing_Critical_Attribute_Value 
+FROM 
+  (
+    SELECT 
+      [Id], 
+      [ZipFileName], 
+      [FileName], 
+      [Country], 
+      [Category], 
+      [Entity], 
+      [SourceColumnList], 
+      [SourceColumn], 
+      [TargetColumn], 
+      [CriticalFlag], 
+      [DataProvider], 
+      [LoadDate], 
+      RANK() OVER (
+        PARTITION BY Country, 
+        Category, 
+        Entity 
+        ORDER BY 
+          LoadDate DESC
+      ) AS Previous 
+    FROM 
+      [metadata].[ColumnMapping]
+  ) A 
+  LEFT JOIN (
+    SELECT 
+      L.ExtractedFileName, 
+      L.Missing_Critical_Attribute_Value, 
+      L.RowNum 
+    FROM 
+      (
+        SELECT 
+          RIGHT(
+            [FileName], 
+            CHARINDEX(
+              '/', 
+              REVERSE([FileName])
+            ) -1
+          ) AS ExtractedFileName, 
+          [LogMessage], 
+          [value] AS Missing_Critical_Attribute_Value, 
+          ROW_NUMBER() OVER (
+            PARTITION BY RIGHT(
+              [FileName], 
+              CHARINDEX(
+                '/', 
+                REVERSE([FileName])
+              ) -1
+            ) 
+            ORDER BY 
+              [LogDate] DESC
+          ) AS RowNum 
+        FROM 
+          [info].[LoadDetailLog] CROSS APPLY STRING_SPLIT(
+            REPLACE(
+              REPLACE(
+                [LogMessage], 'Missing Critical Attributes:', 
+                ''
+              ), 
+              'Missing Critical Attributes', 
+              ''
+            ), 
+            ','
+          ) 
+        WHERE 
+          [TaskName] LIKE '%Critical Attributes%' --AND [FileName] LIKE '%Maestro_Locales_mt.parquet%'
+          ) L 
+    WHERE 
+      L.RowNum = 1
+  ) AS C ON A.[FileName] = C.ExtractedFileName 
+  LEFT JOIN (
+    SELECT 
+      [Id], 
+      [ZipFileName], 
+      [FileName], 
+      [Country], 
+      [Category], 
+      [Entity], 
+      [SourceColumnList], 
+      [SourceColumn], 
+      [TargetColumn], 
+      [CriticalFlag], 
+      [DataProvider], 
+      [LoadDate], 
+      RANK() OVER (
+        PARTITION BY Country, 
+        Category, 
+        Entity 
+        ORDER BY 
+          LoadDate DESC
+      ) AS Previous 
+    FROM 
+      [metadata].[ColumnMapping]
+  ) B ON A.Country = B.Country 
+  AND A.Category = B.Category 
+  AND A.Previous = B.Previous - 1 
+  AND A.Entity = B.Entity 
+WHERE 
+  A.ZipFileName LIKE '${logDetails.FILENAME}' 
+  and A.Entity = '${Entity}'
+    `);
 
     if (fileData === null) {
       res.json({});
