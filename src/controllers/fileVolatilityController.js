@@ -234,8 +234,8 @@ const fetchColumnMappings = async (req, res, next) => {
   A.SourceColumnList, 
   COALESCE(A.SourceColumn, 'NA') AS SourceColumn, 
   COALESCE(A.TargetColumn, 'NA') AS TargetColumn, 
-  COALESCE(A.CriticalFlag, 'NA') AS CriticalFlag, 
   COALESCE(B.SourceColumn, 'NA') AS PreviousSource, 
+  A.CriticalFlag, 
   A.DataProvider, 
   COALESCE(
     C.Missing_Critical_Attribute_Value, 
@@ -256,92 +256,74 @@ FROM
       [CriticalFlag], 
       [DataProvider], 
       [LoadDate], 
-      RANK() OVER (
-        PARTITION BY Country, 
-        Category, 
-        Entity 
+      ROW_NUMBER() OVER (
         ORDER BY 
-          LoadDate DESC
-      ) AS Previous 
+          [SourceColumn]
+      ) AS SourceColumnSeq, 
+      ROW_NUMBER() OVER (
+        ORDER BY 
+          [TargetColumn]
+      ) AS TargetColumnSeq 
     FROM 
       [metadata].[ColumnMapping]
   ) A 
   LEFT JOIN (
     SELECT 
-      L.ExtractedFileName, 
-      L.Missing_Critical_Attribute_Value, 
-      L.RowNum 
-    FROM 
-      (
-        SELECT 
-          RIGHT(
-            [FileName], 
-            CHARINDEX(
-              '/', 
-              REVERSE([FileName])
-            ) -1
-          ) AS ExtractedFileName, 
-          [LogMessage], 
-          [value] AS Missing_Critical_Attribute_Value, 
-          ROW_NUMBER() OVER (
-            PARTITION BY RIGHT(
-              [FileName], 
-              CHARINDEX(
-                '/', 
-                REVERSE([FileName])
-              ) -1
-            ) 
-            ORDER BY 
-              [LogDate] DESC
-          ) AS RowNum 
-        FROM 
-          [info].[LoadDetailLog] CROSS APPLY STRING_SPLIT(
-            REPLACE(
-              REPLACE(
-                [LogMessage], 'Missing Critical Attributes:', 
-                ''
-              ), 
-              'Missing Critical Attributes', 
-              ''
-            ), 
-            ','
-          ) 
-        WHERE 
-          [TaskName] LIKE '%Critical Attributes%' --AND [FileName] LIKE '%Maestro_Locales_mt.parquet%'
-          ) L 
-    WHERE 
-      L.RowNum = 1
-  ) AS C ON A.[FileName] = C.ExtractedFileName 
-  LEFT JOIN (
-    SELECT 
-      [Id], 
       [ZipFileName], 
-      [FileName], 
-      [Country], 
-      [Category], 
       [Entity], 
-      [SourceColumnList], 
       [SourceColumn], 
-      [TargetColumn], 
-      [CriticalFlag], 
-      [DataProvider], 
-      [LoadDate], 
-      RANK() OVER (
-        PARTITION BY Country, 
-        Category, 
-        Entity 
+      ROW_NUMBER() OVER (
         ORDER BY 
-          LoadDate DESC
-      ) AS Previous 
+          [SourceColumn]
+      ) AS SourceColumnSeq 
     FROM 
       [metadata].[ColumnMapping]
-  ) B ON A.Country = B.Country 
-  AND A.Category = B.Category 
-  AND A.Previous = B.Previous - 1 
+  ) B ON A.ZipFileName = B.ZipFileName 
   AND A.Entity = B.Entity 
+  LEFT JOIN (
+    SELECT 
+      RIGHT(
+        [FileName], 
+        CHARINDEX(
+          '/', 
+          REVERSE([FileName])
+        ) -1
+      ) AS ExtractedFileName, 
+      [LogMessage], 
+      [value] AS Missing_Critical_Attribute_Value, 
+      ROW_NUMBER() OVER (
+        PARTITION BY RIGHT(
+          [FileName], 
+          CHARINDEX(
+            '/', 
+            REVERSE([FileName])
+          ) -1
+        ) 
+        ORDER BY 
+          [LogDate] DESC
+      ) AS RowNum 
+    FROM 
+      [info].[LoadDetailLog] CROSS APPLY STRING_SPLIT(
+        REPLACE(
+          REPLACE(
+            [LogMessage], 'Missing Critical Attributes:', 
+            ''
+          ), 
+          'Missing Critical Attributes', 
+          ''
+        ), 
+        ','
+      ) 
+    WHERE 
+      [TaskName] LIKE '%Critical Attributes%'
+  ) AS C ON A.[FileName] = C.ExtractedFileName 
 WHERE 
-  A.ZipFileName LIKE '${logDetails.FILENAME}' 
-  and A.Entity = '${Entity}'
+  A.ZipFileName = '${logDetails.FILENAME}' 
+  and A.Entity = '${Entity}' 
+  AND C.RowNum = 1 
+ORDER BY 
+  SourceColumn, 
+  TargetColumn
     `);
 
     if (fileData === null) {
