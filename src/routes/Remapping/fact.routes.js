@@ -4,11 +4,11 @@ const { updateRemappingFactValues, factRemappingOptions} = require('../../contro
 const { updatePosRemappingFactValues, posFactRemappingOptions} = require('../../controllers/Remapping/POS/FactRemappingPOSController')
 
 //Nielsen Fact Remapping
-router.get("/fact/:columnName", factRemappingOptions);
-router.put("/fact/:id", updateRemappingFactValues);
+router.get("/:columnName", factRemappingOptions);
+router.put("/:id", updateRemappingFactValues);
 
 //POS Fact Remapping
-router.get("/pos/fact/:columnName", posFactRemappingOptions);
-router.put("/pos/fact/:id", updatePosRemappingFactValues);
+router.get("/pos/:columnName", posFactRemappingOptions);
+router.put("/pos/:id", updatePosRemappingFactValues);
 
 module.exports = router

@@ -4,11 +4,11 @@ const { marketRemappingOptions, updateRemappingMarketValues } =  require('../../
 const { posMarketRemappingOptions, updatePosRemappingMarketValues } = require('../../controllers/Remapping/POS/MarketRemappingPOSController')
 
 //Nielsen market Remapping
-router.get("/market/:columnName", marketRemappingOptions);
-router.put("/market/:id", updateRemappingMarketValues);
+router.get("/:columnName", marketRemappingOptions);
+router.put("/:id", updateRemappingMarketValues);
 
 //POS market Remapping
-router.get("/pos/market/:columnName", posMarketRemappingOptions);
-router.put("/pos/market/:id", updatePosRemappingMarketValues);
+router.get("/pos/:columnName", posMarketRemappingOptions);
+router.put("/pos/:id", updatePosRemappingMarketValues);
 
 module.exports = router

@@ -4,11 +4,11 @@ const { updateRemappingPeriodValues, periodRemappingOptions} = require('../../co
 const { updatePosRemappingPeriodValues, posPeriodRemappingOptions} = require('../../controllers/Remapping/POS/PeriodRemappingPOSController')
 
 //Nielsen Period Remapping
-router.get("/period/:columnName", periodRemappingOptions);
+router.get("/:columnName", periodRemappingOptions);
 router.put("/period/:id", updateRemappingPeriodValues);
 
 //POS Period Remapping
-router.get("/pos/period/:columnName", posPeriodRemappingOptions);
-router.put("/pos/period/:id", updatePosRemappingPeriodValues);
+router.get("/pos/:columnName", posPeriodRemappingOptions);
+router.put("/pos/:id", updatePosRemappingPeriodValues);
 
 module.exports = router

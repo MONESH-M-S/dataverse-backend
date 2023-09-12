@@ -5,11 +5,11 @@ const { posProductRemappingOptions, updatePosRemappingProductValues } = require(
 
 
 //Nielsen Product Remapping 
-router.get("/product/:columnName", productRemappingOptions);
-router.put("/product/:id", updateRemappingProductValues);
+router.get("/:columnName", productRemappingOptions);
+router.put("/:id", updateRemappingProductValues);
 
 //POS Product Remapping
-router.get("/pos/product/:columnName", posProductRemappingOptions);
-router.put("/pos/product/:id", updatePosRemappingProductValues);
+router.get("/pos/:columnName", posProductRemappingOptions);
+router.put("/pos/:id", updatePosRemappingProductValues);
 
 module.exports = router
