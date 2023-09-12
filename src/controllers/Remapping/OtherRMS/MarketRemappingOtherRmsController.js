@@ -48,6 +48,7 @@ const getWhereObjectFromQuery = (query) => {
       const updatedValues = req.body;
       updatedValues["Flag"] = "MM";
       updatedValues["Confidencelevel"] = "HIGH";
+      updatedValues["Confidencescore"] = "1";
   
       const updatedFile = await MarketOtherRMSModel.update(updatedValues, {
         where: {

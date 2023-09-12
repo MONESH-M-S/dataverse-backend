@@ -57,6 +57,7 @@ const updateRemappingMarketValues = async (req, res, next) => {
         const updatedValues = req.body;
         updatedValues["Flag"] = "MM";
         updatedValues["Confidencelevel"] = "HIGH";
+        updatedValues["Confidencescore"] = "1";
 
         const updatedFile = await MarketMappingModel.update(updatedValues, {
             where: {
