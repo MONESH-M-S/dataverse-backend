@@ -38,6 +38,14 @@ const smartMappingNielsenProductRoutes = require("./src/routes/SmartMapping/prod
 const smartMappingNielsenFactRoutes = require("./src/routes/SmartMapping/fact.routes");
 const smartMappingNielsenMarketRoutes = require("./src/routes/SmartMapping/market.routes");
 const smartMappingNielsenPeriodRoutes = require("./src/routes/SmartMapping/period.routes");
+
+
+//Remapping Api Routes
+const remappingProductRoutes = require('./src/routes/Remapping/product.routes')
+const remappingFactRoutes = require('./src/routes/Remapping/fact.routes')
+const remappingPeriodRoutes = require('./src/routes/Remapping/period.routes')
+const remappingMarketRoutes = require('./src/routes/Remapping/market.routes')
+
 const metaRoutes = require("./src/routes/meta.routes");
 // const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes");
 // const authRoutes = require("./src/routes/auth.routes");
@@ -52,6 +60,14 @@ app.use("/api/smart-mapping/product", smartMappingNielsenProductRoutes);
 app.use("/api/smart-mapping/fact", smartMappingNielsenFactRoutes);
 app.use("/api/smart-mapping/market", smartMappingNielsenMarketRoutes);
 app.use("/api/smart-mapping/period", smartMappingNielsenPeriodRoutes);
+
+
+
+app.use('/api/remapping/product',remappingProductRoutes)
+app.use('/api/remapping/fact',remappingFactRoutes)
+app.use('/api/remapping/period',remappingPeriodRoutes)
+app.use('/api/remapping/market',remappingMarketRoutes)
+
 
 // app.use("/api/smart-mapping/other-rms", otherRMSRoutes);
 
