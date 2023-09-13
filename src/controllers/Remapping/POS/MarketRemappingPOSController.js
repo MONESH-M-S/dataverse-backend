@@ -2,6 +2,7 @@ const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");
 const MarketPOSModel = require('../../../models/SmartMapping/POS/Market/MarketDetailPOS.model')
 const { Market_Dropdowns } = require('../../../constants/dropDown/remappingPOSConstant')
+const statusTypeEnum = require("../../../enums/statusType.enum");
 
 const getWhereObjectFromQuery = (query) => {
     let whereClause = {};
