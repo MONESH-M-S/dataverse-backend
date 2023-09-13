@@ -1,6 +1,6 @@
 const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");
-const ProductMappingModel = require('../../../models/SmartMapping/Nielsen/Product/ProductDetail.model')
+const productUnprocessedModel = require("../../../models/SmartMapping/Nielsen/Product/ProductUnproccessed.model");
 const { Product_Dropdowns } = require('../../../constants/dropDown/remappingConstant')
 const statusTypeEnum = require("../../../enums/statusType.enum");
 
@@ -46,6 +46,7 @@ const productRemappingOptions = async (req, res, next) => {
 
 
 const updateRemappingProductValues = async (req, res, next) => {
+
     try {
         const { id } = req.params;
         const updatedValues = req.body;
@@ -54,7 +55,9 @@ const updateRemappingProductValues = async (req, res, next) => {
         updatedValues["Confidencescore"] = "1";
 
         const updatedFile = await ProductMappingModel.update(updatedValues, {
-            where: { id },
+            where: {
+                id
+            },
         });
 
         res.json({
@@ -62,11 +65,59 @@ const updateRemappingProductValues = async (req, res, next) => {
             message: `Successfully updated ${updatedFile[0]} record!`,
         });
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };
 
+const productRemappingUnprocessedOptions = async (req, res, next) => {
+    try {
+        const whereClause = getWhereObjectFromQuery(req.query);
 
-module.exports = { productRemappingOptions, updateRemappingProductValues }
+        const columnName = req.params.columnName;
+        const dbColumnName = Product_Dropdowns[columnName];
+        const options = await productUnprocessedModel.findAll({
+            attributes: [
+                [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
+            ],
+            where: whereClause,
+        });
 
+        res.json(options);
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+const updateRemappingUnprocessedProductOptions = async (req, res, next) => {
+
+    try {
+        const { id } = req.params;
+        const updatedValues = req.body;
+        updatedValues["Flag"] = "MM";
+        updatedValues["Confidencelevel"] = "HIGH";
+        updatedValues["Confidencescore"] = "1";
+
+        const updatedFile = await productUnprocessedModel.update(updatedValues, {
+            where: {
+                id
+            },
+        });
+
+        res.json({
+            status: statusTypeEnum.success,
+            message: `Successfully updated ${updatedFile[0]} record!`,
+        });
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+module.exports = {
+    productRemappingOptions,
+    updateRemappingProductValues,
+    productRemappingUnprocessedOptions,
+    updateRemappingUnprocessedProductOptions
+}
