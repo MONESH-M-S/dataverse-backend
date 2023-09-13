@@ -2,6 +2,7 @@ const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");
 const { Period_Dropdowns } = require('../../../constants/dropDown/remappingConstant')
 const PeriodMappingModel = require('../../../models/SmartMapping/Nielsen/Period/PeriodDetail.model');
+const statusTypeEnum = require("../../../enums/statusType.enum");
 
 const getWhereObjectFromQuery = (query) => {
     let whereClause = {};

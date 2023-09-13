@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 const MarketMappingModel = require('../../../models/SmartMapping/Nielsen/Market/MarketDetail.model');
 const MarketMetaData = require("../../../models/marketMetaData.model");
 const { Market_Dropdowns } = require('../../../constants/dropDown/remappingConstant')
+const statusTypeEnum = require("../../../enums/statusType.enum");
 
 const getWhereObjectFromQuery = (query) => {
     let whereClause = {};
@@ -57,6 +58,7 @@ const updateRemappingMarketValues = async (req, res, next) => {
         const updatedValues = req.body;
         updatedValues["Flag"] = "MM";
         updatedValues["Confidencelevel"] = "HIGH";
+        updatedValues["Confidencescore"] = "1";
 
         const updatedFile = await MarketMappingModel.update(updatedValues, {
             where: {
