@@ -12,6 +12,7 @@ const ProductUnprocessed = sequelize.define('UnProcessedRecordsProduct', {
     Externaldesc: DataTypes.STRING,
     Createdon: DataTypes.STRING,
     Remark: DataTypes.STRING,
+    Uaolflag: DataTypes.STRING,
 }, {
     tableName: 'UnProcessedRecordsProduct',
     schema: 'Mapping',

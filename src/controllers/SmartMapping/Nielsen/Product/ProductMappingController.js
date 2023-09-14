@@ -13,7 +13,7 @@ const fetchProductMapping = async (req, res, next) => {
     const result =
       await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
       from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-      and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
+      and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}' and u.Uaolflag <> 'Yes'  order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
 
     res.json({ result: result[0] });
   } catch (error) {
@@ -30,7 +30,7 @@ const fetchProductMappingPagination = async (req, res, next) => {
     const count =
       await sequelize.query(`select count(*) as count from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
       from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-      and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}'`);
+      and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}' and u.Uaolflag <> 'Yes' `);
 
     const responseObj = {
       page,
@@ -57,7 +57,7 @@ const downloadProductMapping = async (req, res, next) => {
       await sequelize.query(`select Externaldesc, Short, Tag, u.filename as Filename,Confidencelevel,Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
             Productformname, Spfvname, Divisionname, Sectorname, Segmentname, Formname, Subformname, Productpackformname, Productpacksizename, Productvariantname, Productcodename, Scenarioflag
             from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) 
-            up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel and u.filename = '${Filename}'`);
+            up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel and u.filename = '${Filename}' and u.Uaolflag <> 'Yes'`);
 
     sendAsExcelFile(res, table, Filename, table.data[0]);
   } catch (error) {

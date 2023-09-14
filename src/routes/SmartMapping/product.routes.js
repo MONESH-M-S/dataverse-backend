@@ -7,6 +7,9 @@ const { fetchProductUnprocessed, fetchProductUnprocessedPagination, downloadProd
 const { fetchProductPOSMapping, fetchProductPOSMappingPagination, downloadProductPOSMapping } = require('../../controllers/SmartMapping/POS/Product/ProductMappingPOSController')
 const { fetchProductPOSUnprocessed, fetchProductPOSUnprocessedPagination, downloadProductPOSUnprocessed } = require('../../controllers/SmartMapping/POS/Product/ProductUnprocessedPOSController')
 
+const { ProductUAOLMapping, ProductUAOLMappingCount, downloadUAOLProductMapping } = require('../../controllers/SmartMapping/Nielsen/Product/UAOL/ProductUAOLMappedController')
+const { ProductUAOLUnprocessed, ProductUAOLUnprocessedCount, downloadUAOLProductUnproccessed } = require('../../controllers/SmartMapping/Nielsen/Product/UAOL/ProductUAOLUnprocessedController')
+
 //Nielsen Product Mapped
 router.get('/mapped', fetchProductMapping)
 router.get('/mapped/count', fetchProductMappingPagination)
@@ -26,5 +29,18 @@ router.get('/unprocessed/download', downloadProductUnproccessed)
 router.get('/pos/unprocessed', fetchProductPOSUnprocessed)
 router.get('/pos/unprocessed/count', fetchProductPOSUnprocessedPagination)
 router.get('/pos/unprocessed/download', downloadProductPOSUnprocessed)
+
+//Uaol Flag Mapped
+router.get('/uaol-processed',ProductUAOLMapping)
+router.get('/uaol-processed/count',ProductUAOLMappingCount)
+router.get('/uaol-processed/download',downloadUAOLProductMapping)
+
+//Uaol Flag Unprocessed
+router.get('/uaol-unprocessed',ProductUAOLUnprocessed)
+router.get('/uaol-unprocessed/count',ProductUAOLUnprocessedCount)
+router.get('/uaol-unprocessed/download',downloadUAOLProductUnproccessed)
+
+
+
 
 module.exports = router
