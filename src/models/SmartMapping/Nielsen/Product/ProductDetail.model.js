@@ -59,6 +59,7 @@ const ProductDetail = sequelize.define(
     Maxattriifconcentrate: DataTypes.STRING,
     Maxattriifrinseoff: DataTypes.STRING,
     Maxattriifhighsuds: DataTypes.STRING,
+    Uaolflag: DataTypes.STRING,
   },
   {
     tableName: "MappingProductOutput",
