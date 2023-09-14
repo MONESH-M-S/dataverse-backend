@@ -1,28 +1,50 @@
-const CriticalAttributesModel = require("../../models/admin/criticalAttributes.model");
+const CriticalAttributesModel = require("../../models/Admin/criticalAttributes.model");
 const getPaginationDetails = require("../../utils/response/getPaginationDetails");
 const statusTypeEnum = require("../../enums/statusType.enum");
 const { Sequelize } = require("../../../models");
+const { Op } = require("sequelize");
 
 const criticalAttributesRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
 
-    const { globalDB, localDB, marketName } = req.query
+    const { filters, sorting } = req.query;
 
-    const whereClause = {};
+    let whereClause = {};
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
 
-    if (globalDB) whereClause["Global Database Name"] = globalDB;
-    if (localDB) whereClause["Local Database Name"] = localDB;
-    if (marketName) whereClause["MarketNameCode"] = marketName;
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
 
-    const criticalAttributesList = await CriticalAttributesModel.findAll({
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [
+          sortFilters[0].id ?? "Id",
+          sortFilters[0].desc ? "DESC" : "ASC",
+        ],
+      ];
+    }
+
+    const criticalAttributesList = await CriticalAttributesModel.findAndCountAll({
       limit,
       offset,
-      where: whereClause
+      where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = {
-      result: criticalAttributesList,
+      result: criticalAttributesList.rows, count: criticalAttributesList.count
     };
 
     res.json(responseObj);
@@ -32,77 +54,43 @@ const criticalAttributesRecords = async (req, res, next) => {
   }
 };
 
-const criticalAttributesPagination = async (req, res, next) => {
-  try {
-    const { limit, offset, page } = getPaginationDetails(req);
-
-    const { globalDB, localDB, marketName } = req.query
-
-    const whereClause = {};
-
-    if (globalDB) whereClause["Global Database Name"] = globalDB;
-    if (localDB) whereClause["Local Database Name"] = localDB;
-    if (marketName) whereClause["MarketNameCode"] = marketName;
-
-    const criticalAttributesCount = await CriticalAttributesModel.count({
-      limit,
-      offset,
-      where: whereClause
-    });
-
-    const responseObj = {
-      page,
-      page_size: limit,
-      total_count: criticalAttributesCount,
-    };
-
-    res.json(responseObj);
-  } catch (error) {
-    next(error);
-  }
-};
 
 const updateCriticalAttributesRecords = async (req, res, next) => {
   try {
-    const { limit, offset } = getPaginationDetails(req);
     const data = req.body.records;
 
     if (data.length) {
       for (const record of data) {
-        const { GlobalDatabaseName, ...rest } = record;
+        const { Id, ...rest } = record;
 
         await CriticalAttributesModel.update(rest, {
           where: {
-            GlobalDatabaseName,
+            Id,
           },
           returning: true,
         });
       }
     }
 
-    const criticalAttributeslist = await CriticalAttributesModel.findAll({
-      limit,
-      offset,
-    });
-
     res.json({
       status: statusTypeEnum.success,
       message: "Your entry has been updated.",
-      result: criticalAttributeslist,
     });
   } catch (error) {
     next(error);
   }
 };
 
-const createCriticalAttributesRecord = async (req, res, next) => {
+const createCriticalAttributesRecords = async (req, res, next) => {
   try {
-    const { record } = req.body;
-    const createdRecord = await CriticalAttributesModel.create(record);
+    const { records } = req.body;
+    const createdRecords = await CriticalAttributesModel.bulkCreate(records);
     res.json({
       status: statusTypeEnum.success,
-      message: "Entry for New Metadata was successful. Team has been notified.",
-      result: createdRecord,
+      message: `Entr${
+        records.length > 1 ? "ies" : "y"
+      } for New Metadata was successful. Team has been notified.`,
+      result: createdRecords,
     });
   } catch (error) {
     next(error);
@@ -114,7 +102,7 @@ const deleteCriticalAttributesRecords = async (req, res, next) => {
     const { ids } = req.body;
     const deletedRecords = await CriticalAttributesModel.destroy({
       where: {
-        GlobalDatabaseName: ids,
+        Id: ids,
       },
     });
     res.json({
@@ -137,16 +125,18 @@ const fetchGlobalDbMeta = async (req, res, next) => {
 
     const list = await CriticalAttributesModel.findAll({
       attributes: [
-        [Sequelize.fn("DISTINCT", Sequelize.col("Global Database Name")), "name"],
+        [
+          Sequelize.fn("DISTINCT", Sequelize.col("Global Database Name")),
+          "name",
+        ],
       ],
       where: whereClause,
     });
     res.json(list);
-
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchLocalDbMeta = async (req, res, next) => {
   try {
@@ -158,15 +148,18 @@ const fetchLocalDbMeta = async (req, res, next) => {
 
     const list = await CriticalAttributesModel.findAll({
       attributes: [
-        [Sequelize.fn("DISTINCT", Sequelize.col("Local Database Name")), "name"],
+        [
+          Sequelize.fn("DISTINCT", Sequelize.col("Local Database Name")),
+          "name",
+        ],
       ],
       where: whereClause,
     });
     res.json(list);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 const fetchMarketNameCodeMeta = async (req, res, next) => {
   try {
@@ -185,17 +178,16 @@ const fetchMarketNameCodeMeta = async (req, res, next) => {
     });
     res.json(list);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 module.exports = {
   criticalAttributesRecords,
-  criticalAttributesPagination,
   updateCriticalAttributesRecords,
-  createCriticalAttributesRecord,
+  createCriticalAttributesRecords,
   deleteCriticalAttributesRecords,
   fetchGlobalDbMeta,
   fetchLocalDbMeta,
-  fetchMarketNameCodeMeta
+  fetchMarketNameCodeMeta,
 };

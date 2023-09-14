@@ -12,7 +12,7 @@ const ExcelJS = require("exceljs");
 
 const fetchVolatilityList = async (req, res, next) => {
   try {
-    const { limit, offset, page } = getPaginationDetails(req);
+    const { limit, offset } = getPaginationDetails(req);
     const {
       search,
       filter_by_provider: filterByProvider,
@@ -32,7 +32,11 @@ const fetchVolatilityList = async (req, res, next) => {
     let metaDataFilter = [];
     let statusFilter = [];
 
-    if (filterByProvider) metaDataFilter.push(`SOURCE = '${filterByProvider}'`);
+    if (filterByProvider) {
+      if (filterByProvider === "POS")
+        metaDataFilter.push(`SOURCE IN ('POS','EPOS')`);
+      else metaDataFilter.push(`SOURCE = '${filterByProvider}'`);
+    }
 
     if (filterByCountry) metaDataFilter.push(`Country = '${filterByCountry}'`);
 
@@ -46,7 +50,7 @@ const fetchVolatilityList = async (req, res, next) => {
 
     if (startDate && endDate)
       metaDataFilter.push(
-        `LOADSTARTTIME > ${startDate} AND LOADENDTIME < ${endDate}`
+        `LOADSTARTTIME >= '${startDate}' AND LOADENDTIME <= '${endDate}'`
       );
 
     if (filterByFail === "true")
@@ -81,18 +85,16 @@ const fetchVolatilityList = async (req, res, next) => {
       }
     }
 
-    query += ` ORDER BY ${orderClause}`;
-
     const result = await sequelize.query(`
     SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
        [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY] FROM (
-        SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+    SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
         [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
         ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
-      FROM [info].[LoadLog] AS [LoadLog]
-      WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS')
+    FROM [info].[LoadLog] AS [LoadLog]
+    WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS') and [LoadLog].[LOADDESC] = 'Extraction Pipeline' ${query}
       ) AS ranked_files
-    WHERE rn = 1 ${query}
+    WHERE rn = 1 ORDER BY ${orderClause}
     OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY;`);
 
     const responseObj = {
@@ -106,7 +108,7 @@ const fetchVolatilityList = async (req, res, next) => {
 };
 const fetchVolatilityListPagination = async (req, res, next) => {
   try {
-    const { limit, offset, page } = getPaginationDetails(req);
+    const { limit, page } = getPaginationDetails(req);
     const {
       search,
       filter_by_provider: filterByProvider,
@@ -122,10 +124,15 @@ const fetchVolatilityListPagination = async (req, res, next) => {
     } = req.query;
 
     let query = "";
+    let orderClause = "[LOADSTARTTIME] DESC";
     let metaDataFilter = [];
     let statusFilter = [];
 
-    if (filterByProvider) metaDataFilter.push(`SOURCE = '${filterByProvider}'`);
+    if (filterByProvider) {
+      if (filterByProvider === "POS")
+        metaDataFilter.push(`SOURCE IN ('POS','EPOS')`);
+      else metaDataFilter.push(`SOURCE = '${filterByProvider}'`);
+    }
 
     if (filterByCountry) metaDataFilter.push(`Country = '${filterByCountry}'`);
 
@@ -139,7 +146,7 @@ const fetchVolatilityListPagination = async (req, res, next) => {
 
     if (startDate && endDate)
       metaDataFilter.push(
-        `LOADSTARTTIME > ${startDate} AND LOADENDTIME < ${endDate}`
+        `LOADSTARTTIME >= '${startDate}' AND LOADENDTIME <= '${endDate}'`
       );
 
     if (filterByFail === "true")
@@ -150,6 +157,14 @@ const fetchVolatilityListPagination = async (req, res, next) => {
 
     if (filterBySuccess === "true")
       statusFilter.push(fileVolatilityFilterEnum.SUCCESS);
+
+    if (orderById) {
+      orderClause = "LogId DESC";
+    }
+
+    if (orderByProvider) {
+      orderClause = "SOURCE DESC";
+    }
 
     if (metaDataFilter.length || statusFilter.length) {
       query = "AND ";
@@ -167,21 +182,20 @@ const fetchVolatilityListPagination = async (req, res, next) => {
     }
 
     const result = await sequelize.query(`
-    select count(*) as count from (
-      SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+    SELECT count(*) from (SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
        [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY] FROM (
-        SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+    SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
         [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
         ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
-      FROM [info].[LoadLog] AS [LoadLog]
-      WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS')
+    FROM [info].[LoadLog] AS [LoadLog]
+    WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS') and [LoadLog].[LOADDESC] = 'Extraction Pipeline' ${query}
       ) AS ranked_files
-    WHERE rn = 1 ${query} ) y;`);
+    WHERE rn = 1) as count;`);
 
     const responseObj = {
       page,
       page_size: limit,
-      total_count: result[0][0]['count'],
+      total_count: result[0][0][""],
     };
 
     res.json(responseObj);
@@ -206,199 +220,112 @@ const fetchColumnMappings = async (req, res, next) => {
     const { entity } = req.query;
 
     const logDetails = await LoadLogModel.findByPk(id);
-    
-    let Entity = entity ?? "Product";
-    
-    const fileData = await sequelize.query(`
-    select top 1 * from (SELECT
 
-      q1.Id,
-    
-      q1.ZipFileName,
-    
-      q1.FileName,
-    
-      q1.Country,
-    
-      q1.Category,
-    
-      q1.Entity,
-    
-      q1.SourceColumnList,
-    
-      COALESCE(q1.SourceColumn, 'NA') AS SourceColumn,
-    
-      COALESCE(q1.TargetColumn, 'NA') AS TargetColumn,
-    
-      COALESCE(q1.CriticalAttributes_Flag, 'NA') AS CriticalAttributes_Flag,
-    
-      ISNULL(p.PreviousSource, 'NA') AS PreviousSource,
-    
-      q1.DataProvider,
-    
-      q1.Missing_Critical_Attribute_Values
-    
-    FROM
-    
-    (
-    
-      SELECT
-    
-        A.Id,
-    
-        A.ZipFileName,
-    
-        A.FileName,
-    
-        A.Country,
-    
-        A.Category,
-    
-        A.Entity,
-    
-        A.SourceColumnList,
-    
-        A.SourceColumn,
-    
-        A.TargetColumn,
-    
-        A.CriticalAttributes_Flag,
-    
-        A.DataProvider,
-    
-        D.Missing_Critical_Attribute_Values
-    
-      FROM
-    
-        [metadata].[ColumnMapping] A
-    
-      LEFT JOIN
-    
-        (
-    
-          SELECT
-    
-            C.[ZipFileName],
-    
-            C.[Entity],
-    
-            CASE WHEN COUNT(*) > 1 THEN STRING_AGG(TRIM(C.Missing_Critical_Attribute_Value), '|') ELSE MAX(TRIM(C.Missing_Critical_Attribute_Value)) END AS Missing_Critical_Attribute_Values
-    
-          FROM
-    
-            (
-    
-              SELECT
-    
-                [ZipFileName],
-    
-                C.[FileName],
-    
-                [Country],
-    
-                [Category],
-    
-                [MarketNameCode],
-    
-                C.[Entity],
-    
-                [DataProvider],
-    
-                TRIM(E.Missing_Critical_Attribute_Value) AS Missing_Critical_Attribute_Value
-    
-              FROM
-    
-                [metadata].[ColumnMapping] C
-    
-                INNER JOIN
-    
-                (
-    
-                  SELECT DISTINCT
-    
-                    [FileName],
-    
-                    [TaskName],
-    
-                    TRIM([Missing_Critical_Attribute_Value]) AS Missing_Critical_Attribute_Value,
-    
-                    TRIM([filename_new]) AS filename_new
-    
-                  FROM
-    
-                    (
-    
-                      SELECT
-    
-                        [FileName],
-    
-                        [TaskName],
-    
-                        [MessageType],
-    
-                        [LogMessage],
-    
-                        [value] AS Missing_Critical_Attribute_Value,
-    
-                        CASE WHEN [MessageType] LIKE '%Error%' THEN REPLACE([MessageType], 'Error', '') ELSE [MessageType] END AS filename_new
-    
-                      FROM
-    
-                        [info].[LoadDetailLog]
-    
-                      CROSS APPLY
-    
-                        STRING_SPLIT(REPLACE(REPLACE([LogMessage], 'Missing Critical Attributes:', ''), 'Missing Critical Attributes', ''), ',')
-    
-                      WHERE
-    
-                        [TaskName] LIKE '%Critical Attributes%'
-    
-                        AND [LogMessage] LIKE '%Missing%'
-    
-                    ) AS D
-    
-                ) AS E ON C.FileName = E.filename_new
-    
-            ) AS C
-    
-          GROUP BY
-    
-            [ZipFileName],
-    
-            [Entity]
-    
-        ) AS D
-    
-        ON A.ZipFileName = D.ZipFileName
-    
-        AND A.Entity = D.Entity
-    
-    ) q1
-    
-    LEFT JOIN (
-    
-      SELECT
-    
-        [ZipFileName],
-    
-        [Entity],
-    
-        ISNULL(STRING_AGG([SourceColumn], '|') WITHIN GROUP (ORDER BY [LoadDate] DESC), 'NA') AS PreviousSource
-    
-      FROM [metadata].[ColumnMapping]
-    
-      GROUP BY [ZipFileName], [Entity]
-    
-    ) p
-    
-    ON q1.ZipFileName = p.ZipFileName
-    
-    AND q1.Entity = p.Entity) as Q2
-    
-    where Q2.ZipFileName =  '${logDetails.FILENAME}'
-    and Q2.Entity = '${Entity}'`);
-    
+    let Entity = entity ?? "Product";
+
+    const fileData = await sequelize.query(`
+    SELECT 
+  A.Id, 
+  A.ZipFileName, 
+  A.FileName, 
+  A.Country, 
+  A.Category, 
+  A.Entity, 
+  A.SourceColumnList, 
+  COALESCE(A.SourceColumn, 'NA') AS SourceColumn, 
+  COALESCE(A.TargetColumn, 'NA') AS TargetColumn, 
+  COALESCE(B.SourceColumn, 'NA') AS PreviousSource, 
+  A.CriticalFlag, 
+  A.DataProvider, 
+  COALESCE(
+    C.Missing_Critical_Attribute_Value, 
+    'NA'
+  ) AS Missing_Critical_Attribute_Value 
+FROM 
+  (
+    SELECT 
+      [Id], 
+      [ZipFileName], 
+      [FileName], 
+      [Country], 
+      [Category], 
+      [Entity], 
+      [SourceColumnList], 
+      [SourceColumn], 
+      [TargetColumn], 
+      [CriticalFlag], 
+      [DataProvider], 
+      [LoadDate], 
+      ROW_NUMBER() OVER (
+        ORDER BY 
+          [SourceColumn]
+      ) AS SourceColumnSeq, 
+      ROW_NUMBER() OVER (
+        ORDER BY 
+          [TargetColumn]
+      ) AS TargetColumnSeq 
+    FROM 
+      [metadata].[ColumnMapping]
+  ) A 
+  LEFT JOIN (
+    SELECT 
+      [ZipFileName], 
+      [Entity], 
+      [SourceColumn], 
+      ROW_NUMBER() OVER (
+        ORDER BY 
+          [SourceColumn]
+      ) AS SourceColumnSeq 
+    FROM 
+      [metadata].[ColumnMapping]
+  ) B ON A.ZipFileName = B.ZipFileName 
+  AND A.Entity = B.Entity 
+  LEFT JOIN (
+    SELECT 
+      RIGHT(
+        [FileName], 
+        CHARINDEX(
+          '/', 
+          REVERSE([FileName])
+        ) -1
+      ) AS ExtractedFileName, 
+      [LogMessage], 
+      [value] AS Missing_Critical_Attribute_Value, 
+      ROW_NUMBER() OVER (
+        PARTITION BY RIGHT(
+          [FileName], 
+          CHARINDEX(
+            '/', 
+            REVERSE([FileName])
+          ) -1
+        ) 
+        ORDER BY 
+          [LogDate] DESC
+      ) AS RowNum 
+    FROM 
+      [info].[LoadDetailLog] CROSS APPLY STRING_SPLIT(
+        REPLACE(
+          REPLACE(
+            [LogMessage], 'Missing Critical Attributes:', 
+            ''
+          ), 
+          'Missing Critical Attributes', 
+          ''
+        ), 
+        ','
+      ) 
+    WHERE 
+      [TaskName] LIKE '%Critical Attributes%'
+  ) AS C ON A.[FileName] = C.ExtractedFileName 
+WHERE 
+  A.ZipFileName = '${logDetails.FILENAME}' 
+  and A.Entity = '${Entity}' 
+  AND C.RowNum = 1 
+ORDER BY 
+  SourceColumn, 
+  TargetColumn
+    `);
+
     if (fileData === null) {
       res.json({});
       return;
@@ -410,14 +337,14 @@ const fetchColumnMappings = async (req, res, next) => {
   }
 };
 
-const updateColumnMapping = async (req, res) => {
+const updateColumnMapping = async (req, res, next) => {
   try {
     const { SourceColumn, Id, criticalAttributes } = req.body;
 
     await FactColumnMappingModel.update(
       {
         SourceColumn,
-        CriticalAttributes_Flag: criticalAttributes,
+        CriticalFlag: criticalAttributes,
       },
       {
         where: {

@@ -25,6 +25,7 @@ switch (env) {
 }
 
 app.use(express.json());
+
 app.use(
   express.urlencoded({
     extended: true,
@@ -32,7 +33,7 @@ app.use(
 );
 app.use(cors());
 
-// Api Routes
+// IM Api Routes
 const smartMappingRoutes = require("./src/routes/smartMapping.routes");
 const smartMappingNielsenProductRoutes = require("./src/routes/SmartMapping/product.routes");
 const smartMappingNielsenFactRoutes = require("./src/routes/SmartMapping/fact.routes");
@@ -47,13 +48,11 @@ const remappingPeriodRoutes = require('./src/routes/Remapping/period.routes')
 const remappingMarketRoutes = require('./src/routes/Remapping/market.routes')
 
 const metaRoutes = require("./src/routes/meta.routes");
-// const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes");
-// const authRoutes = require("./src/routes/auth.routes");
-// const dashboardRoutes = require("./src/routes/dashboard.routes");
-// const remappingRoutes = require("./src/routes/remapping.routes");
-// const dqCheckRoutes = require("./src/routes/dqChecks.routes");
-// const adminRoutes = require("./src/routes/admin.routes");
-// const otherRMSRoutes = require("./src/routes/SmartMapping/otherRMS.routes");
+const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes");
+const authRoutes = require("./src/routes/auth.routes");
+const dashboardRoutes = require("./src/routes/dashboard.routes");
+const dqCheckRoutes = require("./src/routes/dqChecks.routes");
+const adminRoutes = require("./src/routes/admin.routes");
 
 app.use("/api/smart-mapping", smartMappingRoutes);
 app.use("/api/smart-mapping/product", smartMappingNielsenProductRoutes);
@@ -61,23 +60,17 @@ app.use("/api/smart-mapping/fact", smartMappingNielsenFactRoutes);
 app.use("/api/smart-mapping/market", smartMappingNielsenMarketRoutes);
 app.use("/api/smart-mapping/period", smartMappingNielsenPeriodRoutes);
 
-
-
 app.use('/api/remapping/product',remappingProductRoutes)
 app.use('/api/remapping/fact',remappingFactRoutes)
 app.use('/api/remapping/period',remappingPeriodRoutes)
 app.use('/api/remapping/market',remappingMarketRoutes)
 
-
-// app.use("/api/smart-mapping/other-rms", otherRMSRoutes);
-
 app.use("/api/meta", metaRoutes);
-// app.use("/api/file-volatility", fileVolatilityRoutes);
-// app.use("/api/auth", authRoutes);
-// app.use("/api/dashboard", dashboardRoutes);
-// app.use("/api/remapping", remappingRoutes);
-// app.use("/api/dq-checks", dqCheckRoutes);
-// app.use("/api/admin", adminRoutes);
+app.use("/api/file-volatility", fileVolatilityRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/dq-checks", dqCheckRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use(express.static(path.join(__dirname, "ui")));
 
