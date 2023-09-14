@@ -1,5 +1,7 @@
 const express = require("express");
-const { triggerADFPipeline } = require('../controllers/FileVolatility/CriticalAttributes')
+const {
+  triggerADFPipeline,
+} = require("../controllers/FileVolatility/CriticalAttributes");
 const {
   fetchVolatilityList,
   fetchIndividualVolatilityFile,
@@ -10,6 +12,7 @@ const {
   addTargetColumn,
   fetchVolatilityListPagination,
   downloadVolatilityList,
+  fetchFVSummaryData,
 } = require("../controllers/fileVolatilityController");
 const {
   fetchFactColumnMappings,
@@ -36,7 +39,7 @@ router.put("/fact", auth, updateColumnMappingFactValues);
 router.get("/period", auth, fetchPeriodColumnMappings);
 router.put("/period", auth, updateColumnMappingPeriodValues);
 
-router.get("/", auth, fetchVolatilityList);
+router.get("/", auth, fetchFVSummaryData);
 router.get("/count", auth, fetchVolatilityListPagination);
 router.get("/dashboard", auth, fetchDashboardDetails);
 router.post("/ca-pipeline-trigger", auth, triggerADFPipeline);
