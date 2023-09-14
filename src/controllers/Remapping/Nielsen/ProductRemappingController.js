@@ -4,6 +4,7 @@ const productUnprocessedModel = require("../../../models/SmartMapping/Nielsen/Pr
 const {
   Product_Dropdowns,
 } = require("../../../constants/Remapping/remappingConstant");
+const SmlPcatModel = require("../../../models/Admin/smlPcat.model");
 const statusTypeEnum = require("../../../enums/statusType.enum");
 
 const getWhereObjectFromQuery = (query) => {
@@ -74,11 +75,55 @@ const productRemappingUnprocessedOptions = async (req, res, next) => {
 
     const columnName = req.params.columnName;
     const dbColumnName = Product_Dropdowns[columnName];
-    const options = await productUnprocessedModel.findAll({
+
+    const unprocessedRemappingTable = [
+      "Maxattriformat",
+      "Maxattriifrinseoff",
+      "Maxattripacktype",
+      "Maxattribenefitclaim",
+      "Maxattritargetuse",
+      "Maxattrilaundryvariants",
+      "Maxattriifconcentrate",
+      "Maxattrigender",
+      "Maxattriifhighsuds",
+      "Maxattriifantiperspirant",
+      "Maxattriformation",
+      "Maxattrilifestage",
+      "Maxattrifatcontent",
+    ];
+
+    let modal = productUnprocessedModel;
+    let updateWhereClause = {};
+
+    if (unprocessedRemappingTable.includes(dbColumnName)) {
+      modal = SmlPcatModel;
+
+      if (Object.keys(whereClause).length) {
+        updateWhereClause = Object.keys(whereClause)
+          .filter((key) => unprocessedRemappingTable.includes(key))
+          .reduce((acc, key) => {
+            acc[key] = whereClause[key];
+            return acc;
+          }, {});
+      }
+    } else {
+      modal = productUnprocessedModel;
+
+      if (Object.keys(whereClause).length) {
+        updateWhereClause = Object.keys(whereClause)
+          .filter((key) => !unprocessedRemappingTable.includes(key))
+          .reduce((acc, key) => {
+            acc[key] = whereClause[key];
+            return acc;
+          }, {});
+      }
+    }
+
+    const options = await modal.findAll({
       attributes: [
         [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
       ],
-      where: whereClause,
+      where: updateWhereClause,
     });
 
     res.json(options);
