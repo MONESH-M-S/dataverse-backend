@@ -1,5 +1,5 @@
 const ProductOtherRMSModel =  require('../../../models/SmartMapping/OtherRms/ProductOtherRMS.model')
-const { Product_Dropdowns } = require("../../../constants/dropDown/remappingConstant");
+const { Product_Dropdowns } = require("../../../constants/Remapping/remappingConstant");
 const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");
 const statusTypeEnum = require("../../../enums/statusType.enum");
