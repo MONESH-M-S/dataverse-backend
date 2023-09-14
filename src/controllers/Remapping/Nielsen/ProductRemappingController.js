@@ -1,4 +1,4 @@
-const { Sequelize } = require("../../../../models");
+const { Sequelize, sequelize } = require("../../../../models");
 const { Op } = require("sequelize");
 const productUnprocessedModel = require("../../../models/SmartMapping/Nielsen/Product/ProductUnproccessed.model");
 const {
@@ -134,21 +134,26 @@ const productRemappingUnprocessedOptions = async (req, res, next) => {
 
 const updateRemappingUnprocessedProductOptions = async (req, res, next) => {
   try {
-    const { id } = req.params;
     const updatedValues = req.body;
-    updatedValues["Flag"] = "MM";
-    updatedValues["Confidencelevel"] = "HIGH";
-    updatedValues["Confidencescore"] = "1";
 
-    const updatedFile = await productUnprocessedModel.update(updatedValues, {
-      where: {
-        id,
-      },
-    });
+    let query = "";
+
+    if (Object.values(updatedValues).length) {
+      Object.values(updatedValues).forEach((value, index) => {
+        if (index === 0) query += `'${value}'`;
+        else query += `, '${value}'`;
+      });
+    }
+
+    const updatedFile = sequelize.query(`
+        exec [Mapping].[spRemappingUnprocessed] ${query.length ? query : ""}
+    `);
+
+    console.log("Unprocessed remapping", updatedFile);
 
     res.json({
       status: statusTypeEnum.success,
-      message: `Successfully updated ${updatedFile[0]} record!`,
+      message: `Successfully updated!`,
     });
   } catch (error) {
     next(error);

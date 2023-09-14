@@ -106,6 +106,89 @@ const fetchVolatilityList = async (req, res, next) => {
     next(error);
   }
 };
+
+const fetchFVSummaryData = async (req, res, next) => {
+  try {
+    const { limit, offset } = getPaginationDetails(req);
+    const {
+      filters,
+      sorting,
+      filter_by_fail: filterByFail,
+      filter_by_in_progress: filterByInProgress,
+      filter_by_success: filterBySuccess,
+    } = req.query;
+
+    let tableFilters = [];
+    let sortFilters = [];
+    let statusFilter = [];
+
+    if (filterByFail === "true")
+      statusFilter.push(fileVolatilityFilterEnum.FAILURE);
+
+    if (filterByInProgress === "true")
+      statusFilter.push(fileVolatilityFilterEnum.IN_PROGRESS);
+
+    if (filterBySuccess === "true")
+      statusFilter.push(fileVolatilityFilterEnum.SUCCESS);
+
+    let query = "";
+    let orderClause = "[LOADSTARTTIME] DESC";
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (statusFilter.length) {
+      const statusWrappedInQuotes = statusFilter.map((status) => `'${status}'`);
+      query += `AND PIPELINESTATUS IN (${statusWrappedInQuotes.join(", ")}) `;
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          query += `AND ${filter.id} LIKE '%${filter.value.trim()}%'`;
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = `${sortFilters[0].id ?? "LogId"} ${
+        sortFilters[0].desc ? "DESC" : "ASC"
+      }`;
+    }
+
+    const result = await sequelize.query(`
+    SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+       [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY] FROM (
+    SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+        [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
+        ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
+    FROM [info].[LoadLog] AS [LoadLog]
+    WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS') and [LoadLog].[LOADDESC] = 'Extraction Pipeline' ${query}
+      ) AS ranked_files
+    WHERE rn = 1 ORDER BY ${orderClause}
+    OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY;`);
+
+    const count = await sequelize.query(`SELECT COUNT (*) FROM (
+ SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
+     [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
+     ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
+ FROM [info].[LoadLog] AS [LoadLog]
+ WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS') and [LoadLog].[LOADDESC] = 'Extraction Pipeline' ${query}) AS ranked_files
+ WHERE rn = 1;
+    `);
+
+    const responseObj = {
+      result: result[0],
+      count: count[0][0][""],
+    };
+
+    res.json(responseObj);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const fetchVolatilityListPagination = async (req, res, next) => {
   try {
     const { limit, page } = getPaginationDetails(req);
@@ -523,4 +606,5 @@ module.exports = {
   fetchLeadLogDetails,
   addTargetColumn,
   downloadVolatilityList,
+  fetchFVSummaryData,
 };
