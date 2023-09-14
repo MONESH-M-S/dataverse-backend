@@ -14,12 +14,12 @@ const fetchProductUnprocessed = async (req, res, next) => {
       result =
         await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
           from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
-          and u.Filename='${Filename}' and u.Externaldesc LIKE '% ${Search} %' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
+          and u.Filename='${Filename}' and u.Uaolflag <> 'Yes' and u.Externaldesc LIKE '% ${Search} %' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
     } else {
       result =
         await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
         from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-        and u.filename='${Filename}' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
+        and u.filename='${Filename}' and u.Uaolflag <> 'Yes' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
     }
 
     res.json({ result: result[0] });
@@ -36,15 +36,13 @@ const fetchProductUnprocessedPagination = async (req, res, next) => {
     let result;
 
     if (Search !== undefined && Search.length) {
-      result =
-        await sequelize.query(`select count(*) as count from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+      result = await sequelize.query(`select count(*) as count from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
           from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
-          and u.Filename='${Filename}' and u.Externaldesc LIKE '% ${Search} %'`);
+          and u.Filename='${Filename}' and u.Uaolflag <> 'Yes' and u.Externaldesc LIKE '% ${Search} %'`);
     } else {
-      result =
-        await sequelize.query(`select count(*) as count from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+      result = await sequelize.query(`select count(*) as count from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
         from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-        and u.filename='${Filename}'`);
+        and u.filename='${Filename}' and u.Uaolflag <> 'Yes' `);
     }
 
     const responseObj = {
@@ -68,8 +66,7 @@ const downloadProductUnproccessed = async (req, res, next) => {
     table.model = productUnprocessedModel;
     table.dimension = "Product";
     table.columns = productUnprocessedColumns;
-    table.data =
-      await sequelize.query(`select Externaldesc, Short, Tag, u.filename as Filename,Confidencelevel,Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
+    table.data = await sequelize.query(`select Externaldesc, Short, Tag, u.filename as Filename,Confidencelevel,Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
             Productformname, Spfvname, Divisionname, Sectorname, Segmentname, Formname, Subformname, Productpackformname, Productpacksizename, Productvariantname, Productcodename, Scenarioflag
             from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) 
             up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel and u.filename = '${Filename}'`);
