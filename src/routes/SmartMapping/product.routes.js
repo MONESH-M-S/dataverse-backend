@@ -7,6 +7,9 @@ const { fetchProductUnprocessed, fetchProductUnprocessedPagination, downloadProd
 const { fetchProductPOSMapping, fetchProductPOSMappingPagination, downloadProductPOSMapping } = require('../../controllers/SmartMapping/POS/Product/ProductMappingPOSController')
 const { fetchProductPOSUnprocessed, fetchProductPOSUnprocessedPagination, downloadProductPOSUnprocessed } = require('../../controllers/SmartMapping/POS/Product/ProductUnprocessedPOSController')
 
+const { fetchOtherRMSProductMappedCount, fetchProductOtherRMSMapping, downloadOtherRMSProductExcel } = require('../../controllers/SmartMapping/OtherRMS/Product/ProductOtherRMSMappedController')
+const { fetchProductOtherRMSUnprocessed, fetchProductOtherRMSUnprocessedCount, downloadProductOtherRMSUnprocessed } = require('../../controllers/SmartMapping/OtherRMS/Product/ProductOtherRMSUnprocessedController')
+
 const { ProductUAOLMapping, ProductUAOLMappingCount, downloadUAOLProductMapping } = require('../../controllers/SmartMapping/Nielsen/Product/UAOL/ProductUAOLMappedController')
 const { ProductUAOLUnprocessed, ProductUAOLUnprocessedCount, downloadUAOLProductUnproccessed } = require('../../controllers/SmartMapping/Nielsen/Product/UAOL/ProductUAOLUnprocessedController')
 
@@ -20,6 +23,11 @@ router.get('/pos/mapped', fetchProductPOSMapping)
 router.get('/pos/mapped/count', fetchProductPOSMappingPagination)
 router.get('/pos/mapped/download', downloadProductPOSMapping)
 
+//RMS Product Mapped
+router.get('/rms/mapped', fetchProductOtherRMSMapping)
+router.get('/rms/mapped/count', fetchOtherRMSProductMappedCount)
+router.get('/rms/mapped/download', downloadOtherRMSProductExcel)
+
 //Nielsen Product UnProcessed
 router.get('/unprocessed', fetchProductUnprocessed)
 router.get('/unprocessed/count', fetchProductUnprocessedPagination)
@@ -30,6 +38,11 @@ router.get('/pos/unprocessed', fetchProductPOSUnprocessed)
 router.get('/pos/unprocessed/count', fetchProductPOSUnprocessedPagination)
 router.get('/pos/unprocessed/download', downloadProductPOSUnprocessed)
 
+//RMS Product Unprocessed
+router.get('/rms/unprocessed', fetchProductOtherRMSUnprocessed)
+router.get('/rms/unprocessed/count', fetchProductOtherRMSUnprocessedCount)
+router.get('/rms/unprocessed/download', downloadProductOtherRMSUnprocessed)
+
 //Uaol Flag Mapped
 router.get('/uaol-processed',ProductUAOLMapping)
 router.get('/uaol-processed/count',ProductUAOLMappingCount)
@@ -39,8 +52,5 @@ router.get('/uaol-processed/download',downloadUAOLProductMapping)
 router.get('/uaol-unprocessed',ProductUAOLUnprocessed)
 router.get('/uaol-unprocessed/count',ProductUAOLUnprocessedCount)
 router.get('/uaol-unprocessed/download',downloadUAOLProductUnproccessed)
-
-
-
 
 module.exports = router
