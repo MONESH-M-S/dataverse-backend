@@ -1,4 +1,4 @@
-const PeriodOtherRMSModel = require("../../../models/SmartMapping/OtherRms/PeriodOtherRMS.model");
+const PeriodOtherRMSModel = require("../../../models/SmartMapping/OtherRms/Period/PeriodOtherRMS.model");
 const { Period_Dropdowns } = require("../../../constants/dropDown/remappingConstant");
 const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");

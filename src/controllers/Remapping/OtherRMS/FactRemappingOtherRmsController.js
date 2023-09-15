@@ -1,4 +1,4 @@
-const FactOtherRMSModel = require("../../../models/SmartMapping/OtherRms/FactOtherRMS.model");
+const FactOtherRMSModel = require("../../../models/SmartMapping/OtherRms/Fact/FactOtherRMS.model");
 const { Fact_Dropdowns } = require("../../../constants/dropDown/remappingConstant");
 const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");

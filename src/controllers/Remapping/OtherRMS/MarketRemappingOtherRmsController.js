@@ -1,4 +1,4 @@
-const MarketOtherRMSModel = require("../../../models/SmartMapping/OtherRms/MarketOtherRMS.model");
+const MarketOtherRMSModel = require("../../../models/SmartMapping/OtherRms/Market/MarketOtherRMS.model");
 const { Market_Dropdowns } = require("../../../constants/dropDown/remappingConstant");
 const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");
