@@ -123,6 +123,7 @@ const fetchFactUnprocessedPagination = async (req, res, next) => {
       limit,
       offset,
       where: whereClause,
+      order: orderClause
     });
 
     const responseObj = {

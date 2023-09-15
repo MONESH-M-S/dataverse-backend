@@ -7,7 +7,7 @@ const { Op } = require("sequelize");
 const fetchProductOtherRMSUnprocessed = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
-    const { Filename } = req.query;
+    const { Filename, filters, sorting} = req.query;
 
     const whereClause = {
       Filename: Filename,
@@ -53,7 +53,7 @@ const fetchProductOtherRMSUnprocessed = async (req, res, next) => {
 const fetchProductOtherRMSUnprocessedCount = async (req, res, next) => {
   try {
     const { limit, offset, page, pageSize } = getPaginationDetails(req);
-    const { Filename } = req.query;
+    const { Filename, filters, sorting } = req.query;
 
     const whereClause = {
       Filename: Filename,
