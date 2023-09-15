@@ -10,6 +10,7 @@ const fetchProductMapping = async (req, res, next) => {
 
     const { limit, offset } = getPaginationDetails(req);
 
+    let whereClause = {};
     let orderClause = [];
     let tableFilters = [];
     let sortFilters = [];
@@ -37,9 +38,13 @@ const fetchProductMapping = async (req, res, next) => {
       await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
       from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
       and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}' and u.Uaolflag <> 'Yes' ${query} 
-      order by ${sortFilters[0].id ? sortFilters[0].id : "Id"}  ${sortFilters[0].desc ? "DESC" : "ASC"} offset ${offset} rows fetch next ${limit} rows only`);
+      order by ${
+        sortFilters.length && sortFilters[0].id ? sortFilters[0].id : "Id"
+      }  ${
+        sortFilters.length && sortFilters[0].desc ? "DESC" : "ASC"
+      } offset ${offset} rows fetch next ${limit} rows only`);
 
-      console.log("Product Processed", result, orderClause, whereClause);
+    console.log("Product Processed", result, orderClause, whereClause);
 
     res.json({ result: result[0] });
   } catch (error) {
@@ -52,6 +57,7 @@ const fetchProductMappingPagination = async (req, res, next) => {
     const { Filename, Confidencelevel, filters } = req.query;
     const { page, pageSize } = getPaginationDetails(req);
 
+    let whereClause = {};
     let tableFilters = [];
 
     if (filters) {
