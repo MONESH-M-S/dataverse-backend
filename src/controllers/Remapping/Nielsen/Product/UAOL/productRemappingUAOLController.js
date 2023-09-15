@@ -1,8 +1,8 @@
-const ProductOtherRMSModel =  require('../../../models/SmartMapping/OtherRms/Product/ProductOtherRMS.model')
-const { Product_Dropdowns } = require("../../../constants/Remapping/remappingConstant");
-const { Sequelize } = require("../../../../models");
+const { Sequelize, sequelize } = require("../../../../../../models");
 const { Op } = require("sequelize");
-const statusTypeEnum = require("../../../enums/statusType.enum");
+const statusTypeEnum = require("../../../../../enums/statusType.enum");
+const { Product_Dropdowns } = require("../../../../../constants/Remapping/remappingConstant");
+const ProductMappingModel = require("../../../../../models/SmartMapping/Nielsen/Product/ProductDetail.model");
 
 const getWhereObjectFromQuery = (query) => {
     let whereClause = {};
@@ -20,37 +20,38 @@ const getWhereObjectFromQuery = (query) => {
         whereClause[key] = query[key];
       }
     });
+  
     return whereClause;
   };
-
-const otherRMSProductRemappingOptions = async (req, res, next) => {
+  
+  const productRemappingUAOLOptions = async (req, res, next) => {
     try {
       const whereClause = getWhereObjectFromQuery(req.query);
   
       const columnName = req.params.columnName;
       const dbColumnName = Product_Dropdowns[columnName];
-      const options = await ProductOtherRMSModel.findAll({
+      const options = await ProductMappingModel.findAll({
         attributes: [
           [Sequelize.fn("DISTINCT", Sequelize.col(dbColumnName)), "name"],
         ],
         where: whereClause,
       });
+  
       res.json(options);
     } catch (error) {
       next(error);
     }
   };
   
-  
-  const updateOtherRMSRemappingProductValues = async (req, res, next) => {
+  const updateRemappingUAOLProductValues = async (req, res, next) => {
     try {
       const { id } = req.params;
       const updatedValues = req.body;
       updatedValues["Flag"] = "MM";
-      updatedValues["ConfidenceLevel"] = "HIGH";
-      updatedValues["ConfidenceScore"] = "1";
+      updatedValues["Confidencelevel"] = "HIGH";
+      updatedValues["Confidencescore"] = "1";
   
-      const updatedFile = await ProductOtherRMSModel.update(updatedValues, {
+      const updatedFile = await ProductMappingModel.update(updatedValues, {
         where: {
           id,
         },
@@ -63,7 +64,10 @@ const otherRMSProductRemappingOptions = async (req, res, next) => {
     } catch (error) {
       next(error);
     }
-  }; 
-  
+  };
 
-  module.exports = { otherRMSProductRemappingOptions, updateOtherRMSRemappingProductValues }
+  module.exports = {
+    productRemappingUAOLOptions,
+    updateRemappingUAOLProductValues
+  }
+  

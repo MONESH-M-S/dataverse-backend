@@ -1,11 +1,13 @@
-const { Sequelize, sequelize } = require("../../../../models");
+const { Sequelize, sequelize } = require("../../../../../models");
 const { Op } = require("sequelize");
-const productUnprocessedModel = require("../../../models/SmartMapping/Nielsen/Product/ProductUnproccessed.model");
+const productUnprocessedModel = require("../../../../models/SmartMapping/Nielsen/Product/ProductUnproccessed.model");
 const {
   Product_Dropdowns,
-} = require("../../../constants/Remapping/remappingConstant");
-const SmlPcatModel = require("../../../models/Admin/smlPcat.model");
-const statusTypeEnum = require("../../../enums/statusType.enum");
+} = require("../../../../constants/Remapping/remappingConstant");
+const SmlPcatModel = require("../../../../models/Admin/smlPcat.model");
+const statusTypeEnum = require("../../../../enums/statusType.enum");
+const ProductMappingModel = require("../../../../models/SmartMapping/Nielsen/Product/ProductDetail.model");
+
 
 const getWhereObjectFromQuery = (query) => {
   let whereClause = {};
