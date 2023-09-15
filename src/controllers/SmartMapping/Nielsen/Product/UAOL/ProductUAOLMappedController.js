@@ -10,10 +10,7 @@ const ProductUAOLMapping = async (req, res, next) => {
 
     const { limit, offset } = getPaginationDetails(req);
 
-    let whereClause = {
-      Filename: Filename,
-    };
-    let orderClause = [];
+    let whereClause = {};
     let tableFilters = [];
     let sortFilters = [];
 
@@ -29,12 +26,6 @@ const ProductUAOLMapping = async (req, res, next) => {
       });
     }
 
-    if (sortFilters.length > 0) {
-      orderClause = [
-        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
-      ];
-    }
-
     let query = "";
     if (Object.keys(whereClause).length) {
       Object.keys(whereClause).forEach((key) => {
@@ -45,7 +36,11 @@ const ProductUAOLMapping = async (req, res, next) => {
     const result =
       await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
           from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-          and u.filename = '${Filename}' and u.Uaolflag = 'Yes' ${query} order by ${orderClause[0][0]} ${orderClause[0][1]} offset ${offset} rows fetch next ${limit} rows only`);
+          and u.filename = '${Filename}' and u.Uaolflag = 'Yes' ${query}  order by ${
+        sortFilters.length && sortFilters[0].id ? sortFilters[0].id : "Id"
+      }  ${
+        sortFilters.length && sortFilters[0].desc ? "DESC" : "ASC"
+      } offset ${offset} rows fetch next ${limit} rows only`);
 
     res.json({ result: result[0] });
   } catch (error) {
@@ -59,9 +54,7 @@ const ProductUAOLMappingCount = async (req, res, next) => {
 
     const { Filename, filters } = req.query;
 
-    let whereClause = {
-      Filename: Filename,
-    };
+    let whereClause = {};
     let tableFilters = [];
 
     if (filters) {
