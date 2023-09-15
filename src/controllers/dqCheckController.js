@@ -1,9 +1,13 @@
-const { Sequelize } = require("../../models");
+const {
+  Sequelize
+} = require("../../models");
 const sequelize = require("../config/sequelize.config");
 const dqCheckStatusEnum = require("../enums/dqCheckStatus.enum");
 const DQCheckModel = require("../models/DQCheck.model");
 const getPaginationDetails = require("../utils/response/getPaginationDetails");
-const { Op } = require("sequelize");
+const {
+  Op
+} = require("sequelize");
 const ExcelJS = require("exceljs");
 const dqCardStatsQuery = require("../constants/dq-checks/dqCardStatsQuery");
 
@@ -114,7 +118,12 @@ const getFiltersForDQChecks = (req) => {
 
 const fetchDQChecksData = async (req, res, next) => {
   try {
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const {
+      limit,
+      offset,
+      page,
+      pageSize
+    } = getPaginationDetails(req);
 
     let query = "";
     let metaDataFilter = [];
@@ -129,10 +138,13 @@ const fetchDQChecksData = async (req, res, next) => {
       );
 
     if (req.query.filter_by_provider)
-      metaDataFilter.push(`DataProvider = '${req.query.filter_by_provider}'`);
+      metaDataFilter.push(`Source = '${req.query.filter_by_provider}'`);
 
     if (req.query.filter_by_category)
       metaDataFilter.push(`Category = '${req.query.filter_by_category}'`);
+
+    if (req.query.filter_by_dataset)
+      metaDataFilter.push(`Dataset = '${req.query.filter_by_dataset}'`)
 
     if (req.query.filter_by_in_success === "true")
       statusFilter.push(`'Success'`);
@@ -159,125 +171,79 @@ const fetchDQChecksData = async (req, res, next) => {
     }
 
     const data = await sequelize.query(`
-    select 
-  Country, 
-  Category, 
-  DataProvider, 
-  CellDatabase, 
-  zipFile, 
-  DeliveryPeriod, 
-  Overall_Status, 
-  Checks_Passed, 
-  Checks_Failed, 
-  Remarks 
-FROM 
-  (
-    Select 
-      Country, 
-      Category, 
-      DataProvider, 
-      CellDatabase, 
-      zipFile, 
-      DeliveryPeriod, 
-      CASE when SUM(Checks_Failed)= 0 then 'Success' else 'Failure' END as Overall_Status, 
-      SUM(Checks_Passed) as Checks_Passed, 
-      SUM(Checks_Failed) as Checks_Failed, 
-      STRING_AGG(Remarks, '|') as Remarks 
-    from 
-      (
-        SELECT 
-          Country, 
-          Category, 
-          DataProvider, 
-          concat(Country, '  ', Category) as CellDatabase, 
-          zipFile, 
-          DeliveryPeriod, 
-          Overall_Status, 
-          Checks_Passed, 
-          Checks_Failed, 
-          MessageType as Remarks 
-        FROM 
-          (
-            select 
-              *, 
-              CASE when x.Checks_Failed = 0 then 'Success' else 'Failure' END as Overall_Status 
-            from 
-              (
-                select 
-                  base.Country as Country, 
-                  base.Category as Category, 
-                  CASE WHEN source = 'Nielsen' THEN 'Nielsen' WHEN source = 'EPOS' THEN 'POS' WHEN source = 'RMS' THEN category END AS DataProvider, 
-                  base.Filename as zipFile, 
-                  DATENAME(m, LoadStartTime)+ '-' + CAST(
-                    YEAR(LoadStartTime) AS varchar(10)
-                  ) AS DeliveryPeriod, 
-                  LogDate, 
-                  MessageType, 
-                  A.LogId, 
-                  LogMessage, 
-                  TaskName, 
-                  (
-                    LEN(MessageType) - LEN(
-                      REPLACE(MessageType, 'Success', '')
-                    )
-                  ) / 7 AS Checks_Passed, 
-                  (
-                    LEN(MessageType) - LEN(
-                      REPLACE(MessageType, 'Error', '')
-                    )
-                  ) / 5 AS Checks_Failed 
-                from 
-                  [info].[LoadDetailLog] A 
-                  join info.LoadLog base on base.LogId = A.LogId 
-                where 
-                  A.TaskName in (
-                    'NumberoFilesCheck', 'FileSizeCheck', 
-                    'FileNameCheck', 'FileDelimiterCheck', 
-                    'FileEncodingCheck', 'ConstraintCheck', 
-                    'LastPeriodDeliveredCheck', 'DimvsTransTagsCheck', 
-                    'SchemaCheck', 'POS_check_null_values', 
-                    'POS_check_duplicate_values', 'POS_check_data_type'
-                  )
-              ) x
-          ) A PIVOT (
-            COUNT(A.TaskName) FOR TaskName in (
-              NumberoFilesCheck, FileSizeCheck, 
-              FileNameCheck, FileDelimiterCheck, 
-              FileEncodingCheck, ConstraintCheck, 
-              LastPeriodDeliveredCheck, DimvsTransTagsCheck, 
-              SchemaCheck, POS_check_null_values, 
-              POS_check_duplicate_values, POS_check_data_type
-            )
-          ) AS PivotTable 
-        where 
-          CONVERT (DATE, '01-' + DeliveryPeriod) > '2023-05-30' 
-          and MessageType like '%:%:%:%:%' 
-          and DataProvider NOT IN (
-            'Nielsen-operations', 'POSOperations', 
-            'POS_Operations', 'NielsenOperations'
+    DECLARE @LatestFileRunLoadLog TABLE (
+      LogId INT, 
+      LoadDesc NVARCHAR(100), 
+      LoadStartTime Datetime, 
+      FileName Nvarchar(100), 
+      Source Nvarchar(100), 
+      Country Nvarchar(100), 
+      Category Nvarchar(100), 
+      Dataset Nvarchar(100), 
+      DirectIndirect Nvarchar(100)
+    );
+    INSERT INTO @LatestFileRunLoadLog EXEC [info].[spGetLatestFileRunLoadLogs];
+    WITH CTE AS(
+      SELECT 
+        Dataset, 
+        DirectIndirect, 
+        Source, 
+        base.FileName, 
+        Country, 
+        Category, 
+        LoadStartTime, 
+        SUM(
+          LEN(MessageType) - LEN(
+            REPLACE(MessageType, 'Success', '')
           )
-          ) as big_query 
-          group by 
-      country, 
-      Category, 
-      DataProvider, 
-      CellDatabase, 
-      zipFile, 
-      DeliveryPeriod
-      ) a ${query} 
+        ) / 7 AS Checks_Passed, 
+        SUM(
+          LEN(MessageType) - LEN(
+            REPLACE(MessageType, 'Error', '')
+          )
+        ) / 5 AS Checks_Failed, 
+        STRING_AGG(MessageType, '|') AS Remarks 
+      FROM 
+        @LatestFileRunLoadLog base 
+        Join info.LoadDetailLog A ON A.LogId = base.LogId 
+      WHERE 
+        A.TaskName IN (
+          'NumberoFilesCheck', 'FileSizeCheck', 
+          'FileNameCheck', 'FileDelimiterCheck', 
+          'FileEncodingCheck', 'ConstraintCheck', 
+          'LastPeriodDeliveredCheck', 'DimvsTransTagsCheck', 
+          'SchemaCheck', 'POS_check_null_values', 
+          'POS_check_duplicate_values', 'POS_check_data_type'
+        ) 
+        and MessageType LIKE '%:%:%:%:%' 
       GROUP BY 
+        base.Country, 
+        base.Category, 
+        Source, 
+        base.FileName, 
+        LoadStartTime, 
+        Dataset, 
+        DirectIndirect
+    ) 
+    Select 
+      Dataset, 
+      DirectIndirect, 
+      Source AS DataProvider, 
+      FileName AS zipFile, 
       Country, 
-      Category, 
-      DataProvider, 
-      CellDatabase, 
-      zipFile, 
-      DeliveryPeriod, 
-      Overall_Status, 
+      Category AS ExternalCategory, 
+      Country + ' ' + Category AS CellDatabase, 
+      DATENAME(MONTH, LoadStartTime) + '-' + CAST(
+        YEAR(LoadStartTime) AS VARCHAR(10)
+      ) AS DeliveryPeriod, 
+      CASE WHEN (Checks_Failed)= 0 THEN 'Success' ELSE 'Failure' END AS Overall_Status, 
       Checks_Passed, 
       Checks_Failed, 
       Remarks 
-      order by 
-      Category offset ${offset} rows fetch next ${limit} rows only
+    from 
+      CTE ${query}
+    ORDER BY FileName offset ${offset} rows fetch next ${limit} rows only 
+    
   `);
 
     const responseObj = {
@@ -292,7 +258,12 @@ FROM
 
 const fetchDQChecksDataCount = async (req, res, next) => {
   try {
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const {
+      limit,
+      offset,
+      page,
+      pageSize
+    } = getPaginationDetails(req);
 
     let query = "";
     let metaDataFilter = [];
@@ -309,6 +280,10 @@ const fetchDQChecksDataCount = async (req, res, next) => {
     if (req.query.filter_by_category)
       metaDataFilter.push(`Category = '${req.query.filter_by_category}'`);
 
+    if (req.query.filter_by_dataset)
+      metaDataFilter.push(`Dataset = '${req.query.filter_by_dataset}'`)
+
+
     if (req.query.filter_by_in_success === "true")
       statusFilter.push(`'Success'`);
 
@@ -319,7 +294,7 @@ const fetchDQChecksDataCount = async (req, res, next) => {
       statusFilter.push(`'In Progress'`);
 
     if (metaDataFilter.length || statusFilter.length) {
-      query = "AND ";
+      query = "WHERE ";
 
       if (metaDataFilter.length) {
         query += metaDataFilter.join(" AND ");
@@ -333,129 +308,67 @@ const fetchDQChecksDataCount = async (req, res, next) => {
       }
     }
 
+
     const data = await sequelize.query(`
-    select 
-    count(*) as count
-  from 
-    (
-      select 
-  Country, 
-  Category, 
-  DataProvider, 
-  CellDatabase, 
-  zipFile, 
-  DeliveryPeriod, 
-  Overall_Status, 
-  Checks_Passed, 
-  Checks_Failed, 
-  Remarks 
-FROM 
-  (
-    Select 
-      Country, 
-      Category, 
-      DataProvider, 
-      CellDatabase, 
-      zipFile, 
-      DeliveryPeriod, 
-      CASE when SUM(Checks_Failed)= 0 then 'Success' else 'Failure' END as Overall_Status, 
-      SUM(Checks_Passed) as Checks_Passed, 
-      SUM(Checks_Failed) as Checks_Failed, 
-      STRING_AGG(Remarks, '|') as Remarks 
-    from 
-      (
-        SELECT 
-          Country, 
-          Category, 
-          DataProvider, 
-          concat(Country, '  ', Category) as CellDatabase, 
-          zipFile, 
-          DeliveryPeriod, 
-          Overall_Status, 
-          Checks_Passed, 
-          Checks_Failed, 
-          MessageType as Remarks 
-        FROM 
-          (
-            select 
-              *, 
-              CASE when x.Checks_Failed = 0 then 'Success' else 'Failure' END as Overall_Status 
-            from 
-              (
-                select 
-                  base.Country as Country, 
-                  base.Category as Category, 
-                  CASE WHEN source = 'Nielsen' THEN 'Nielsen' WHEN source = 'EPOS' THEN 'POS' WHEN source = 'RMS' THEN category END AS DataProvider, 
-                  base.Filename as zipFile, 
-                  DATENAME(m, LoadStartTime)+ '-' + CAST(
-                    YEAR(LoadStartTime) AS varchar(10)
-                  ) AS DeliveryPeriod, 
-                  LogDate, 
-                  MessageType, 
-                  A.LogId, 
-                  LogMessage, 
-                  TaskName, 
-                  (
-                    LEN(MessageType) - LEN(
-                      REPLACE(MessageType, 'Success', '')
-                    )
-                  ) / 7 AS Checks_Passed, 
-                  (
-                    LEN(MessageType) - LEN(
-                      REPLACE(MessageType, 'Error', '')
-                    )
-                  ) / 5 AS Checks_Failed 
-                from 
-                  [info].[LoadDetailLog] A 
-                  join info.LoadLog base on base.LogId = A.LogId 
-                where 
-                  A.TaskName in (
-                    'NumberoFilesCheck', 'FileSizeCheck', 
-                    'FileNameCheck', 'FileDelimiterCheck', 
-                    'FileEncodingCheck', 'ConstraintCheck', 
-                    'LastPeriodDeliveredCheck', 'DimvsTransTagsCheck', 
-                    'SchemaCheck', 'POS_check_null_values', 
-                    'POS_check_duplicate_values', 'POS_check_data_type'
-                  )
-              ) x
-          ) A PIVOT (
-            COUNT(A.TaskName) FOR TaskName in (
-              NumberoFilesCheck, FileSizeCheck, 
-              FileNameCheck, FileDelimiterCheck, 
-              FileEncodingCheck, ConstraintCheck, 
-              LastPeriodDeliveredCheck, DimvsTransTagsCheck, 
-              SchemaCheck, POS_check_null_values, 
-              POS_check_duplicate_values, POS_check_data_type
-            )
-          ) AS PivotTable 
-        where 
-          CONVERT (DATE, '01-' + DeliveryPeriod) > '2023-05-30' 
-          and MessageType like '%:%:%:%:%' 
-          and DataProvider NOT IN (
-            'Nielsen-operations', 'POSOperations', 
-            'POS_Operations', 'NielsenOperations'
-          )
-          ) as big_query 
-          group by 
-      country, 
-      Category, 
-      DataProvider, 
-      CellDatabase, 
-      zipFile, 
-      DeliveryPeriod
-      ) a ${query} 
-      GROUP BY 
-      Country, 
-      Category, 
-      DataProvider, 
-      CellDatabase, 
-      zipFile, 
-      DeliveryPeriod, 
-      Overall_Status, 
-      Checks_Passed, 
-      Checks_Failed, 
-      Remarks 
-    ) y
+    DECLARE @LatestFileRunLoadLog TABLE (
+  LogId INT, 
+  LoadDesc NVARCHAR(100), 
+  LoadStartTime Datetime, 
+  FileName Nvarchar(100), 
+  Source Nvarchar(100), 
+  Country Nvarchar(100), 
+  Category Nvarchar(100), 
+  Dataset Nvarchar(100), 
+  DirectIndirect Nvarchar(100)
+);
+INSERT INTO @LatestFileRunLoadLog EXEC [info].[spGetLatestFileRunLoadLogs];
+WITH CTE AS(
+  SELECT 
+    Dataset, 
+    DirectIndirect, 
+    Source, 
+    base.FileName, 
+    Country, 
+    Category, 
+    LoadStartTime, 
+    SUM(
+      LEN(MessageType) - LEN(
+        REPLACE(MessageType, 'Success', '')
+      )
+    ) / 7 AS Checks_Passed, 
+    SUM(
+      LEN(MessageType) - LEN(
+        REPLACE(MessageType, 'Error', '')
+      )
+    ) / 5 AS Checks_Failed, 
+    STRING_AGG(MessageType, '|') AS Remarks 
+  FROM 
+    @LatestFileRunLoadLog base 
+    Join info.LoadDetailLog A ON A.LogId = base.LogId 
+  WHERE 
+    A.TaskName IN (
+      'NumberoFilesCheck', 'FileSizeCheck', 
+      'FileNameCheck', 'FileDelimiterCheck', 
+      'FileEncodingCheck', 'ConstraintCheck', 
+      'LastPeriodDeliveredCheck', 'DimvsTransTagsCheck', 
+      'SchemaCheck', 'POS_check_null_values', 
+      'POS_check_duplicate_values', 'POS_check_data_type'
+    ) 
+    and MessageType LIKE '%:%:%:%:%' 
+  GROUP BY 
+    base.Country, 
+    base.Category, 
+    Source, 
+    base.FileName, 
+    LoadStartTime, 
+    Dataset, 
+    DirectIndirect
+) 
+Select 
+  count(*) as count 
+from 
+  CTE ${query}
+
   `);
 
     const responseObj = {
@@ -470,65 +383,14 @@ FROM
   }
 };
 
-const fetchDQCountryMeta = async (req, res, next) => {
-  const { category } = req.query;
-
-  const whereClause = {};
-
-  if (category) whereClause["Category"] = category;
-
-  try {
-    const data = await DQCheckModel.findAll({
-      attributes: [
-        [Sequelize.fn("DISTINCT", Sequelize.col("Country")), "name"],
-      ],
-      where: whereClause,
-    });
-    res.json(data);
-  } catch (error) {
-    next(error);
-  }
-};
-
-const fetchDQProviderMeta = async (req, res, next) => {
-  try {
-    const data = await DQCheckModel.findAll({
-      attributes: [
-        [
-          Sequelize.fn("DISTINCT", Sequelize.col("ExternalDataProvider")),
-          "name",
-        ],
-      ],
-    });
-    res.json(data);
-  } catch (error) {
-    next(error);
-  }
-};
-
-const fetchDQCategoryMeta = async (req, res, next) => {
-  const { country } = req.query;
-
-  const whereClause = {};
-
-  if (country) whereClause["Country"] = country;
-
-  try {
-    const data = await DQCheckModel.findAll({
-      attributes: [
-        [Sequelize.fn("DISTINCT", Sequelize.col("Category")), "name"],
-      ],
-      where: whereClause,
-    });
-    res.json(data);
-  } catch (error) {
-    next(error);
-  }
-};
-
 const downloadDQCheckReport = async (req, res, next) => {
   try {
-    const { limit, offset, page, pageSize } = getPaginationDetails(req);
+    const {
+      limit,
+      offset,
+      page,
+      pageSize
+    } = getPaginationDetails(req);
 
     let query = "";
     let metaDataFilter = [];
@@ -655,13 +517,36 @@ group by
   order by Category offset ${offset} rows fetch next ${limit} rows only;
     `);
 
-    const columns = [
-      { header: "Country", key: "Country", width: 20 },
-      { header: "Category", key: "Category", width: 20 },
-      { header: "Cell Database", key: "CellDatabase", width: 20 },
-      { header: "Delivery Period", key: "DeliveryPeriod", width: 20 },
-      { header: "File Name", key: "zipFile", width: 40 },
-      { header: "Overall Status", key: "Overall_Status", width: 20 },
+    const columns = [{
+        header: "Country",
+        key: "Country",
+        width: 20
+      },
+      {
+        header: "Category",
+        key: "Category",
+        width: 20
+      },
+      {
+        header: "Cell Database",
+        key: "CellDatabase",
+        width: 20
+      },
+      {
+        header: "Delivery Period",
+        key: "DeliveryPeriod",
+        width: 20
+      },
+      {
+        header: "File Name",
+        key: "zipFile",
+        width: 40
+      },
+      {
+        header: "Overall Status",
+        key: "Overall_Status",
+        width: 20
+      },
       {
         header: "Checks Passed",
         key: "Checks_Passed",
@@ -672,7 +557,11 @@ group by
         key: "Checks_Failed",
         width: 20,
       },
-      { header: "Remarks", key: "Remarks", width: 40 },
+      {
+        header: "Remarks",
+        key: "Remarks",
+        width: 40
+      },
     ];
 
     const workbook = new ExcelJS.Workbook();
@@ -702,12 +591,12 @@ group by
   }
 };
 
+
+
+
 module.exports = {
   fetchSummaryStatus,
   fetchDQChecksData,
-  fetchDQCategoryMeta,
-  fetchDQCountryMeta,
-  fetchDQProviderMeta,
   downloadDQCheckReport,
   fetchDQChecksDataCount,
   fetchDQCardStats,

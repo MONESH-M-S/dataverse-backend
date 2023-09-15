@@ -2,7 +2,7 @@ const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");
 const MarketMappingModel = require('../../../models/SmartMapping/Nielsen/Market/MarketDetail.model');
 const MarketMetaData = require("../../../models/marketMetaData.model");
-const { Market_Dropdowns } = require('../../../constants/dropDown/remappingConstant')
+const { Market_Dropdowns } = require('../../../constants/Remapping/remappingConstant')
 const statusTypeEnum = require("../../../enums/statusType.enum");
 
 const getWhereObjectFromQuery = (query) => {

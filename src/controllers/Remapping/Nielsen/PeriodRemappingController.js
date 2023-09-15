@@ -1,6 +1,6 @@
 const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");
-const { Period_Dropdowns } = require('../../../constants/dropDown/remappingConstant')
+const { Period_Dropdowns } = require('../../../constants/Remapping/remappingConstant')
 const PeriodMappingModel = require('../../../models/SmartMapping/Nielsen/Period/PeriodDetail.model');
 const statusTypeEnum = require("../../../enums/statusType.enum");
 

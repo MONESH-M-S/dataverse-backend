@@ -58,4 +58,5 @@ module.exports = {
   scopes,
   frontendBaseUrl,
   cca: initalize(),
+  getClientSecret
 };

@@ -6,14 +6,46 @@ const ProductMappedColumns = require("../../../../constants/Excel-Columns/SmartM
 
 const fetchProductMapping = async (req, res, next) => {
   try {
-    const { Filename, Confidencelevel } = req.query;
+    const { Filename, Confidencelevel, filters, sorting } = req.query;
 
     const { limit, offset } = getPaginationDetails(req);
+
+    let whereClause = {
+      Filename: Filename,
+    };
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value) whereClause[filter.id] = `'%${filter.value.trim()}%'`;
+        else return;
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
+
+    let query = "";
+    if (Object.keys(whereClause).length) {
+      Object.keys(whereClause).forEach((key) => {
+        query = query + `AND u.${key} LIKE ${whereClause[key]} `;
+      });
+    }
 
     const result =
       await sequelize.query(`select * from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
       from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-      and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}' and u.Uaolflag <> 'Yes'  order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
+      and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}' and u.Uaolflag <> 'Yes' ${query} order by ${orderClause[0][0]}  ${orderClause[0][1]} offset ${offset} rows fetch next ${limit} rows only`);
 
     res.json({ result: result[0] });
   } catch (error) {
@@ -23,14 +55,37 @@ const fetchProductMapping = async (req, res, next) => {
 
 const fetchProductMappingPagination = async (req, res, next) => {
   try {
-    const { Filename, Confidencelevel } = req.query;
-
+    const { Filename, Confidencelevel, filters } = req.query;
     const { page, pageSize } = getPaginationDetails(req);
+
+
+    let whereClause = {
+      Filename: Filename,
+    };
+    let tableFilters = [];
+
+    if (filters) {
+      tableFilters = JSON.parse(filters);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value) whereClause[filter.id] = `'%${filter.value.trim()}%'`;
+        else return;
+      });
+    }
+
+    let query = "";
+    if (Object.keys(whereClause).length) {
+      Object.keys(whereClause).forEach((key) => {
+        query = query + `AND u.${key} LIKE ${whereClause[key]} `;
+      });
+    }
 
     const count =
       await sequelize.query(`select count(*) as count from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
       from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-      and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}' and u.Uaolflag <> 'Yes' `);
+      and u.filename = '${Filename}' and u.Confidencelevel = '${Confidencelevel}' ${query} and u.Uaolflag <> 'Yes'`);
 
     const responseObj = {
       page,

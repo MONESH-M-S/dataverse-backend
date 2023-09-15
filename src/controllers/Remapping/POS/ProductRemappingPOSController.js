@@ -1,7 +1,7 @@
 const { Sequelize } = require("../../../../models");
 const { Op } = require("sequelize");
 const ProductPOSModel = require('../../../models/SmartMapping/POS/Product/ProductDetailPOS.model');
-const { Product_Dropdowns } = require('../../../constants/dropDown/remappingPOSConstant')
+const { Product_Dropdowns } = require('../../../constants/Remapping/remappingPOSConstant')
 const statusTypeEnum = require("../../../enums/statusType.enum");
 
 const getWhereObjectFromQuery = (query) => {

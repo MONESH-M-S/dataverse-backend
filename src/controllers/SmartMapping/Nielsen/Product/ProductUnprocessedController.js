@@ -6,21 +6,46 @@ const sendAsExcelFile = require("../../../../utils/response/sendAsExcelFile");
 
 const fetchProductUnprocessed = async (req, res, next) => {
   try {
-    const { limit, offset } = getPaginationDetails(req);
-    const { Filename, Search } = req.query;
+    const { Filename, filters, sorting } = req.query;
 
-    let result;
-    if (Search !== undefined && Search.length) {
-      result =
-        await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
-          from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
-          and u.Filename='${Filename}' and u.Uaolflag <> 'Yes' and u.Externaldesc LIKE '% ${Search} %' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
-    } else {
-      result =
-        await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
-        from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-        and u.filename='${Filename}' and u.Uaolflag <> 'Yes' order by u.Id desc offset ${offset} rows fetch next ${limit} rows only`);
+    const { limit, offset } = getPaginationDetails(req);
+
+    let whereClause = {
+      Filename: Filename,
+    };
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
     }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value) whereClause[filter.id] = `'%${filter.value.trim()}%'`;
+        else return;
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
+
+    let query = "";
+    if (Object.keys(whereClause).length) {
+      Object.keys(whereClause).forEach((key) => {
+        query = query + `AND u.${key} LIKE ${whereClause[key]} `;
+      });
+    }
+
+    const result =
+      await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+          from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
+          and u.Filename='${Filename}' and u.Uaolflag <> 'Yes' ${query} order by ${orderClause[0][0]}  ${orderClause[0][1]} offset ${offset} rows fetch next ${limit} rows only`);
 
     res.json({ result: result[0] });
   } catch (error) {
@@ -31,19 +56,35 @@ const fetchProductUnprocessed = async (req, res, next) => {
 const fetchProductUnprocessedPagination = async (req, res, next) => {
   try {
     const { page, pageSize } = getPaginationDetails(req);
-    const { Filename, Search } = req.query;
+    const { Filename, filters } = req.query;
 
-    let result;
+    let whereClause = {
+      Filename: Filename,
+    };
+    let tableFilters = [];
 
-    if (Search !== undefined && Search.length) {
-      result = await sequelize.query(`select count(*) as count from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
-          from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
-          and u.Filename='${Filename}' and u.Uaolflag <> 'Yes' and u.Externaldesc LIKE '% ${Search} %'`);
-    } else {
-      result = await sequelize.query(`select count(*) as count from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
-        from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-        and u.filename='${Filename}' and u.Uaolflag <> 'Yes' `);
+    if (filters) {
+      tableFilters = JSON.parse(filters);
     }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value) whereClause[filter.id] = `'%${filter.value.trim()}%'`;
+        else return;
+      });
+    }
+
+    let query = "";
+    if (Object.keys(whereClause).length) {
+      Object.keys(whereClause).forEach((key) => {
+        query = query + `AND u.${key} LIKE ${whereClause[key]} `;
+      });
+    }
+
+    const result =
+      await sequelize.query(`select count(*) as count from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
+        from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
+        and u.filename='${Filename}' and u.Uaolflag <> 'Yes' ${query}`);
 
     const responseObj = {
       page,
@@ -66,7 +107,8 @@ const downloadProductUnproccessed = async (req, res, next) => {
     table.model = productUnprocessedModel;
     table.dimension = "Product";
     table.columns = productUnprocessedColumns;
-    table.data = await sequelize.query(`select Externaldesc, Short, Tag, u.filename as Filename,Confidencelevel,Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
+    table.data =
+      await sequelize.query(`select Externaldesc, Short, Tag, u.filename as Filename,Confidencelevel,Hiernum, Hiername, Hierlevelnum, Parenttag, Company, Brand, Flag, Productname, Categoryname, Marketname, Corporatebrandname,
             Productformname, Spfvname, Divisionname, Sectorname, Segmentname, Formname, Subformname, Productpackformname, Productpacksizename, Productvariantname, Productcodename, Scenarioflag
             from [Mapping].[MappingProductOutput] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel from [Mapping].[MappingProductOutput] where hierlevelnum is not null group by filename) 
             up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel and u.filename = '${Filename}'`);

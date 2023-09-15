@@ -1,23 +1,46 @@
-const SmlPcatModel = require("../models/smlPcat.model");
-const getPaginationDetails = require("../utils/response/getPaginationDetails");
-const statusTypeEnum = require("../enums/statusType.enum");
+const SmlPcatModel = require("../../models/Admin/smlPcat.model");
+const getPaginationDetails = require("../../utils/response/getPaginationDetails");
+const { Op } = require("sequelize");
+const statusTypeEnum = require("../../enums/statusType.enum");
 
 const fetchSmlPcatRecords = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
-    const { category, market, segment } = req.query;
-    const whereClause = {};
-    if (category) whereClause["DP_CATEGORY"] = category;
-    if (market) whereClause["DP_MARKET"] = market;
-    if (segment) whereClause["DP_SEGMENT"] = segment;
-    const smlPcatlist = await SmlPcatModel.findAll({
+    const { filters, sorting } = req.query;
+
+    let whereClause = {};
+    let orderClause = [];
+    let tableFilters = [];
+    let sortFilters = [];
+
+    if (filters && sorting) {
+      tableFilters = JSON.parse(filters);
+      sortFilters = JSON.parse(sorting);
+    }
+
+    if (tableFilters.length > 0) {
+      tableFilters.forEach((filter) => {
+        if (filter.value)
+          whereClause[filter.id] = { [Op.like]: `%${filter.value.trim()}%` };
+      });
+    }
+
+    if (sortFilters.length > 0) {
+      orderClause = [
+        [sortFilters[0].id ?? "SML_ID", sortFilters[0].desc ? "DESC" : "ASC"],
+      ];
+    }
+
+    const smlPcatlist = await SmlPcatModel.findAndCountAll({
       limit,
       offset,
       where: whereClause,
+      order: orderClause,
     });
 
     const responseObj = {
-      result: smlPcatlist,
+      result: smlPcatlist.rows,
+      count: smlPcatlist.count
     };
 
     res.json(responseObj);
@@ -26,36 +49,9 @@ const fetchSmlPcatRecords = async (req, res, next) => {
   }
 };
 
-const fetchSmlPcatRecordsPagination = async (req, res, next) => {
-  try {
-    const { limit, offset, page } = getPaginationDetails(req);
-    const { category, market, segment } = req.query;
-    const whereClause = {};
-    if (category) whereClause["DP_CATEGORY"] = category;
-    if (market) whereClause["DP_MARKET"] = market;
-    if (segment) whereClause["DP_SEGMENT"] = segment;
-
-    const smlPcatCount = await SmlPcatModel.count({
-      limit,
-      offset,
-      where: whereClause,
-    });
-
-    const responseObj = {
-      page,
-      page_size: limit,
-      total_count: smlPcatCount,
-    };
-
-    res.json(responseObj);
-  } catch (error) {
-    next(error);
-  }
-};
 
 const updateSmlPcatRecords = async (req, res, next) => {
   try {
-    const { limit, offset } = getPaginationDetails(req);
     const data = req.body.records;
 
     if (data.length) {
@@ -71,15 +67,9 @@ const updateSmlPcatRecords = async (req, res, next) => {
       }
     }
 
-    const smlPcatlist = await SmlPcatModel.findAll({
-      limit,
-      offset,
-    });
-
     res.json({
       status: statusTypeEnum.success,
       message: "Your entry has been updated.",
-      result: smlPcatlist,
     });
   } catch (error) {
     next(error);
@@ -94,6 +84,21 @@ const createSmlPcatRecord = async (req, res, next) => {
       status: statusTypeEnum.success,
       message: "Entry for New Metadata was successful. Team has been notified.",
       result: createdRecord,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createBulkSmlPcatRecord = async (req, res, next) => {
+  try {
+    const { records } = req.body;
+
+    const createdRecords = await SmlPcatModel.bulkCreate(records);
+    res.json({
+      status: statusTypeEnum.success,
+      message: "Entry for New Metadata was successful. Team has been notified.",
+      result: createdRecords,
     });
   } catch (error) {
     next(error);
@@ -120,8 +125,8 @@ const deleteSmlPcatRecords = async (req, res, next) => {
 
 module.exports = {
   fetchSmlPcatRecords,
-  fetchSmlPcatRecordsPagination,
   updateSmlPcatRecords,
   createSmlPcatRecord,
   deleteSmlPcatRecords,
+  createBulkSmlPcatRecord,
 };

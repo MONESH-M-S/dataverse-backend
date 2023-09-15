@@ -1,10 +1,10 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/sequelize.config");
+const sequelize = require("../../config/sequelize.config");
 
 const SmlPcatModel = sequelize.define(
   "settings_sml_pcat",
   {
-    SML_ID: { type: DataTypes.NUMBER, primaryKey: true, autoIncrement: true },
+    SML_ID: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     category_id: DataTypes.STRING,
     category: DataTypes.STRING,
     created: DataTypes.STRING,
@@ -63,6 +63,9 @@ const SmlPcatModel = sequelize.define(
     tableName: "settings_sml_pcat",
     schema: "metadata",
     timestamps: false,
+  },
+  {
+    constraints: false,
   }
 );
 

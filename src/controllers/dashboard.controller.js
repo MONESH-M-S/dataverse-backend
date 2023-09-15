@@ -2,7 +2,7 @@ const moment = require("moment");
 const { Op } = require("sequelize");
 const { sequelize, Sequelize } = require("../../models");
 const LoadLogModel = require("../models/loadLog.model");
-const SmartMappingListModel = require("../models/smartMappingList.model");
+const SmartMappingList = require("../models/SmartMapping/SmartMappingList.model");
 
 const fetchVolatilityFileMetrics = async (req, res, next) => {
   try {
@@ -139,7 +139,7 @@ const fetchFileharmonizationStatus = async (req, res, next) => {
 
 const fetchConfidenceLevel = async (req, res, next) => {
   try {
-    const result = await SmartMappingListModel.findAll({
+    const result = await SmartMappingList.findAll({
       attributes: [
         ["ExternalDataProvider", "provider"],
         [sequelize.fn("SUM", sequelize.col("High")), "high_count"],
