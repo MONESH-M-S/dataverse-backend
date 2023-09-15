@@ -47,6 +47,8 @@ const fetchProductUnprocessed = async (req, res, next) => {
           from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
           and u.Filename='${Filename}' and u.Uaolflag <> 'Yes' ${query} order by ${orderClause[0][0]}  ${orderClause[0][1]} offset ${offset} rows fetch next ${limit} rows only`);
 
+    console.log("Product Unprocessed", result, orderClause, whereClause);
+
     res.json({ result: result[0] });
   } catch (error) {
     next(error);

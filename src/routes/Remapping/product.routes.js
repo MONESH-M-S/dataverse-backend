@@ -24,7 +24,7 @@ router.get("/pos/:columnName", posProductRemappingOptions);
 router.put("/pos/:id", updatePosRemappingProductValues);
 
 //OtherRMS Product Remapping
-router.get("/other-rms/:columnName", otherRMSProductRemappingOptions)
-router.put("/other-rms/:id", updateOtherRMSRemappingProductValues)
+router.get("/rms/:columnName", otherRMSProductRemappingOptions)
+router.put("/rms/:id", updateOtherRMSRemappingProductValues)
 
 module.exports = router

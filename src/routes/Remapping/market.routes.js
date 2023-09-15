@@ -13,7 +13,7 @@ router.get("/pos/:columnName", posMarketRemappingOptions);
 router.put("/pos/:id", updatePosRemappingMarketValues);
 
 //Other RMS Remapping
-router.get("/other-rms/:columnName", otherRMSMarketRemappingOptions);
-router.put("/other-rms/:id", updateOtherRMSRemappingMarketValues)
+router.get("/rms/:columnName", otherRMSMarketRemappingOptions);
+router.put("/rms/:id", updateOtherRMSRemappingMarketValues)
 
 module.exports = router
