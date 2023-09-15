@@ -2,7 +2,7 @@ const ProductUnprocessedOtherRMSModel = require("../../../../models/SmartMapping
 const getPaginationDetails = require("../../../../utils/response/getPaginationDetails");
 const sendAsExcelFile = require("../../../../utils/response/sendAsExcelFile");
 const productUnprocessedColumns = require("../../../../constants/Excel-Columns/SmartMapping/POS/Product/posProductUnprocessedColumns");
-const {Op} = require('sequelize')
+const { Op } = require("sequelize");
 
 const fetchProductOtherRMSUnprocessed = async (req, res, next) => {
   try {
@@ -25,10 +25,9 @@ const fetchProductOtherRMSUnprocessed = async (req, res, next) => {
       tableFilters.forEach((filter) => {
         if (filter.value)
           whereClause[filter.id] = {
-            [Op.like]: `%${filter.value.trim()}%`
+            [Op.like]: `%${filter.value.trim()}%`,
           };
-        else
-          return
+        else return;
       });
     }
 
@@ -38,12 +37,11 @@ const fetchProductOtherRMSUnprocessed = async (req, res, next) => {
       ];
     }
 
-
     const result = await ProductUnprocessedOtherRMSModel.findAll({
       limit,
       offset,
       where: whereClause,
-      order: orderClause
+      order: orderClause,
     });
 
     res.json({ result: result });
@@ -73,10 +71,9 @@ const fetchProductOtherRMSUnprocessedCount = async (req, res, next) => {
       tableFilters.forEach((filter) => {
         if (filter.value)
           whereClause[filter.id] = {
-            [Op.like]: `%${filter.value.trim()}%`
+            [Op.like]: `%${filter.value.trim()}%`,
           };
-        else
-          return
+        else return;
       });
     }
 
@@ -86,12 +83,11 @@ const fetchProductOtherRMSUnprocessedCount = async (req, res, next) => {
       ];
     }
 
-
     const count = await ProductUnprocessedOtherRMSModel.count({
       limit,
       offset,
       where: whereClause,
-      order: orderClause
+      order: orderClause,
     });
 
     const responseObj = {
@@ -130,7 +126,7 @@ const downloadProductOtherRMSUnprocessed = async (req, res, next) => {
 };
 
 module.exports = {
-    fetchProductOtherRMSUnprocessed,
-    fetchProductOtherRMSUnprocessedCount,
-    downloadProductOtherRMSUnprocessed,
+  fetchProductOtherRMSUnprocessed,
+  fetchProductOtherRMSUnprocessedCount,
+  downloadProductOtherRMSUnprocessed,
 };
