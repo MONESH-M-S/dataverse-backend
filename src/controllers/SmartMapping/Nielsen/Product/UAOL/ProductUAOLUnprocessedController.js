@@ -68,9 +68,7 @@ const ProductUAOLUnprocessedCount = async (req, res, next) => {
       filters
     } = req.query;
 
-    let whereClause = {
-      Filename: Filename,
-    };
+    let whereClause = {};
     let tableFilters = [];
 
     if (filters) {

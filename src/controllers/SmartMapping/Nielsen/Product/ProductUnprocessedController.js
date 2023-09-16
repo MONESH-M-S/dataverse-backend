@@ -51,8 +51,6 @@ const fetchProductUnprocessed = async (req, res, next) => {
             sortFilters.length && sortFilters[0].desc ? "DESC" : "ASC"
           } offset ${offset} rows fetch next ${limit} rows only`);
 
-    console.log("Product Unprocessed", result, orderClause, whereClause);
-
     res.json({
       result: result[0]
     });
