@@ -49,11 +49,11 @@ const router = express.Router();
 const auth = require("../middlewares/auth.middleware");
 
 //SML-PCAT
-router.get("/sml-pcat", auth, fetchSmlPcatRecords);
-router.put("/sml-pcat", auth, updateSmlPcatRecords);
-router.post("/sml-pcat", auth, createSmlPcatRecord);
-router.post("/sml-pcat/bulk-create", auth, createBulkSmlPcatRecord);
-router.delete("/sml-pcat", auth, deleteSmlPcatRecords);
+router.get("/poc/sml-pcat", auth, fetchSmlPcatRecords);
+router.put("/poc/sml-pcat", auth, updateSmlPcatRecords);
+router.post("/poc/sml-pcat", auth, createSmlPcatRecord);
+router.post("/poc/sml-pcat/bulk-create", auth, createBulkSmlPcatRecord);
+router.delete("/poc/sml-pcat", auth, deleteSmlPcatRecords);
 
 // Critical Attributes Metadata
 router.get("/critical-attributes", auth, criticalAttributesRecords);
