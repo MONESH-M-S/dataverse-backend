@@ -1,15 +1,23 @@
 const getPaginationDetails = require("../../../../../utils/response/getPaginationDetails");
 const sendAsExcelFile = require("../../../../../utils/response/sendAsExcelFile");
-const { sequelize } = require("../../../../../../models");
+const {
+  sequelize
+} = require("../../../../../../models");
 
 const ProductUAOLUnprocessed = async (req, res, next) => {
   try {
-    const { Filename, filters, sorting } = req.query;
+    const {
+      Filename,
+      filters,
+      sorting
+    } = req.query;
 
-    const { limit, offset } = getPaginationDetails(req);
+    const {
+      limit,
+      offset
+    } = getPaginationDetails(req);
 
     let whereClause = {};
-    let orderClause = [];
     let tableFilters = [];
     let sortFilters = [];
 
@@ -41,7 +49,9 @@ const ProductUAOLUnprocessed = async (req, res, next) => {
         sortFilters.length && sortFilters[0].desc ? "DESC" : "ASC"
       } offset ${offset} rows fetch next ${limit} rows only`);
 
-    res.json({ result: result[0] });
+    res.json({
+      result: result[0]
+    });
   } catch (error) {
     next(error);
   }
@@ -49,10 +59,18 @@ const ProductUAOLUnprocessed = async (req, res, next) => {
 
 const ProductUAOLUnprocessedCount = async (req, res, next) => {
   try {
-    const { page, pageSize } = getPaginationDetails(req);
-    const { Filename, filters } = req.query;
+    const {
+      page,
+      pageSize
+    } = getPaginationDetails(req);
+    const {
+      Filename,
+      filters
+    } = req.query;
 
-    let whereClause = {};
+    let whereClause = {
+      Filename: Filename,
+    };
     let tableFilters = [];
 
     if (filters) {
@@ -92,7 +110,9 @@ const ProductUAOLUnprocessedCount = async (req, res, next) => {
 
 const downloadUAOLProductUnproccessed = async (req, res, next) => {
   try {
-    const { Filename } = req.query;
+    const {
+      Filename
+    } = req.query;
 
     const table = {};
 
