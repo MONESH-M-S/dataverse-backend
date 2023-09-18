@@ -17,7 +17,13 @@ const getWhereObjectFromQuery = (query) => {
                 [Op.lte]: query[key],
             };
         } else {
-            whereClause[key] = query[key] ? query[key] : NULL;
+            Object.values(query).forEach((val) => {
+                if (val) {
+                  whereClause[key] = query[key]
+                } else {
+                  delete key
+                }
+              })
         }
     });
 
