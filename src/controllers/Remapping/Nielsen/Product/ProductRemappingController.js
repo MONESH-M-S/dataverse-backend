@@ -27,7 +27,13 @@ const getWhereObjectFromQuery = (query) => {
         [Op.lte]: query[key],
       };
     } else {
-      whereClause[key] = query[key] ? query[key] : NULL;
+      Object.values(query).forEach((val) => {
+        if (val) {
+          whereClause[key] = query[key]
+        } else {
+          delete key
+        }
+      })
     }
   });
 
@@ -37,7 +43,7 @@ const getWhereObjectFromQuery = (query) => {
 const productRemappingOptions = async (req, res, next) => {
   try {
     const whereClause = getWhereObjectFromQuery(req.query);
-
+    
     const columnName = req.params.columnName;
     const dbColumnName = Product_Dropdowns[columnName];
     const options = await ProductMappingModel.findAll({
