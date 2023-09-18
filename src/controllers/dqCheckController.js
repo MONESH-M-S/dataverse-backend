@@ -180,7 +180,8 @@ const fetchDQChecksData = async (req, res, next) => {
       Country Nvarchar(100), 
       Category Nvarchar(100), 
       Dataset Nvarchar(100), 
-      DirectIndirect Nvarchar(100)
+      DirectIndirect Nvarchar(100), 
+      Expected Nvarchar(100)
     );
     INSERT INTO @LatestFileRunLoadLog EXEC [info].[spGetLatestFileRunLoadLogs];
     WITH CTE AS(
@@ -319,7 +320,8 @@ const fetchDQChecksDataCount = async (req, res, next) => {
   Country Nvarchar(100), 
   Category Nvarchar(100), 
   Dataset Nvarchar(100), 
-  DirectIndirect Nvarchar(100)
+  DirectIndirect Nvarchar(100), 
+  Expected Nvarchar(100)
 );
 INSERT INTO @LatestFileRunLoadLog EXEC [info].[spGetLatestFileRunLoadLogs];
 WITH CTE AS(

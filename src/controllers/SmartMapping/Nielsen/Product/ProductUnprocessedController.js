@@ -1,6 +1,4 @@
-const {
-  sequelize
-} = require("../../../../../models");
+const { sequelize } = require("../../../../../models");
 const getPaginationDetails = require("../../../../utils/response/getPaginationDetails");
 const productUnprocessedModel = require("../../../../models/SmartMapping/Nielsen/Product/ProductUnproccessed.model");
 const productUnprocessedColumns = require("../../../../constants/Excel-Columns/SmartMapping/Nielsen/Product/productUnprocessedColumns");
@@ -8,16 +6,9 @@ const sendAsExcelFile = require("../../../../utils/response/sendAsExcelFile");
 
 const fetchProductUnprocessed = async (req, res, next) => {
   try {
-    const {
-      Filename,
-      filters,
-      sorting
-    } = req.query;
+    const { Filename, filters, sorting } = req.query;
 
-    const {
-      limit,
-      offset
-    } = getPaginationDetails(req);
+    const { limit, offset } = getPaginationDetails(req);
 
     let whereClause = {};
     let tableFilters = [];
@@ -45,14 +36,14 @@ const fetchProductUnprocessed = async (req, res, next) => {
     const result =
       await sequelize.query(`select * from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
           from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel
-          and u.Filename='${Filename}' and u.Uaolflag <> 'Yes' ${query} order by  ${
-            sortFilters.length && sortFilters[0].id ? sortFilters[0].id : "Id"
-          }  ${
-            sortFilters.length && sortFilters[0].desc ? "DESC" : "ASC"
-          } offset ${offset} rows fetch next ${limit} rows only`);
+          and u.Filename='${Filename}' and (u.Uaolflag <> 'Yes' or u.Uaolflag IS NULL) ${query} order by  ${
+        sortFilters.length && sortFilters[0].id ? sortFilters[0].id : "Id"
+      }  ${
+        sortFilters.length && sortFilters[0].desc ? "DESC" : "ASC"
+      } offset ${offset} rows fetch next ${limit} rows only`);
 
     res.json({
-      result: result[0]
+      result: result[0],
     });
   } catch (error) {
     next(error);
@@ -61,14 +52,8 @@ const fetchProductUnprocessed = async (req, res, next) => {
 
 const fetchProductUnprocessedPagination = async (req, res, next) => {
   try {
-    const {
-      page,
-      pageSize
-    } = getPaginationDetails(req);
-    const {
-      Filename,
-      filters
-    } = req.query;
+    const { page, pageSize } = getPaginationDetails(req);
+    const { Filename, filters } = req.query;
 
     let whereClause = {};
     let tableFilters = [];
@@ -94,7 +79,7 @@ const fetchProductUnprocessedPagination = async (req, res, next) => {
     const result =
       await sequelize.query(`select count(*) as count from [Mapping].[UnProcessedRecordsProduct] u join (select filename,max(cast(hierlevelnum as int)) as MaxHierLevel
         from [Mapping].[UnProcessedRecordsProduct] where hierlevelnum is not null group by filename) up on u.filename=up.filename and u.Hierlevelnum=up.MaxHierLevel 
-        and u.filename='${Filename}' and u.Uaolflag <> 'Yes' ${query}`);
+        and u.filename='${Filename}' and (u.Uaolflag <> 'Yes' or u.Uaolflag IS NULL) ${query}`);
 
     const responseObj = {
       page,
@@ -110,9 +95,7 @@ const fetchProductUnprocessedPagination = async (req, res, next) => {
 
 const downloadProductUnproccessed = async (req, res, next) => {
   try {
-    const {
-      Filename
-    } = req.query;
+    const { Filename } = req.query;
 
     const table = {};
 
