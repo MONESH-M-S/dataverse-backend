@@ -1,5 +1,10 @@
-const { Sequelize, sequelize } = require("../../../../../models");
-const { Op } = require("sequelize");
+const {
+  Sequelize,
+  sequelize
+} = require("../../../../../models");
+const {
+  Op
+} = require("sequelize");
 const productUnprocessedModel = require("../../../../models/SmartMapping/Nielsen/Product/ProductUnproccessed.model");
 const {
   Product_Dropdowns,
@@ -7,7 +12,7 @@ const {
 const SmlPcatModel = require("../../../../models/Admin/smlPcat.model");
 const statusTypeEnum = require("../../../../enums/statusType.enum");
 const ProductMappingModel = require("../../../../models/SmartMapping/Nielsen/Product/ProductDetail.model");
-
+const InteralULDataModel = require('../../../../models/SmartMapping/Nielsen/Product/InternalULData.model')
 
 const getWhereObjectFromQuery = (query) => {
   let whereClause = {};
@@ -22,7 +27,7 @@ const getWhereObjectFromQuery = (query) => {
         [Op.lte]: query[key],
       };
     } else {
-      whereClause[key] = query[key];
+      whereClause[key] = query[key] ? query[key] : NULL;
     }
   });
 
@@ -50,7 +55,9 @@ const productRemappingOptions = async (req, res, next) => {
 
 const updateRemappingProductValues = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const {
+      id
+    } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
     updatedValues["Confidencelevel"] = "HIGH";
@@ -94,7 +101,7 @@ const productRemappingUnprocessedOptions = async (req, res, next) => {
       "Maxattrifatcontent",
     ];
 
-    let modal = productUnprocessedModel;
+    let modal = InteralULDataModel;
     let updateWhereClause = {};
 
     if (unprocessedRemappingTable.includes(dbColumnName)) {
@@ -109,7 +116,7 @@ const productRemappingUnprocessedOptions = async (req, res, next) => {
           }, {});
       }
     } else {
-      modal = productUnprocessedModel;
+      modal = InteralULDataModel;
 
       if (Object.keys(whereClause).length) {
         updateWhereClause = Object.keys(whereClause)
@@ -150,8 +157,6 @@ const updateRemappingUnprocessedProductOptions = async (req, res, next) => {
     const updatedFile = sequelize.query(`
         exec [Mapping].[spRemappingUnprocessed] ${query.length ? query : ""}
     `);
-
-    console.log("Unprocessed remapping", updatedFile);
 
     res.json({
       status: statusTypeEnum.success,

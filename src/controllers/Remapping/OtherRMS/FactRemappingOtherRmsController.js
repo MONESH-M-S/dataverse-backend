@@ -18,7 +18,7 @@ const getWhereObjectFromQuery = (query) => {
           [Op.lte]: query[key],
         };
       } else {
-        whereClause[key] = query[key];
+        whereClause[key] =  query[key] ? query[key] : NULL;
       }
     });
     return whereClause;
@@ -61,7 +61,6 @@ const otherRMSFactRemappingOptions = async (req, res, next) => {
         message: `Successfully updated ${updatedFile[0]} record!`,
       });
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };

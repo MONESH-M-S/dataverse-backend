@@ -42,8 +42,6 @@ const fetchSmartMappingList = async (req, res, next) => {
       });
     }
 
-    console.log(whereClause);
-
     if (sortFilters.length > 0) {
       orderClause = [
         [sortFilters[0].id ?? "Id", sortFilters[0].desc ? "DESC" : "ASC"],
