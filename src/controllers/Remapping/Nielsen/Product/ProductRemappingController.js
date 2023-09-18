@@ -1,10 +1,5 @@
-const {
-  Sequelize,
-  sequelize
-} = require("../../../../../models");
-const {
-  Op
-} = require("sequelize");
+const { Sequelize, sequelize } = require("../../../../../models");
+const { Op } = require("sequelize");
 const productUnprocessedModel = require("../../../../models/SmartMapping/Nielsen/Product/ProductUnproccessed.model");
 const {
   Product_Dropdowns,
@@ -12,7 +7,7 @@ const {
 const SmlPcatModel = require("../../../../models/Admin/smlPcat.model");
 const statusTypeEnum = require("../../../../enums/statusType.enum");
 const ProductMappingModel = require("../../../../models/SmartMapping/Nielsen/Product/ProductDetail.model");
-const InteralULDataModel = require('../../../../models/SmartMapping/Nielsen/Product/InternalULData.model')
+const InteralULDataModel = require("../../../../models/SmartMapping/Nielsen/Product/InternalULData.model");
 
 const getWhereObjectFromQuery = (query) => {
   let whereClause = {};
@@ -27,13 +22,11 @@ const getWhereObjectFromQuery = (query) => {
         [Op.lte]: query[key],
       };
     } else {
-      Object.values(query).forEach((val) => {
-        if (val) {
-          whereClause[key] = query[key]
-        } else {
-          delete key
-        }
-      })
+      whereClause[key] = query[key]
+        ? query[key] === "NULL"
+          ? null
+          : query[key]
+        : null;
     }
   });
 
@@ -61,9 +54,7 @@ const productRemappingOptions = async (req, res, next) => {
 
 const updateRemappingProductValues = async (req, res, next) => {
   try {
-    const {
-      id
-    } = req.params;
+    const { id } = req.params;
     const updatedValues = req.body;
     updatedValues["Flag"] = "MM";
     updatedValues["Confidencelevel"] = "HIGH";
