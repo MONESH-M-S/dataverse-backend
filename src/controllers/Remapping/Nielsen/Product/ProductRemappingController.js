@@ -151,9 +151,11 @@ const updateRemappingUnprocessedProductOptions = async (req, res, next) => {
       });
     }
 
-    const updatedFile = sequelize.query(`
+    const updatedFile = await sequelize.query(`
         exec [Mapping].[spRemappingUnprocessed] ${query.length ? query : ""}
     `);
+
+    console.log(updatedFile);
 
     res.json({
       status: statusTypeEnum.success,
