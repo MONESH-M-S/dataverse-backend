@@ -36,7 +36,7 @@ const getWhereObjectFromQuery = (query) => {
 const productRemappingOptions = async (req, res, next) => {
   try {
     const whereClause = getWhereObjectFromQuery(req.query);
-    
+
     const columnName = req.params.columnName;
     const dbColumnName = Product_Dropdowns[columnName];
     const options = await ProductMappingModel.findAll({
@@ -142,20 +142,20 @@ const updateRemappingUnprocessedProductOptions = async (req, res, next) => {
   try {
     const updatedValues = req.body;
 
-    let query = "";
+    let queryArr = [];
 
     if (Object.values(updatedValues).length) {
-      Object.values(updatedValues).forEach((value, index) => {
-        if (index === 0) query += `'${value}'`;
-        else query += `, '${value}'`;
+      Object.values(updatedValues).forEach((value) => {
+        queryArr.push(value === "NULL" ? null : value);
       });
     }
 
-    const updatedFile = await sequelize.query(`
-        exec [Mapping].[spRemappingUnprocessed] ${query.length ? query : ""}
-    `);
+    let paramArr = Array(queryArr.length).fill("?");
 
-    console.log(updatedFile);
+    const updatedFile = await sequelize.query(
+      `exec [Mapping].[spRemappingUnprocessed] ${paramArr.join(", ")}`,
+      { replacements: queryArr }
+    );
 
     res.json({
       status: statusTypeEnum.success,

@@ -10,7 +10,7 @@ router.get("/:columnName", productRemappingOptions);
 router.put("/:id", updateRemappingProductValues);
 
 router.get("/uaol-processed/:columnName", productRemappingUAOLOptions);
-router.put("/uaol-processed//:id", updateRemappingUAOLProductValues);
+router.put("/uaol-processed/:id", updateRemappingUAOLProductValues);
 
 
 //Nielsen Product Unprocessed
