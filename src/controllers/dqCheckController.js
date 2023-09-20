@@ -1,13 +1,9 @@
-const {
-  Sequelize
-} = require("../../models");
+const { Sequelize } = require("../../models");
 const sequelize = require("../config/sequelize.config");
 const dqCheckStatusEnum = require("../enums/dqCheckStatus.enum");
 const DQCheckModel = require("../models/DQCheck.model");
 const getPaginationDetails = require("../utils/response/getPaginationDetails");
-const {
-  Op
-} = require("sequelize");
+const { Op } = require("sequelize");
 const ExcelJS = require("exceljs");
 const dqCardStatsQuery = require("../constants/dq-checks/dqCardStatsQuery");
 
@@ -15,10 +11,10 @@ const fetchDQCardStats = async (req, res, next) => {
   const stat = req.params.stats;
   try {
     const result = await sequelize.query(dqCardStatsQuery[stat], {
-      type: Sequelize.QueryTypes.SELECT,
+      type: Sequelize.QueryTypes.SELECT
     });
     res.json({
-      result: result[0],
+      result: result[0]
     });
   } catch (error) {
     next(error);
@@ -58,19 +54,19 @@ const fetchSummaryStatus = async (req, res, next) => {
       ") y\n";
 
     const totalCellCount = await sequelize.query(totalCellRawQuery, {
-      type: Sequelize.QueryTypes.SELECT,
+      type: Sequelize.QueryTypes.SELECT
     });
     const totalFilesCount = await sequelize.query(totalFileCountQuery, {
-      type: Sequelize.QueryTypes.SELECT,
+      type: Sequelize.QueryTypes.SELECT
     });
     const successStatusData = await sequelize.query(successStatusQuery, {
-      type: Sequelize.QueryTypes.SELECT,
+      type: Sequelize.QueryTypes.SELECT
     });
 
     res.json({
       cell_count: totalCellCount[0].count,
       files_count: totalFilesCount[0].TotalFiles,
-      success_status: successStatusData[0].Success_Rate * 100,
+      success_status: successStatusData[0].Success_Rate * 100
     });
   } catch (error) {
     next(error);
@@ -83,7 +79,7 @@ const getFiltersForDQChecks = (req) => {
     filter_by_country: filterByCountry,
     filter_by_in_success: filterBySuccess,
     filter_by_in_failure: filterByFailure,
-    filter_by_in_progress: filterByInProgress,
+    filter_by_in_progress: filterByInProgress
   } = req.query;
 
   let whereClause = {};
@@ -109,7 +105,7 @@ const getFiltersForDQChecks = (req) => {
 
   if (statusFilterList.length > 0) {
     whereClause["Overall_Status"] = {
-      [Op.in]: statusFilterList,
+      [Op.in]: statusFilterList
     };
   }
 
@@ -118,12 +114,7 @@ const getFiltersForDQChecks = (req) => {
 
 const fetchDQChecksData = async (req, res, next) => {
   try {
-    const {
-      limit,
-      offset,
-      page,
-      pageSize
-    } = getPaginationDetails(req);
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
     let query = "";
     let metaDataFilter = [];
@@ -144,7 +135,7 @@ const fetchDQChecksData = async (req, res, next) => {
       metaDataFilter.push(`Category = '${req.query.filter_by_category}'`);
 
     if (req.query.filter_by_dataset)
-      metaDataFilter.push(`Dataset = '${req.query.filter_by_dataset}'`)
+      metaDataFilter.push(`Dataset = '${req.query.filter_by_dataset}'`);
 
     if (req.query.filter_by_in_success === "true")
       statusFilter.push(`'Success'`);
@@ -248,7 +239,7 @@ const fetchDQChecksData = async (req, res, next) => {
   `);
 
     const responseObj = {
-      result: data[0],
+      result: data[0]
     };
 
     res.json(responseObj);
@@ -259,12 +250,7 @@ const fetchDQChecksData = async (req, res, next) => {
 
 const fetchDQChecksDataCount = async (req, res, next) => {
   try {
-    const {
-      limit,
-      offset,
-      page,
-      pageSize
-    } = getPaginationDetails(req);
+    const { limit, offset, page, pageSize } = getPaginationDetails(req);
 
     let query = "";
     let metaDataFilter = [];
@@ -282,8 +268,7 @@ const fetchDQChecksDataCount = async (req, res, next) => {
       metaDataFilter.push(`Category = '${req.query.filter_by_category}'`);
 
     if (req.query.filter_by_dataset)
-      metaDataFilter.push(`Dataset = '${req.query.filter_by_dataset}'`)
-
+      metaDataFilter.push(`Dataset = '${req.query.filter_by_dataset}'`);
 
     if (req.query.filter_by_in_success === "true")
       statusFilter.push(`'Success'`);
@@ -308,7 +293,6 @@ const fetchDQChecksDataCount = async (req, res, next) => {
         query += `Overall_Status IN (${statusFilter.join(",")})`;
       }
     }
-
 
     const data = await sequelize.query(`
     DECLARE @LatestFileRunLoadLog TABLE (
@@ -376,7 +360,7 @@ from
     const responseObj = {
       page,
       page_size: pageSize,
-      total_count: data[0][0].count,
+      total_count: data[0][0].count
     };
 
     res.json(responseObj);
@@ -387,7 +371,6 @@ from
 
 const downloadDQCheckReport = async (req, res, next) => {
   try {
-
     const data = await sequelize.query(`
     DECLARE @LatestFileRunLoadLog TABLE (
       LogId INT, 
@@ -491,7 +474,7 @@ const downloadDQCheckReport = async (req, res, next) => {
     const columns = [
       {
         header: "Dataset",
-        key: "Dateset",
+        key: "Dataset",
         width: 30
       },
       {
@@ -527,12 +510,12 @@ const downloadDQCheckReport = async (req, res, next) => {
       {
         header: "File Names",
         key: "FileNames",
-        width: 50,
+        width: 50
       },
       {
         header: "Expected Delivered Date",
         key: "ExpectedDeliveredDate",
-        width: 30,
+        width: 30
       },
       {
         header: "TaskName",
@@ -553,7 +536,7 @@ const downloadDQCheckReport = async (req, res, next) => {
         header: "Updated On",
         key: "UpdatedOn",
         width: 40
-      },
+      }
     ];
 
     const workbook = new ExcelJS.Workbook();
@@ -583,13 +566,10 @@ const downloadDQCheckReport = async (req, res, next) => {
   }
 };
 
-
-
-
 module.exports = {
   fetchSummaryStatus,
   fetchDQChecksData,
   downloadDQCheckReport,
   fetchDQChecksDataCount,
-  fetchDQCardStats,
+  fetchDQCardStats
 };
