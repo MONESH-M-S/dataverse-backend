@@ -2,8 +2,9 @@ const FactMappingPOSModel = require("../../../../models/SmartMapping/POS/Fact/Fa
 const getPaginationDetails = require("../../../../utils/response/getPaginationDetails");
 const sendAsExcelFile = require("../../../../utils/response/sendAsExcelFile");
 const factMappedColumns = require("../../../../constants/Excel-Columns/SmartMapping/POS/Fact/posFactMappedColumns");
-const {Op} = require('sequelize')
-const fetchMarketPOSMapping = async (req, res, next) => {
+const { Op } = require("sequelize");
+
+const fetchFactPOSMapping = async (req, res, next) => {
   try {
     const { limit, offset } = getPaginationDetails(req);
 
@@ -25,10 +26,9 @@ const fetchMarketPOSMapping = async (req, res, next) => {
       tableFilters.forEach((filter) => {
         if (filter.value)
           whereClause[filter.id] = {
-            [Op.like]: `%${filter.value.trim()}%`
+            [Op.like]: `%${filter.value.trim()}%`,
           };
-        else
-          return
+        else return;
       });
     }
 
@@ -49,7 +49,7 @@ const fetchMarketPOSMapping = async (req, res, next) => {
       limit,
       offset,
       where: whereClause,
-      order: orderClause
+      order: orderClause,
     });
 
     res.json({ result: result });
@@ -57,7 +57,7 @@ const fetchMarketPOSMapping = async (req, res, next) => {
     next(error);
   }
 };
-const fetchMarketPOSMappingPagination = async (req, res, next) => {
+const fetchFactPOSMappingPagination = async (req, res, next) => {
   try {
     const { page, pageSize, limit, offset } = getPaginationDetails(req);
 
@@ -79,10 +79,9 @@ const fetchMarketPOSMappingPagination = async (req, res, next) => {
       tableFilters.forEach((filter) => {
         if (filter.value)
           whereClause[filter.id] = {
-            [Op.like]: `%${filter.value.trim()}%`
+            [Op.like]: `%${filter.value.trim()}%`,
           };
-        else
-          return
+        else return;
       });
     }
 
@@ -103,7 +102,7 @@ const fetchMarketPOSMappingPagination = async (req, res, next) => {
       limit,
       offset,
       where: whereClause,
-      order: orderClause
+      order: orderClause,
     });
 
     const responseObj = {
@@ -118,7 +117,7 @@ const fetchMarketPOSMappingPagination = async (req, res, next) => {
   }
 };
 
-const downloadPosMarketMapping = async (req, res, next) => {
+const downloadPosFactMapping = async (req, res, next) => {
   try {
     const { Filename } = req.query;
 
@@ -141,7 +140,7 @@ const downloadPosMarketMapping = async (req, res, next) => {
 };
 
 module.exports = {
-  fetchMarketPOSMapping,
-  fetchMarketPOSMappingPagination,
-  downloadPosMarketMapping,
+  fetchFactPOSMapping,
+  fetchFactPOSMappingPagination,
+  downloadPosFactMapping,
 };
