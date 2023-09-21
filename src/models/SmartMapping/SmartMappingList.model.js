@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../../config/sequelize.config");
 
 const SmartMappingList = sequelize.define(
-  "vw_MappingReportSummary",
+  "MappingReportSummary",
   {
     Id: {
       type: DataTypes.INTEGER,
@@ -26,8 +26,8 @@ const SmartMappingList = sequelize.define(
     DirectIndirect: DataTypes.STRING,
   },
   {
-    tableName: "vw_MappingReportSummary",
-    schema: "Mapping",
+    tableName: "MappingReportSummary",
+    schema: "webapp",
     timestamps: false,
   }
 );
