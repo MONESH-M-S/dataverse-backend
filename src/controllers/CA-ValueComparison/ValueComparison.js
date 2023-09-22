@@ -3,7 +3,6 @@ const { BlobServiceClient } = require("@azure/storage-blob");
 const { ClientSecretCredential } = require("@azure/identity");
 
 const readFileFromBlob = async (req, res, next) => {
-  
   const account = "dbstorageda08d904380";
   const clientSecret = await getClientSecret();
   const credential = new ClientSecretCredential(
@@ -27,15 +26,14 @@ const readFileFromBlob = async (req, res, next) => {
   const downloaded = (
     await streamToBuffer(downloadBlockBlobResponse.readableStreamBody)
   ).toString();
-  console.log("Downloaded blob content:", downloaded);
-  res.send(downloaded);
+  const jsonObj = JSON.parse(downloaded.toString());
+  res.send(jsonObj);
 };
 
 async function streamToBuffer(readableStream) {
   return new Promise((resolve, reject) => {
     const chunks = [];
     readableStream.on("data", (data) => {
-      console.log("Readable stream data", data);
       chunks.push(data instanceof Buffer ? data : Buffer.from(data));
     });
     readableStream.on("end", () => {
