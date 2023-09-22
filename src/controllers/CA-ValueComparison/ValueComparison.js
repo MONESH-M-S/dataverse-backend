@@ -26,8 +26,7 @@ const readFileFromBlob = async (req, res, next) => {
   const downloaded = (
     await streamToBuffer(downloadBlockBlobResponse.readableStreamBody)
   ).toString();
-  const jsonObj = JSON.parse(downloaded.toString());
-  res.send(jsonObj);
+  res.send(downloaded);
 };
 
 async function streamToBuffer(readableStream) {
