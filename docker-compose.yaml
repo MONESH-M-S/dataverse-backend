@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  backend:
+    image: edith-demo:latest
+
+    command: npm run dev
+
+    labels:
+      traefik.docker.network: traefik-public
+
+      traefik.enable: "true"
+
+      traefik.http.routers.edith-http.entrypoints: http
+
+      traefik.http.routers.edith-http.rule: Host(`edith.thiruvignesh.com`)
+
+      traefik.http.routers.edith-http.service: edith
+
+      traefik.http.routers.edith-https.entrypoints: https
+
+      traefik.http.routers.edith-https.rule: Host(`edith.thiruvignesh.com`)
+
+      traefik.http.routers.edith-https.service: edith
+
+      traefik.http.routers.edith-https.tls: "true"
+
+      traefik.http.routers.edith-https.tls.certresolver: le
+
+      traefik.http.services.edith.loadbalancer.server.port: "8000"
+
+    restart: unless-stopped
+
+networks:
+  default:
+    name: traefik-public
+
+    external: true
