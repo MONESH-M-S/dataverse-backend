@@ -26,8 +26,8 @@ const SmartMappingList = sequelize.define(
     DirectIndirect: DataTypes.STRING,
   },
   {
-    tableName: "MappingReportSummary",
-    schema: "webapp",
+    tableName: "demo_MappingReportSummary",
+    schema: "Mapping",
     timestamps: false,
   }
 );

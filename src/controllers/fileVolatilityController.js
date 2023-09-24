@@ -158,24 +158,11 @@ const fetchFVSummaryData = async (req, res, next) => {
     }
 
     const result = await sequelize.query(`
-    SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
-       [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY] FROM (
-    SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
-        [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
-        ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
-    FROM [info].[LoadLog] AS [LoadLog]
-    WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS') and [LoadLog].[LOADDESC] = 'Extraction Pipeline' ${query}
-      ) AS ranked_files
-    WHERE rn = 1 ORDER BY ${orderClause}
+    SELECT * from [info].[FV_Summary] ${query} order by logId
     OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY;`);
 
-    const count = await sequelize.query(`SELECT COUNT (*) FROM (
- SELECT [LogId], [PIPELINERUNID], [LOADDESC], [LOADSTARTTIME], [LOADENDTIME], [SOURCE],
-     [CATEGORY], [FILENAME], [FILELASTMODIFIEDDATE], [PIPELINESTATUS], [RUNNINGUSER], [COUNTRY],
-     ROW_NUMBER() OVER (PARTITION BY [SOURCE], [CATEGORY] ORDER BY [LOADSTARTTIME] DESC) AS rn
- FROM [info].[LoadLog] AS [LoadLog]
- WHERE [LoadLog].[SOURCE] IN (N'Nielsen', N'POS') and [LoadLog].[LOADDESC] = 'Extraction Pipeline' ${query}) AS ranked_files
- WHERE rn = 1;
+    const count =
+      await sequelize.query(`SELECT COUNT (*) FROM [info].[FV_Summary] ${query}
     `);
 
     const responseObj = {
@@ -302,108 +289,20 @@ const fetchColumnMappings = async (req, res, next) => {
     const { id } = req.params;
     const { entity } = req.query;
 
-    const logDetails = await LoadLogModel.findByPk(id);
+    const logDetails = await sequelize.query(`select Filename as filename from
+     [info].[FV_Summary] where LogId = ${id}`);
+
+     console.log(logDetails);
 
     let Entity = entity ?? "Product";
 
     const fileData = await sequelize.query(`
     SELECT 
-  A.Id, 
-  A.ZipFileName, 
-  A.FileName, 
-  A.Country, 
-  A.Category, 
-  A.Entity, 
-  A.SourceColumnList, 
-  COALESCE(A.SourceColumn, 'NA') AS SourceColumn, 
-  COALESCE(A.TargetColumn, 'NA') AS TargetColumn, 
-  COALESCE(B.SourceColumn, 'NA') AS PreviousSource, 
-  A.CriticalFlag, 
-  A.DataProvider, 
-  COALESCE(
-    C.Missing_Critical_Attribute_Value, 
-    'NA'
-  ) AS Missing_Critical_Attribute_Value 
-FROM 
-  (
-    SELECT 
-      [Id], 
-      [ZipFileName], 
-      [FileName], 
-      [Country], 
-      [Category], 
-      [Entity], 
-      [SourceColumnList], 
-      [SourceColumn], 
-      [TargetColumn], 
-      [CriticalFlag], 
-      [DataProvider], 
-      [LoadDate], 
-      ROW_NUMBER() OVER (
-        ORDER BY 
-          [SourceColumn]
-      ) AS SourceColumnSeq, 
-      ROW_NUMBER() OVER (
-        ORDER BY 
-          [TargetColumn]
-      ) AS TargetColumnSeq 
-    FROM 
-      [metadata].[ColumnMapping]
-  ) A 
-  LEFT JOIN (
-    SELECT 
-      [ZipFileName], 
-      [Entity], 
-      [SourceColumn], 
-      ROW_NUMBER() OVER (
-        ORDER BY 
-          [SourceColumn]
-      ) AS SourceColumnSeq 
-    FROM 
-      [metadata].[ColumnMapping]
-  ) B ON A.ZipFileName = B.ZipFileName 
-  AND A.Entity = B.Entity 
-  LEFT JOIN (
-    SELECT 
-      RIGHT(
-        [FileName], 
-        CHARINDEX(
-          '/', 
-          REVERSE([FileName])
-        ) -1
-      ) AS ExtractedFileName, 
-      [LogMessage], 
-      [value] AS Missing_Critical_Attribute_Value, 
-      ROW_NUMBER() OVER (
-        PARTITION BY RIGHT(
-          [FileName], 
-          CHARINDEX(
-            '/', 
-            REVERSE([FileName])
-          ) -1
-        ) 
-        ORDER BY 
-          [LogDate] DESC
-      ) AS RowNum 
-    FROM 
-      [info].[LoadDetailLog] CROSS APPLY STRING_SPLIT(
-        REPLACE(
-          REPLACE(
-            [LogMessage], 'Missing Critical Attributes:', 
-            ''
-          ), 
-          'Missing Critical Attributes', 
-          ''
-        ), 
-        ','
-      ) 
-    WHERE 
-      [TaskName] LIKE '%Critical Attributes%'
-  ) AS C ON A.[FileName] = C.ExtractedFileName 
+  *  
+FROM [info].[FV_MappingDetail]
 WHERE 
-  A.ZipFileName = '${logDetails.FILENAME}' 
-  and A.Entity = '${Entity}' 
-  AND C.RowNum = 1 
+  ZipFileName = '${logDetails[0][0].filename}' 
+  and Entity = '${Entity}'
 ORDER BY 
   SourceColumn, 
   TargetColumn
