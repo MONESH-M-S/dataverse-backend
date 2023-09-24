@@ -51,8 +51,6 @@ const fileVolatilityRoutes = require("./src/routes/fileVolatility.routes");
 const authRoutes = require("./src/routes/auth.routes");
 const dashboardRoutes = require("./src/routes/dashboard.routes");
 const dqCheckRoutes = require("./src/routes/dqChecks.routes");
-const adminRoutes = require("./src/routes/admin.routes");
-const valueComparisonRoutes = require("./src/routes/ValueComparison/ValueComparison.routes");
 
 app.use("/api/smart-mapping", smartMappingRoutes);
 app.use("/api/smart-mapping/product", smartMappingNielsenProductRoutes);
@@ -70,8 +68,6 @@ app.use("/api/file-volatility", fileVolatilityRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/dq-checks", dqCheckRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/value-comparison", valueComparisonRoutes);
 
 app.use(express.static(path.join(__dirname, "ui")));
 
